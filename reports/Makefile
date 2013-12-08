@@ -1,4 +1,4 @@
-TITLE = title.tex UQ.jpg
+TITLE = title.tex ../images/UQ.jpg
 ABSTRACT = abstract.tex
 
 FILES = $(TITLE) $(ABSTRACT)
