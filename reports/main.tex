@@ -1,33 +1,224 @@
-\documentclass[pdftex,12pt,a4paper]{report}
-
-% USE THIS FILE TO GENERATE AND TEST THE COVER PAGE
-% ALL PACKAGES LISTED HERE MUST BE INCLUDED IN THE MAIN THESIS TEX FILE
-
-\usepackage[lmargin=3cm,rmargin=2cm,tmargin=2cm,bmargin=2cm]{geometry}
+\documentclass[12pt,openany,a4paper]{book}
+\usepackage{graphics}	% if you want encapsulated PS figures.
+\usepackage{lscape}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{bigstrut}
+\usepackage{xr}
+\usepackage{geometry}
+\usepackage{adjustbox}
+\usepackage{xcolor,colortbl}
+\usepackage{color, colortbl}
+\definecolor{Green}{rgb}{0.84,0.89,0.74}
+\definecolor{Orange}{rgb}{0.98,0.75,0.56}
+\definecolor{Blue}{rgb}{0.72,0.8,0.89}
 \usepackage{setspace}
-\usepackage{framed}
-\usepackage[usenames,dvipsnames]{xcolor}
-\usepackage{framed}
-\usepackage{fancybox}
+\usepackage{url}
+\usepackage{todonotes}
+\graphicspath{ {./../img/} } 
+\usepackage[section]{placeins}
+\usepackage{listings}
+\usepackage{color}
+\usepackage[toc]{glossaries}
+\makeglossaries
 
-\doublespacing
-\setlength{\parindent}{1.5cm}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{frame=tb,
+  language=MATLAB,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true
+  tabsize=3
+}
 
-\usepackage[pdftex]{graphicx}
+% If you use a macro file called macros.tex :
+% \input{macros}
+% Note: The present document has its macros built in.
 
-\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+% Number subsections but not subsubsections:
+\setcounter{secnumdepth}{2}
+% Show subsections but not subsubsections in table of contents:
+\setcounter{tocdepth}{2}
 
-% ADD THE FOLLOWING TO THE START OF THE MAIN THESIS TEX FILE
+\pagestyle{headings}		% Chapter on left page, Section on right.
+\raggedbottom
+
+\setlength{\topmargin}		{-5mm}  %  25-5 = 20mm
+\setlength{\oddsidemargin}	{10mm}  % rhs page inner margin = 25+10mm
+\setlength{\evensidemargin}	{0mm}   % lhs page outer margin = 25mm
+\setlength{\textwidth}		{150mm} % 35 + 150 + 25 = 210mm
+\setlength{\textheight}		{240mm} % 
+
+\renewcommand{\baselinestretch}{1.2}	% Looks like 1.5 spacing.
+
+% Stop figure/tables smaller than 3/4 page from appearing alone on a page:
+\renewcommand{\textfraction}{0.25}
+\renewcommand{\topfraction}{0.75}
+\renewcommand{\bottomfraction}{0.75}
+\renewcommand{\floatpagefraction}{0.75}
+
+% AIDS TO CROSS-REFERENCING (All take a label as argument):
+\newcommand{\eref}[1] {(\ref{#1})}		% (...)
+\newcommand{\eq}[1]   {Eq.\,(\ref{#1})}		% Eq.~(...)
+\newcommand{\eqs}[2]  {Eqs.~(\ref{#1}) and~(\ref{#2})}
+\newcommand{\dfn}[1]  {Definition~\ref{#1}}	% Definition~...
+\newcommand{\thrm}[1] {Theorem~\ref{#1}}	% Theorem~...
+\newcommand{\lem}[1]  {Lemma~\ref{#1}}		% Lemma~...
+\newcommand{\fig}[1]  {Fig.\,\ref{#1}}		% Fig.~...
+\newcommand{\tab}[1]  {Table~\ref{#1}}		% Table~...
+\newcommand{\chap}[1] {Chapter~\ref{#1}}	% Chapter~...
+\newcommand{\secn}[1] {Section~\ref{#1}}	% Section~...
+\newcommand{\ssec}[1] {Subsection~\ref{#1}}	% Subsection~...
+
 \begin{document}
-\input{./title.tex}
 
-\chapter*{Abstract}
-\input{./abstract.tex}
+\frontmatter
+% By default, frontmatter has Roman page-numbering (i,ii,...).
 
-\chapter{Introduction}
+\begin{titlepage}
+\renewcommand{\baselinestretch}{1.0}
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 1]{../images/UQ.jpg}
+\end{figure}
+\begin{center}
+\vspace*{35mm}
+\Huge\bf
+        Software Defined \\
+        Networking \\
+\vspace{20mm}
+\large\sl
+        Kimberley Manning \\
+        41966350
+		\bigskip\\
+\rm
+		School of Information Technology and Electrical Engineering,\\
+		The University of Queensland.\\
+\vspace{30mm}
+		Submitted for the degree of\\
+		Bachelor of Engineering (Honours)
+		\smallskip\\
+\normalsize
+		in the division of\\
+		Mechatronics Engineering
+		\medskip\\
+\large
+		November 2014.		
+\end{center}
+\end{titlepage}
 
-some words. sdn stands for software-defined networking!
+\pagestyle{fancy}
+\fancyfoot{}
+\fancyhead{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C] {\footnotesize \thepage}
 
-\section{Thesis}
-These are the first words of my thesis. i think
+\cleardoublepage
+
+\begin{flushright}
+	\today\\
+	Kimberley Manning - 41966350\\
+	40 Chapel Hill Rd\\
+	Chapel Hill, QLD 4069\\
+	\medskip
+	
+\end{flushright}
+\begin{flushleft}
+  Prof. Paul Strooper\\
+  Head of School\\
+  School of Information Technology and Electrical Engineering\\
+  The University of Queensland\\
+  St Lucia, QLD 4072\\
+  \bigskip\bigskip
+  Dear Professor Strooper,\\
+\end{flushleft}
+In accordance with the requirements of the degree of Bachelor of Engineering (Honours) in the School of Information Technology and Electrical Engineering, I submit the following thesis entitled: 
+\begin{center}
+	``Software Defined Networking''.\\ 
+\end{center}
+This thesis was performed under the supervision of Assoc. Prof. Marius Portmann. I declare that the work submitted in this thesis is my own, except as acknowledged in the text and footnotes, and has not been previously submitted for a degree at the University of Queensland or any other institution.
+
+
+
+\begin{flushleft}
+	\medskip
+	Yours sincerely,\\
+	\bigskip
+	\emph\\
+	\bigskip
+    Kimberey Manning
+\end{flushleft}
+
+\cleardoublepage
+\vspace*{70mm}
+\begin{center}
+\renewcommand{\baselinestretch}{1.0}
+\sl
+	
+
+        dedication
+
+
+\end{center}
+
+\cleardoublepage
+\setlength{\parindent}{0cm}
+\chapter{Acknowledgments}
+
+I would like to acknowledge my supervisor
+
+\cleardoublepage
+
+\chapter{Abstract}
+
+% Notice that all \include files are chapters -- a logical division.
+% But not all chapters are \include files; some chapters are short
+% enough to be in-lined in the main file.
+
+\input{abstract}
+
+\cleardoublepage
+
+\tableofcontents
+
+\listoffigures
+\addcontentsline{toc}{chapter}{List of Figures}
+
+\listoftables
+\addcontentsline{toc}{chapter}{List of Tables}
+
+
+\cleardoublepage
+
+
+
+\mainmatter
+\setlength{\parindent}{0cm}
+
+\include{intro}
+
+\appendix
+\newpage
+\addcontentsline{toc}{part}{Appendices}
+\mbox{}
+\newpage
+
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliographystyle{abbrv}
+\bibliography{bib}
+
 \end{document}

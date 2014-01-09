@@ -3,15 +3,19 @@ ABSTRACT = abstract.tex
 
 FILES = $(TITLE) $(ABSTRACT)
 
-all: thesis lit clean
+all: main lit clean
 
-thesis: main.tex $(FILES)
-	pdflatex -jobname=thesis main.tex
+main: main.tex $(FILES)
+	pdflatex -jobname=thesis $@
+	bibtex thesis.aux
+	pdflatex -jobname=thesis $@
+	pdflatex -jobname=thesis $@
 
-lit: lit-survey.tex
-	pdflatex -jobname=survey lit-survey.tex
-
-#add in requirements for the title stuff as a variable
+lit: lit.tex
+	pdflatex -jobname=survey $@
+	bibtex survey.aux
+	pdflatex -jobname=survey $@
+	pdflatex -jobname=survey $@
 
 .PHONY clean:
-	rm -f *.aux *.log
+	rm -f *.aux *.log *.bbl *.blg *.glo *.ist *.lof *.lot *.toc
