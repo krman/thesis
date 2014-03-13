@@ -4,13 +4,15 @@
 
 h1 -- s1 -- h2
 
+When run directly, starts up a remote pox controller
+of my own design and connects to that.
 """
 
 from mininet.net import Mininet
 from mininet.cli import CLI
 from mininet.topo import Topo
 from mininet.log import lg
-from mininet.node import Node
+from mininet.node import Node, RemoteController
 from mininet.link import Link
 
 class SimpleTopo(Topo):
@@ -36,7 +38,8 @@ def startNetwork(network, switch, ip, routes):
 
 def makeSimple():
     topo = SimpleTopo()
-    return Mininet(topo)
+    network = Mininet(topo, controller=RemoteController)
+    return network
 
 def startSimple(network):
     switch = network['s1']
