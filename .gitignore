@@ -44,3 +44,4 @@ files/
 wiki/
 temp/
 code/pox.py
+*.pyc
