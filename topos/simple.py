@@ -46,8 +46,8 @@ def startSimple(network):
     ip = '10.123.123.1/32'
     routes = ['10.0.0.0/24']
     startNetwork(network, switch, ip, routes)
-    CLI(network)
     print "*** Type 'exit' or ctrl-D to shut down network"
+    CLI(network)
     network.stop()
 
 if __name__ == '__main__':
