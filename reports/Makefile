@@ -1,21 +1,24 @@
 TITLE = title.tex ../images/UQ.jpg
 ABSTRACT = abstract.tex
+ACKNOWLEDGEMENTS = ack.tex
+INTRODUCTION = intro.tex
 
-FILES = $(TITLE) $(ABSTRACT)
+FILES = $(TITLE) $(ACKNOWLEDGEMENTS) $(ABSTRACT) $(INTRODUCTION)
+FILES += $(LITERATURE)
 
-all: main lit clean
+all: main proposal clean
 
 main: main.tex $(FILES)
-	pdflatex -jobname=thesis $@
-	bibtex thesis.aux
-	pdflatex -jobname=thesis $@
-	pdflatex -jobname=thesis $@
+	pdflatex -jobname=Thesis $@
+	bibtex Thesis.aux
+	pdflatex -jobname=Thesis $@
+	pdflatex -jobname=Thesis $@
 
-lit: lit.tex
-	pdflatex -jobname=survey $@
-	bibtex survey.aux
-	pdflatex -jobname=survey $@
-	pdflatex -jobname=survey $@
+proposal: proposal.tex
+	pdflatex -jobname=Proposal $@
+	bibtex Proposal.aux
+	pdflatex -jobname=Proposal $@
+	pdflatex -jobname=Proposal $@
 
 .PHONY clean:
 	rm -f *.aux *.log *.bbl *.blg *.glo *.ist *.lof *.lot *.toc
