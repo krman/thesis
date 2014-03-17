@@ -1,4 +1,4 @@
-TITLE = title.tex ../images/UQ.jpg
+TITLE = title.tex ../files/UQ.jpg
 ABSTRACT = abstract.tex
 ACKNOWLEDGEMENTS = ack.tex
 INTRODUCTION = intro.tex
