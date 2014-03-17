@@ -7,6 +7,7 @@
 \usepackage[pdftex]{graphicx}
 \usepackage{booktabs}
 \usepackage{float}
+\usepackage{tikz}
 
 \doublespacing
 \setlength{\parindent}{1.5cm}
@@ -51,7 +52,6 @@ the central aim of this project is to implement a controller to do optimal routi
 \end{enumerate}
 
 \subsection{Relevance}
-software-defined networking (sdn) is a set of philosophies/concepts on how networking should be done. networking should be programmable. core idea is separation of the control and data planes, and more specifically, separation in a way that's standards-compliant and vendor-independent. \cite{onf:norm} not linked to any specific technologies although some like openflow are quite strongly (not intrinsically) linked to it. 
 
 wireless mesh networks are a thing. they are distributed, often over wide geographical area, and are only connected in wireless links. this contradicts certain assumptions about the way sdn is implemented. mesh networks are inherently decentralised with no single point of failure, but most sdn implementations have a central controller. there is no separate control network, so all network control messages must be in-band. any part of the mesh may drop out and hence lose contact with the controller at any point, so fallback needs to be implemented.
 
@@ -60,8 +60,7 @@ wireless mesh networks are a thing. they are distributed, often over wide geogra
 \subsection{Wireless Mesh Networks}
 
 \subsection{Software-Defined Networking}
-\emph{Provide a technical overview of SDN, and relevant parts of the SDN architecture.}
-
+software-defined networking (sdn) is a set of philosophies/concepts on how networking should be done. networking should be programmable. core idea is separation of the control and data planes, and more specifically, separation in a way that's standards-compliant and vendor-independent. \cite{onf:norm} not linked to any specific technologies although some like openflow are quite strongly (not intrinsically) linked to it. 
 
 \emph{Provide an overview of some of the key areas of research in SDN. What are researchers currently working on, and what are considered the key research challenges?}
 
@@ -69,13 +68,17 @@ wireless mesh networks are a thing. they are distributed, often over wide geogra
 \subsubsection{OpenFlow}
 spec? \cite{onf:switch}. the new norm: \cite{onf:norm}. first openflow paper: \cite{mckeown:campus}.
 
+\begin{figure}
+\includegraphics{figures/openflow-fig1.pdf}
+\caption{Communication via OpenFlow protocol, over SSL/TCP}
+\end{figure}
+
 \subsubsection{Mininet}
 mininet is one. mininet benchmarks \cite{handigol:mininet}
 
 \subsubsection{POX}
 \emph{Give an overview and brief comparison of the key SDN controllers that are currently available, commercial and non-commercial.}
 pox is another
-
 
 \newpage
 \section{Project Plan}

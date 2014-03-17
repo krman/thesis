@@ -6,7 +6,11 @@ INTRODUCTION = intro.tex
 FILES = $(TITLE) $(ACKNOWLEDGEMENTS) $(ABSTRACT) $(INTRODUCTION)
 FILES += $(LITERATURE)
 
-all: main proposal clean
+all: figures main proposal clean
+.PHONY: figures clean
+
+figures:
+	make -C figures
 
 main: main.tex $(FILES)
 	pdflatex -jobname=Thesis $@
@@ -20,5 +24,5 @@ proposal: proposal.tex
 	pdflatex -jobname=Proposal $@
 	pdflatex -jobname=Proposal $@
 
-.PHONY clean:
+clean:
 	rm -f *.aux *.log *.bbl *.blg *.glo *.ist *.lof *.lot *.toc
