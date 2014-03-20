@@ -1,41 +1,41 @@
 \documentclass{article}
 \usepackage{pdftricks}
 \begin{psinputs}
-    \usepackage{pstricks}
-    \usepackage{pst-node}
-    \usepackage{pst-tree}
+	\usepackage{pstricks}
+	\usepackage{pst-node}
+	\usepackage{pst-tree}
 \end{psinputs}
 
 \begin{document}
 \thispagestyle{empty}
 
 \begin{pdfpic}
-    \begin{pspicture}(5,5)
-	\psframe[framearc=0.2,fillcolor=white,fillstyle=solid](0,0)(5,5)
-	\psframe[framearc=0.2,fillcolor=white,fillstyle=solid](0.5,4.5)(4.5,3.5)
-	\rput(2.5,5.25){Switch}
-    \end{pspicture}
+	\begin{pspicture}(5,5)
+		\psframe[framearc=0.2,fillcolor=white,fillstyle=solid](0,0)(5,5)
+		\psframe[framearc=0.2,fillcolor=white,fillstyle=solid](0.5,4.5)(4.5,3.5)
+		\rput(2.5,5.25){Switch}
+	\end{pspicture}
 \end{pdfpic}
 
 \begin{pdfpic}
-    \begin{pspicture}
-	\newcommand{\controller}[1]{[mnode=dia]{#1}}
-	\newcommand{\switch}[1]{\psframebox{#1}}
-	\newcommand{\host}[1]{[mnode=circle]{#1}}
-	\psmatrix[colsep=2cm,rowsep=1cm]
-	& & \controller{C} \\
-	& & \switch{s1} \\
-	\host{h1} & \switch{s2} & & \switch{s4} & \host{h2} \\
-	& & \switch{s3}
-	\ncline{2,3}{1,3}
-	\ncline{2,3}{3,2}
-	\ncline{3,2}{3,1}
-	\ncline{3,2}{4,3}
-	\ncline{4,3}{3,4}
-	\ncline{3,4}{3,5}
-	\ncline{3,4}{2,3}
-	\endpsmatrix
-    \end{pspicture}
+	\begin{pspicture}
+		\newcommand{\controller}[1]{[mnode=dia]{#1}}
+		\newcommand{\switch}[1]{\psframebox[framesep=5pt]{#1}}
+		\newcommand{\host}[1]{[mnode=circle]{#1}}
+		\psmatrix[colsep=2cm,rowsep=1cm]
+		& & \controller{C} \\
+		& & \switch{s1} \\
+		\host{h1} & \switch{s2} & & \switch{s4} & \host{h2} \\
+		& & \switch{s3}
+		\ncline{2,3}{1,3}
+		\ncline{2,3}{3,2}
+		\ncline{3,2}{3,1}
+		\ncline{3,2}{4,3}
+		\ncline{4,3}{3,4}
+		\ncline{3,4}{3,5}
+		\ncline{3,4}{2,3}
+		\endpsmatrix
+	\end{pspicture}
 \end{pdfpic}
 
 \end{document}
