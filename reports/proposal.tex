@@ -16,15 +16,19 @@
 
 \thispagestyle{empty}
 \begin{center}
-\vspace*{35mm}
-{\huge\bf
-        Software Defined Networking \\
-	in Wireless Mesh Networks \\
-}
-\vspace{20mm}
-{\Large METR4900 Thesis Proposal \\}
-\vspace{20mm}
-        Kimberley Manning / 41966350 \\
+	\vspace*{35mm}
+	{\huge\bf
+		Software Defined Networking \\
+		in Wireless Mesh Networks \\
+	}
+
+	\vspace{20mm}
+	{\Large 
+		METR4900 Thesis Proposal \\
+	}
+
+	\vspace{20mm}
+	Kimberley Manning / 41966350 \\
 	Supervisor: Marius Portmann
 \end{center}
 
@@ -35,10 +39,6 @@
 \newpage
 \pagenumbering{arabic}
 \section{Overview}
-    sdn is a relatively new concept in networking which aims to give network operators greater programmability and control over their networks, through separation of the control and data planes. the way this is most commonly implemented involves a centralised controller which sends network control packets to other switches on the network, usually on a separate, parallel control network. 
-
-a number of attempts have been made to use sdn in wireless mesh networks. mesh networks are inherently distributed: this contradicts several key assumptions about the network architecture, especially for wireless meshes. trying to integrate a centralised, single-point-of-failure controller into a mesh goes against the goals/aims/benchmarks/requirements of the system. different groups have tried to deal with this problem in different ways, with approaches including centralised and distributed controllers, in- and out-of-band control traffic, and various fallback options.
-
 goal of this project is to benchmark the performance of a selection of control approaches for sdn in wireless mesh networks, and using insights gleaned from this process, implement a controller to do optimal routing on a mesh network. reproducible network tests will be performed using the network simulators Mininet and ns-3. the controller will be implemented using the controller framework POX.
 
 \subsection{Goals}
@@ -46,70 +46,113 @@ goal of this project is to benchmark the performance of a selection of control a
 the central aim of this project is to implement a controller to do optimal routing on a mesh network. in aid of this the project has three subgoals.
 
 \begin{enumerate}
-\item develop a set of topologies to use in testing
-\item benchmark the performance of major approaches to control
-\item implement a controller in POX
+	\item develop a set of topologies to use in testing
+	\item benchmark the performance of major approaches to control
+	\item implement a controller in POX
 \end{enumerate}
 
 \subsection{Relevance}
 
-wireless mesh networks are a thing. they are distributed, often over wide geographical area, and are only connected in wireless links. this contradicts certain assumptions about the way sdn is implemented. mesh networks are inherently decentralised with no single point of failure, but most sdn implementations have a central controller. there is no separate control network, so all network control messages must be in-band. any part of the mesh may drop out and hence lose contact with the controller at any point, so fallback needs to be implemented.
+sdn is a relatively new concept in networking which aims to give network operators greater programmability and control over their networks, through separation of the control and data planes. the way this is most commonly implemented involves a centralised controller which sends network control packets to other switches on the network, usually on a separate, parallel control network. 
+
+a number of attempts have been made to use sdn in wireless mesh networks. mesh networks are inherently distributed: this contradicts several key assumptions about the network architecture, especially for wireless meshes. trying to integrate a centralised, single-point-of-failure controller into a mesh goes against the goals/aims/benchmarks/requirements of the system. different groups have tried to deal with this problem in different ways, with approaches including centralised and distributed controllers, in- and out-of-band control traffic, and various fallback options.
 
 \newpage
 \section{Background}
-\subsection{Wireless Mesh Networks}
-
 \subsection{Software-Defined Networking}
-software-defined networking (sdn) is a set of philosophies/concepts on how networking should be done. networking should be programmable. core idea is separation of the control and data planes, and more specifically, separation in a way that's standards-compliant and vendor-independent. \cite{onf:norm} not linked to any specific technologies although some like openflow are quite strongly (not intrinsically) linked to it. 
-
 \emph{Provide an overview of some of the key areas of research in SDN. What are researchers currently working on, and what are considered the key research challenges?}
+
+software-defined networking (sdn) is a set of philosophies/concepts on how networking should be done. networking should be programmable. core idea is separation of the control and data planes, and more specifically, separation in a way that's standards-compliant and vendor-independent. \cite{onf:sdn} not linked to any specific technologies although some like openflow are quite strongly (not intrinsically) linked to it. 
+
+summary from \cite{onf:sdn} and \cite{mckeown:campus}
+
+idea of the controller as a kind of network OS. openflow is the instruction set. 
+
+note that the original paper \cite{mckeown:campus} was massively into on-campus research applications, and the onf is really into large datacentres and stuff \cite{onf:sdn} which are both fixed, usually ethernet-based. i think the onf whitepaper talked about other examples, but they were mostly things like virtualisation where the assumption of a dedicated control plane is still there.
+
+\subsection{Wireless Mesh Networks}
+wireless mesh networks are a thing. they are distributed, often over wide geographical area, and are only connected in wireless links. this contradicts certain assumptions about the way sdn is implemented. mesh networks are inherently decentralised with no single point of failure, but most sdn implementations have a central controller. there is no separate control network, so all network control messages must be in-band. any part of the mesh may drop out and hence lose contact with the controller at any point, so fallback needs to be implemented.
+
+on the surface they don't seem very well suited to sdn at all, what with the whole centralised controller thing. need to come up with reasons you would still want to do sdn for wmns. all the other advantages like programmability, automation etc must still apply. note that openflow lets switches be controlled by multiple controllers if necessary, or you can load-balance/fault-tolerance-ise the controllers with something else, or whatever. or you can be like \cite{handigol:asterix} and give each switch the ability to do useful things itself (they did load-balancing "as a network primitive", which is fairly cool).
 
 \subsection{Protocols and Tools}
 \subsubsection{OpenFlow}
-spec? \cite{onf:switch}. the new norm: \cite{onf:norm}. first openflow paper: \cite{mckeown:campus}.
+spec? \cite{onf:switch133}. 
 
-\begin{figure}
-\includegraphics{figures/openflow-fig1.pdf}
-\caption{Communication via OpenFlow protocol, over SSL/TCP}
-\end{figure}
+i believe (find a source, this was from a blog post or something) that the new version of the spec has more support for experimental stuff and people had some comments about whether this was good or bad for open standards
 
-\subsubsection{Mininet}
-mininet is one. mininet benchmarks \cite{handigol:mininet}
+openflow is for communicating between switches and controller. 
+
+allows switch to be controlled by multiple controllers \cite{mckeown:campus}
+
+\subsubsection{Mininet and ns-3}
+talk about:
+
+what mininet is and how it works with the containers and stuff \cite{handigol:mininet}
+
+mininet benchmarks \cite{handigol:benchmarks}
+
+can use pretend openflow-enabled switches in the simulations, like openvswitch (no idea how to cite this)
 
 \subsubsection{POX}
 \emph{Give an overview and brief comparison of the key SDN controllers that are currently available, commercial and non-commercial.}
-pox is another
+
+maybe list the major controllers, at least the related ones? pox is in python which is why i like it
+
+designed more for ease of research than speed/performance (NOX (C++) is that) (http://www.noxrepo.org/2012/03/introducing-pox/, dunno about source for this). this is okay if performance at the controller isn't the bottleneck. may need to actually confirm this is the case.
 
 \newpage
 \section{Project Plan}
 \subsection{Methodology}
+
+as stated earlier the project involves comparing the performance of existing approaches to sdn for wmns, and delivering a controller in pox to do optimal routing, and compare this to the benchmarked performance.
+
+things to do in order to achieve this:
+
+overview of common approaches (research)
+
+note common "features" of these approaches and what sort of topologies would best capture them. well, what sort of topologies would best allow us to differentiate between different approaches.
+
+in addition to topologies: come up with range of network events to simulate as well. mininet/ns-3 allows simulation of stuff like link up/down, ns-3 has good wireless stuff eg link slowly moving out of range.
+
+implement a working version of each selected approach
+
+implement controller, note performance on various metrics, improve based on results
+
+\begin{figure}
+	\begin{center}
+		\includegraphics{figures/openflow-fig2.pdf}
+		\caption{Pretty diamonds}
+	\end{center}
+\end{figure}
+
 \subsection{Schedule}
 
 \begin{table}[H]
-\begin{center}
-\begin{tabular}{@{}rllr@{}}
-\toprule
-& Task & Duration & Completion\\
-\midrule
-& Establish project definition and scope & 1 week & 6 March \\
-& Set up environment (Mininet, ns-3, POX) & 1 week & 14 March \\
-\emph{Assessment} & Project proposal & 2 weeks & 27 March \\
-& Project proposal & weeks & 10 March \\
-& Project proposal & weeks & 10 March \\
-& Project proposal & weeks & 10 March \\
-\emph{Assessment} & Progress seminar & 2 weeks & 19-23 May \\
-& Project proposal & weeks & March \\
-& Project proposal & weeks & March \\
-& Project proposal & weeks & March \\
-& Project proposal & weeks & March \\
-& Project proposal & weeks & March \\
-\emph{Assessment} & Project demonstration & 2 weeks & 20-24 Oct \\
-& Respond to demonstration feedback & 1 week & 31 Oct \\
-\emph{Assessment} & Thesis report & 3 weeks & 10 Nov \\
-\bottomrule
-\end{tabular}
-\caption{Proposed project schedule outlining estimated duration and completion dates}
-\end{center}
+	\begin{center}
+		\begin{tabular}{@{}rllr@{}}
+			\toprule
+			& Task & Duration & Completion\\
+			\midrule
+			& Establish project definition and scope & 1 week & 6 March \\
+			& Set up environment (Mininet, ns-3, POX) & 1 week & 14 March \\
+			\emph{Assessment} & Project proposal & 2 weeks & 27 March \\
+			& Project proposal & weeks & 10 March \\
+			& Project proposal & weeks & 10 March \\
+			& Project proposal & weeks & 10 March \\
+			\emph{Assessment} & Progress seminar & 2 weeks & 19-23 May \\
+			& Project proposal & weeks & March \\
+			& Project proposal & weeks & March \\
+			& Project proposal & weeks & March \\
+			& Project proposal & weeks & March \\
+			& Project proposal & weeks & March \\
+			\emph{Assessment} & Project demonstration & 2 weeks & 20-24 Oct \\
+			& Respond to demonstration feedback & 1 week & 31 Oct \\
+			\emph{Assessment} & Thesis report & 3 weeks & 10 Nov \\
+			\bottomrule
+		\end{tabular}
+		\caption{Proposed project schedule outlining estimated duration and completion dates}
+	\end{center}
 \end{table}
 
 \subsection{Risk Assessment}
@@ -117,10 +160,54 @@ pox is another
 This project requires work which can be completed in low-risk computing laboratories, which are covered by general OHS laboratory rules.
 
 \subsubsection{Project Risks}
+
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{@{}rlllr@{}}
+			\toprule
+			\# & Risk & Likelihood & Impact & Ranking \\
+			\midrule
+			1 & lose all my datas & low & low & 5 \\
+			2 & lose primary working environment & low & medium & 4 \\
+			3 & illness during thesis & medium & low & 3 \\
+			4 & fall behind schedule & high & medium & 1 \\
+			5 & scope changes & high & medium & 2 \\
+			\bottomrule
+		\end{tabular}
+		\caption{Likelihood and severity of potential risks to the project}
+	\end{center}
+\end{table}
+
 \subsubsection{Risk Response}
 
-\newpage
-\bibliographystyle{abbrv}
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{@{}rp{6cm}@{\hspace{1cm}}p{8cm}@{}}
+			\toprule
+			\# & Risk & Action \\
+			\midrule
+			1 & lose all my datas & 
+			backup strategy: git repository hosted "online". working directory backed up to dropbox. plain text files. \\
+			\addlinespace
+			2 & lose primary working environment &
+			maintain list of software versions in use and install notes so environment can be quickly recreated \\
+			\addlinespace
+			3 & illness during thesis &
+			inform supervisor asap to discuss impact on relevant assessment. if necessary obtain medical cert and request extension. \\
+			\addlinespace
+			4 & fall behind schedule/failure to maintain schedule &
+			weekly progress meetings with supervisor with deliverables \\
+			\addlinespace
+			5 & scope changes &
+			discuss suitable direction with supervisor \\
+			\addlinespace
+			\bottomrule
+		\end{tabular}
+		\caption{Risk mitigation strategies for potential project risks}
+	\end{center}
+\end{table}
+
+\newpage \bibliographystyle{abbrv}
 \bibliography{bib}
 
 \end{document}
