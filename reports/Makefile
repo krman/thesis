@@ -6,7 +6,7 @@ INTRODUCTION = intro.tex
 FILES = $(TITLE) $(ACKNOWLEDGEMENTS) $(ABSTRACT) $(INTRODUCTION)
 FILES += $(LITERATURE)
 
-all: figures main proposal clean
+all: main proposal clean
 .PHONY: figures clean
 
 figures:
