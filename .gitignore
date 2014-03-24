@@ -43,5 +43,5 @@ images/
 files/
 wiki/
 temp/
-code/pox.py
+code/controllers/pox.py
 *.pyc
