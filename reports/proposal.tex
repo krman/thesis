@@ -1,6 +1,6 @@
 \documentclass[pdftex,12pt,a4paper]{article}
 
-\usepackage[lmargin=3cm,rmargin=2cm,tmargin=2cm,bmargin=2cm]{geometry}
+\usepackage{fullpage}
 \usepackage{setspace}
 \usepackage[usenames,dvipsnames]{xcolor}
 \usepackage{framed}
@@ -18,8 +18,8 @@
 \begin{center}
 	\vspace*{35mm}
 	{\huge\bf
-		Software Defined Networking \\
-		in Wireless Mesh Networks \\
+		Optimal Mesh Routing \\
+		in Software Defined Networks \\
 	}
 
 	\vspace{20mm}
@@ -35,11 +35,12 @@
 \newpage
 \thispagestyle{empty}
 \tableofcontents
+\listoftables
 
 \newpage
 \pagenumbering{arabic}
 \section{Overview}
-goal of this project is to benchmark the performance of a selection of control approaches for sdn in wireless mesh networks, and using insights gleaned from this process, implement a controller to do optimal routing on a mesh network. reproducible network tests will be performed using the network simulators Mininet and ns-3. the controller will be implemented using the controller framework POX.
+goal of this project is to benchmark the performance of a selection of control approaches for sdn in wireless mesh networks, and using insights gleaned from this process, implement a controller to do optimal routing on a mesh network. reproducible network tests will be performed using the network simulator Mininet. the controller will be implemented using the controller framework POX.
 
 \subsection{Goals}
 
@@ -55,7 +56,7 @@ the central aim of this project is to implement a controller to do optimal routi
 
 sdn is a relatively new concept in networking which aims to give network operators greater programmability and control over their networks, through separation of the control and data planes. the way this is most commonly implemented involves a centralised controller which sends network control packets to other switches on the network, usually on a separate, parallel control network. 
 
-a number of attempts have been made to use sdn in wireless mesh networks. mesh networks are inherently distributed: this contradicts several key assumptions about the network architecture, especially for wireless meshes. trying to integrate a centralised, single-point-of-failure controller into a mesh goes against the goals/aims/benchmarks/requirements of the system. different groups have tried to deal with this problem in different ways, with approaches including centralised and distributed controllers, in- and out-of-band control traffic, and various fallback options.
+a number of attempts have been made to use sdn in wireless mesh networks. mesh networks are inherently distributed: this contradicts several key assumptions about the network architecture, especially for wireless meshes. trying to integrate a centralised, single-point-of-failure controller into a mesh goes against the requirements of the system. different groups have tried to deal with this problem in different ways.
 
 \newpage
 \section{Background}
@@ -64,28 +65,62 @@ a number of attempts have been made to use sdn in wireless mesh networks. mesh n
 
 software-defined networking (sdn) is a set of philosophies/concepts on how networking should be done. networking should be programmable. core idea is separation of the control and data planes, and more specifically, separation in a way that's standards-compliant and vendor-independent. \cite{onf:sdn} not linked to any specific technologies although some like openflow are quite strongly (not intrinsically) linked to it. 
 
-summary from \cite{onf:sdn} and \cite{mckeown:campus}
+sdn is often mentioned in conjunction with the openflow protocol ... originally conceived as a research tool to enable academics to test new protocols easily and receive rapid feedback. \cite{mckeown:openflow} mckeown refers to the "ossified network": due to the black-box nature of modern network components such as switches and routers, experimentation is not encouraged and researchers must stick to standard protocols until new ones are supported by vendors. this process can take a long time and the feedback cycle is slow. the networking industry is vertically integrated and proprietary, with little innovation. \cite{mckeown:sdn}
 
-idea of the controller as a kind of network OS. openflow is the instruction set. 
+idea of the controller as a kind of network OS. openflow is the instruction set.
 
-note that the original paper \cite{mckeown:campus} was massively into on-campus research applications, and the onf is really into large datacentres and stuff \cite{onf:sdn} which are both fixed, usually ethernet-based. i think the onf whitepaper talked about other examples, but they were mostly things like virtualisation where the assumption of a dedicated control plane is still there.
+note that the original paper \cite{mckeown:openflow} was massively into on-campus research applications, and the onf is really into large datacentres and stuff \cite{onf:sdn} which are both fixed, usually ethernet-based. i think the onf whitepaper talked about other examples, but they were mostly things like virtualisation where the assumption of a dedicated control plane is still there.
 
-\subsection{Wireless Mesh Networks}
+\subsection{Mesh Networks}
 wireless mesh networks are a thing. they are distributed, often over wide geographical area, and are only connected in wireless links. this contradicts certain assumptions about the way sdn is implemented. mesh networks are inherently decentralised with no single point of failure, but most sdn implementations have a central controller. there is no separate control network, so all network control messages must be in-band. any part of the mesh may drop out and hence lose contact with the controller at any point, so fallback needs to be implemented.
 
 on the surface they don't seem very well suited to sdn at all, what with the whole centralised controller thing. need to come up with reasons you would still want to do sdn for wmns. all the other advantages like programmability, automation etc must still apply. note that openflow lets switches be controlled by multiple controllers if necessary, or you can load-balance/fault-tolerance-ise the controllers with something else, or whatever. or you can be like \cite{handigol:asterix} and give each switch the ability to do useful things itself (they did load-balancing "as a network primitive", which is fairly cool).
 
+\subsection{Routing Algorithms}
+\subsubsection{Traditional Mesh Routing}
+discussion of what makes a good mesh routing protocol. mesh routing is inherently distributed so don't force packets through centralised bits and stuff like that.
+
+most common non-sdn mesh routing protocols. traditional routing involves routing based on individual packets (common knowledge?).
+
+major ones marius has mentioned: olsr \cite{rfc3626}, ospf \cite{rfc5340}, obsolete \cite{rfc4813}
+
+\begin{description}
+\item[cats] love you a lot
+\item[dogs] love the stars more/Prop
+\item[armadillos] are very long-winded
+\end{description}
+
+\subsubsection{Software-Defined Mesh Routing}
+attempts to do mesh routing in sdn context. flow-based routing means routing based on flows (linked series of related packets eg all tcp traffic, all traffic from one mac address or to a particular ip subnet).
+
+commonly seen as a solution to 
+
+note that this is not "centralised" routing. once rules are installed packet forwarding happens at individual switches exactly as it always has, at line rate (right?). the controller can push an initial set of rules as soon as a switch connects to it if desired. depending on configuration (fail standalone mode or fail secure mode) these rules can remain in place if the controller connection is lost, or the switch can drop all packets. \cite{handigol:asterix} makes the distinction between "logically centralised" and "distributed through the network". so, fine to have centralised controller if you can talk to that. 
+
+header space maths \cite{kazemian:header} originally in \cite{lakshman:geo}
+
+flow-based networking can be modelled as a multi-commodity flow problem
+
+this is literally stolen, rephrase this.
+
+Given a flow network $G(V,E)$, where edge $(u,v)$ has capacity $c(u,v)$, flow can be assigned as follows:
+
+\vspace{-0.5cm}
+\begin{equation}
+\sum\limits_{w \in V} f_i(s_i,w) = \sum\limits_{w \in V} f_i(w,t_i) = d_i
+\end{equation}
+
 \subsection{Protocols and Tools}
 \subsubsection{OpenFlow}
-spec? \cite{onf:switch133}. 
+spec? \cite{onf:switch140}. 
 
-i believe (find a source, this was from a blog post or something) that the new version of the spec has more support for experimental stuff and people had some comments about whether this was good or bad for open standards
+i believe (find a source, this was from a blog post or something) that the new version of the spec \cite{onf:switch140} has more support for experimental stuff and people had some comments about whether this was good or bad for open standards
 
 openflow is for communicating between switches and controller. 
 
-allows switch to be controlled by multiple controllers \cite{mckeown:campus}
+allows switch to be controlled by multiple controllers \cite{mckeown:openflow}
 
-\subsubsection{Mininet and ns-3}
+\subsubsection{Mininet}
 talk about:
 
 what mininet is and how it works with the containers and stuff \cite{handigol:mininet}
@@ -103,6 +138,15 @@ designed more for ease of research than speed/performance (NOX (C++) is that) (h
 
 \newpage
 \section{Project Plan}
+\subsection{Contribution}
+problem: implement a controller to do optimal routing in a mesh network
+
+assumptions: controller has topology and link capacity info, and a route to each switch in the network
+
+constraints: want packets in a flow to arrive in order, so all packets within a flow. define flow in this context to mean between a single source/dest
+
+solution: model as multi-commodity flow problem.
+
 \subsection{Methodology}
 
 as stated earlier the project involves comparing the performance of existing approaches to sdn for wmns, and delivering a controller in pox to do optimal routing, and compare this to the benchmarked performance.
@@ -113,20 +157,15 @@ overview of common approaches (research)
 
 note common "features" of these approaches and what sort of topologies would best capture them. well, what sort of topologies would best allow us to differentiate between different approaches.
 
-in addition to topologies: come up with range of network events to simulate as well. mininet/ns-3 allows simulation of stuff like link up/down, ns-3 has good wireless stuff eg link slowly moving out of range.
+in addition to topologies: come up with range of network events to simulate as well. mininet allows simulation of stuff like link up/down, has good wireless stuff eg link slowly moving out of range.
+
+do maths (at some point)
 
 implement a working version of each selected approach
 
 implement controller, note performance on various metrics, improve based on results
 
-\begin{figure}
-	\begin{center}
-		\includegraphics{figures/openflow-fig2.pdf}
-		\caption{Pretty diamonds}
-	\end{center}
-\end{figure}
-
-\subsection{Schedule}
+all of these steps including dates of assessment are summarised in Table \ref{table:schedule}
 
 \begin{table}[H]
 	\begin{center}
@@ -135,7 +174,7 @@ implement controller, note performance on various metrics, improve based on resu
 			& Task & Duration & Completion\\
 			\midrule
 			& Establish project definition and scope & 1 week & 6 March \\
-			& Set up environment (Mininet, ns-3, POX) & 1 week & 14 March \\
+			& Set up environment (Mininet,  POX) & 1 week & 14 March \\
 			\emph{Assessment} & Project proposal & 2 weeks & 27 March \\
 			& Project proposal & weeks & 10 March \\
 			& Project proposal & weeks & 10 March \\
@@ -151,7 +190,8 @@ implement controller, note performance on various metrics, improve based on resu
 			\emph{Assessment} & Thesis report & 3 weeks & 10 Nov \\
 			\bottomrule
 		\end{tabular}
-		\caption{Proposed project schedule outlining estimated duration and completion dates}
+		\caption{Proposed schedule outlining estimated duration and completion dates}
+		\label{table:schedule}
 	\end{center}
 \end{table}
 
