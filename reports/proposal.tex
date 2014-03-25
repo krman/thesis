@@ -8,6 +8,7 @@
 \usepackage{booktabs}
 \usepackage{float}
 \usepackage{tikz}
+\usepackage{tabularx}
 
 \doublespacing
 \setlength{\parindent}{1.5cm}
@@ -76,19 +77,17 @@ wireless mesh networks are a thing. they are distributed, often over wide geogra
 
 on the surface they don't seem very well suited to sdn at all, what with the whole centralised controller thing. need to come up with reasons you would still want to do sdn for wmns. all the other advantages like programmability, automation etc must still apply. note that openflow lets switches be controlled by multiple controllers if necessary, or you can load-balance/fault-tolerance-ise the controllers with something else, or whatever. or you can be like \cite{handigol:asterix} and give each switch the ability to do useful things itself (they did load-balancing "as a network primitive", which is fairly cool).
 
+why: \cite{mendonca:hetero} and \cite{dely:wmn}
+
 \subsection{Routing Algorithms}
 \subsubsection{Traditional Mesh Routing}
 discussion of what makes a good mesh routing protocol. mesh routing is inherently distributed so don't force packets through centralised bits and stuff like that.
 
 most common non-sdn mesh routing protocols. traditional routing involves routing based on individual packets (common knowledge?).
 
-major ones marius has mentioned: olsr \cite{rfc3626}, ospf \cite{rfc5340}, obsolete \cite{rfc4813}
+major ones marius has mentioned: olsr \cite{rfc3626}, ospf \cite{rfc5340}
 
-\begin{description}
-\item[cats] love you a lot
-\item[dogs] love the stars more/Prop
-\item[armadillos] are very long-winded
-\end{description}
+oblivious vs predictive routing? \cite{wellons:augmenting}, \cite{wellons:oblivious}, \cite{dai:dynamic}, \cite{wang:routing}, 
 
 \subsubsection{Software-Defined Mesh Routing}
 attempts to do mesh routing in sdn context. flow-based routing means routing based on flows (linked series of related packets eg all tcp traffic, all traffic from one mac address or to a particular ip subnet).
@@ -97,9 +96,7 @@ commonly seen as a solution to
 
 note that this is not "centralised" routing. once rules are installed packet forwarding happens at individual switches exactly as it always has, at line rate (right?). the controller can push an initial set of rules as soon as a switch connects to it if desired. depending on configuration (fail standalone mode or fail secure mode) these rules can remain in place if the controller connection is lost, or the switch can drop all packets. \cite{handigol:asterix} makes the distinction between "logically centralised" and "distributed through the network". so, fine to have centralised controller if you can talk to that. 
 
-header space maths \cite{kazemian:header} originally in \cite{lakshman:geo}
-
-flow-based networking can be modelled as a multi-commodity flow problem
+flow-based networking \cite[pp. 862--863]{cormen:algorithms} can be modelled as a multi-commodity flow problem
 
 this is literally stolen, rephrase this.
 
@@ -167,6 +164,8 @@ implement controller, note performance on various metrics, improve based on resu
 
 all of these steps including dates of assessment are summarised in Table \ref{table:schedule}
 
+\subsection{Schedule}
+
 \begin{table}[H]
 	\begin{center}
 		\begin{tabular}{@{}rllr@{}}
@@ -176,15 +175,19 @@ all of these steps including dates of assessment are summarised in Table \ref{ta
 			& Establish project definition and scope & 1 week & 6 March \\
 			& Set up environment (Mininet,  POX) & 1 week & 14 March \\
 			\emph{Assessment} & Project proposal & 2 weeks & 27 March \\
-			& Project proposal & weeks & 10 March \\
-			& Project proposal & weeks & 10 March \\
-			& Project proposal & weeks & 10 March \\
+			& Set up test suite (topologies, network events) & 1 week & 4 April \\
+			& Implement selection of existing designs & 1 week & 11 April \\
+			& Model proposed design & 1 week & 18 April \\
+			& Begin implementing proposed design & 2 weeks & 2 May \\
+			& Benchmark new controller against existing & 1 week & 9 May \\
 			\emph{Assessment} & Progress seminar & 2 weeks & 19-23 May \\
-			& Project proposal & weeks & March \\
-			& Project proposal & weeks & March \\
-			& Project proposal & weeks & March \\
-			& Project proposal & weeks & March \\
-			& Project proposal & weeks & March \\
+			\addlinespace
+			& \emph{Coursework examinations/semester break} \\
+			\addlinespace
+			& Write up current progress in thesis report & 2 weeks & 8 Aug\\
+			& Revise test suite as necessary & 2 weeks & 22 Aug\\
+			& Iteratively develop/test new controller & 5 weeks & 26 Sept\\
+			& Gather final benchmarking results & 2 week & 10 Oct \\
 			\emph{Assessment} & Project demonstration & 2 weeks & 20-24 Oct \\
 			& Respond to demonstration feedback & 1 week & 31 Oct \\
 			\emph{Assessment} & Thesis report & 3 weeks & 10 Nov \\
@@ -199,51 +202,53 @@ all of these steps including dates of assessment are summarised in Table \ref{ta
 \subsubsection{Occupational Health and Safety}
 This project requires work which can be completed in low-risk computing laboratories, which are covered by general OHS laboratory rules.
 
-\subsubsection{Project Risks}
+\subsubsection{Project Risks and Response}
+Table \ref{table:risks} identifies the potential risks to the project, listed in order of severity from 1 (least critical) to 5 (most critical). Mitigation strategies for each risk are listed in Table \ref{table:mitigation}.
 
+\hspace{0.5cm}
 \begin{table}[H]
 	\begin{center}
 		\begin{tabular}{@{}rlllr@{}}
 			\toprule
-			\# & Risk & Likelihood & Impact & Ranking \\
+			\# & Risk & Likelihood & Impact \\
 			\midrule
-			1 & lose all my datas & low & low & 5 \\
-			2 & lose primary working environment & low & medium & 4 \\
-			3 & illness during thesis & medium & low & 3 \\
-			4 & fall behind schedule & high & medium & 1 \\
-			5 & scope changes & high & medium & 2 \\
+			1 & Loss of working environment & low & low \\
+			2 & Loss of research data & low & medium \\
+			3 & Illness during thesis & medium & medium \\
+			4 & Major scope changes & high & medium \\
+			5 & Falling behind schedule & high & high \\
 			\bottomrule
 		\end{tabular}
 		\caption{Likelihood and severity of potential risks to the project}
+		\label{table:risks}
 	\end{center}
 \end{table}
 
-\subsubsection{Risk Response}
-
 \begin{table}[H]
 	\begin{center}
-		\begin{tabular}{@{}rp{6cm}@{\hspace{1cm}}p{8cm}@{}}
+		\begin{tabularx}{\textwidth}{p{.02\textwidth}X}
 			\toprule
-			\# & Risk & Action \\
+			\# & Risk: Action \\
 			\midrule
-			1 & lose all my datas & 
-			backup strategy: git repository hosted "online". working directory backed up to dropbox. plain text files. \\
+			1 & Loss of working environment:
+			maintain list of software versions in use along with install notes so environment can be quickly recreated. \\
 			\addlinespace
-			2 & lose primary working environment &
-			maintain list of software versions in use and install notes so environment can be quickly recreated \\
+			2 & Loss of research data:
+			commit all raw data (reports, slides, code, test results) to remote git repository; back up working directory to Dropbox/EAIT fileserver. \\
 			\addlinespace
-			3 & illness during thesis &
-			inform supervisor asap to discuss impact on relevant assessment. if necessary obtain medical cert and request extension. \\
+			3 & Illness during thesis:
+			inform supervisor as soon as practicable to discuss impact on relevant assessment; if necessary obtain medical certificate and request extension. \\
 			\addlinespace
-			4 & fall behind schedule/failure to maintain schedule &
-			weekly progress meetings with supervisor with deliverables \\
+			4 & Major scope changes:
+			discuss suitable direction with supervisor; determine what prior work can be integrated into new report; reassess project schedule. \\
 			\addlinespace
-			5 & scope changes &
-			discuss suitable direction with supervisor \\
+			5 & Falling behind schedule:
+			conduct weekly progress meetings with supervisor with deliverables; regularly check progress against original schedule \\
 			\addlinespace
 			\bottomrule
-		\end{tabular}
+		\end{tabularx}
 		\caption{Risk mitigation strategies for potential project risks}
+		\label{table:mitigation}
 	\end{center}
 \end{table}
 
