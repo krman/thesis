@@ -41,37 +41,34 @@
 \newpage
 \pagenumbering{arabic}
 \section{Overview}
-goal of this project is to benchmark the performance of a selection of control approaches for sdn in wireless mesh networks, and using insights gleaned from this process, implement a controller to do optimal routing on a mesh network. reproducible network tests will be performed using the network simulator Mininet. the controller will be implemented using the controller framework POX.
+The goal of this thesis is to implement a central controller to do optimal routing on a wireless mesh network, given the network topology and link information. The controller will be benchmarked against a selection of existing approaches to routing in wireless mesh networks. Reproducible network tests will be performed using the network simulator Mininet; the controller will be implemented using the controller framework POX.
 
 \subsection{Goals}
-
-the central aim of this project is to implement a controller to do optimal routing on a mesh network. in aid of this the project has three subgoals.
+The project's goals can be summarised as follows:
 
 \begin{enumerate}
-	\item develop a set of topologies to use in testing
-	\item benchmark the performance of major approaches to control
-	\item implement a controller in POX
+	\item Develop a set of topologies and events to use in testing
+	\item Benchmark the performance of major approaches to mesh routing
+	\item Design, implement and test a new controller in POX
 \end{enumerate}
 
 \subsection{Relevance}
+Software-defined networking (SDN) is a relatively new concept in networking which aims to give network operators greater programmability and control over their networks, through separation of the control and data planes. The way this is most commonly implemented involves a centralised controller which sends network control packets to other switches on the network, usually on a separate, parallel control network. 
 
-sdn is a relatively new concept in networking which aims to give network operators greater programmability and control over their networks, through separation of the control and data planes. the way this is most commonly implemented involves a centralised controller which sends network control packets to other switches on the network, usually on a separate, parallel control network. 
-
-a number of attempts have been made to use sdn in wireless mesh networks. mesh networks are inherently distributed: this contradicts several key assumptions about the network architecture, especially for wireless meshes. trying to integrate a centralised, single-point-of-failure controller into a mesh goes against the requirements of the system. different groups have tried to deal with this problem in different ways.
+Mesh networks, however, are inherently distributed: this contradicts several key assumptions made in most discussions of SDN about the network architecture, especially for wireless meshes. A centralised, single-point-of-failure controller seems not to meet the requirements of the system, but the other benefits of software-defined control are such that several different groups have attempted to design hybrid controllers which do, to varying degrees and with sometimes limited scope. This thesis will compare these approaches and, using insights from this process, present a new controller.
 
 \newpage
 \section{Background}
 \subsection{Software-Defined Networking}
-\emph{Provide an overview of some of the key areas of research in SDN. What are researchers currently working on, and what are considered the key research challenges?}
+Software-defined networking is a set of philosophies and concepts on how networking should be done. Crucially, networking should be programmable. The core idea is separation of the control and data planes; specifically, separation in a way that is standards-compliant and vendor-independent \cite{onf:sdn}. Although the movement is not intrinsically tied to any specific technologies, the OpenFlow protocol \cite{onf:switch140}, which is used to communicate between the control and data planes, is quite strongly linked to it.
 
-software-defined networking (sdn) is a set of philosophies/concepts on how networking should be done. networking should be programmable. core idea is separation of the control and data planes, and more specifically, separation in a way that's standards-compliant and vendor-independent. \cite{onf:sdn} not linked to any specific technologies although some like openflow are quite strongly (not intrinsically) linked to it. 
+McKeown describes the networking industry as vertically integrated and proprietary, with little innovation \cite{mckeown:sdn}, comparing this to the state of computing prior to the adoption of high-level operating systems using standard instruction sets to communicate with the hardware. Similarly, the control plane in SDN can be seen as a network operating system, with OpenFlow as the instruction set for communicating with switches. This echoes the development towards greater abstraction evidenced by the move towards flow- over packet-based networking and the rise of quality-of-service considerations. Such requirements can be difficult to meet without some control switch forwarding tables.
 
-sdn is often mentioned in conjunction with the openflow protocol ... originally conceived as a research tool to enable academics to test new protocols easily and receive rapid feedback. \cite{mckeown:openflow} mckeown refers to the "ossified network": due to the black-box nature of modern network components such as switches and routers, experimentation is not encouraged and researchers must stick to standard protocols until new ones are supported by vendors. this process can take a long time and the feedback cycle is slow. the networking industry is vertically integrated and proprietary, with little innovation. \cite{mckeown:sdn}
+OpenFlow was originally conceived as a research tool to enable academics to test new protocols easily and receive rapid feedback, while allowing vendors to continue to protect the inner workings of their switches. In \cite{mckeown:openflow}, McKeown refers to the  ``ossified network'': due to the black-box nature of modern network components such as switches and routers, experimentation is not encouraged and researchers must stick to standard protocols until new ones are supported by vendors. This process can take a long time and the feedback cycle is slow. 
 
-idea of the controller as a kind of network OS. openflow is the instruction set.
+Focus in the SDN movement has shifted from the original goal of ease of research \cite{mckeown:openflow}, to large datacentres and commercial networks with complex routing requirements. SDN approaches usually make assumptions appropriate for this use case, but in all cases, the primary assumption of a dedicated control plane holds.
 
-note that the original paper \cite{mckeown:openflow} was massively into on-campus research applications, and the onf is really into large datacentres and stuff \cite{onf:sdn} which are both fixed, usually ethernet-based. i think the onf whitepaper talked about other examples, but they were mostly things like virtualisation where the assumption of a dedicated control plane is still there.
-
+\newpage
 \subsection{Mesh Networks}
 wireless mesh networks are a thing. they are distributed, often over wide geographical area, and are only connected in wireless links. this contradicts certain assumptions about the way sdn is implemented. mesh networks are inherently decentralised with no single point of failure, but most sdn implementations have a central controller. there is no separate control network, so all network control messages must be in-band. any part of the mesh may drop out and hence lose contact with the controller at any point, so fallback needs to be implemented.
 
@@ -79,6 +76,7 @@ on the surface they don't seem very well suited to sdn at all, what with the who
 
 why: \cite{mendonca:hetero} and \cite{dely:wmn}
 
+\newpage
 \subsection{Routing Algorithms}
 \subsubsection{Traditional Mesh Routing}
 discussion of what makes a good mesh routing protocol. mesh routing is inherently distributed so don't force packets through centralised bits and stuff like that.
@@ -87,7 +85,7 @@ most common non-sdn mesh routing protocols. traditional routing involves routing
 
 major ones marius has mentioned: olsr \cite{rfc3626}, ospf \cite{rfc5340}
 
-oblivious vs predictive routing? \cite{wellons:augmenting}, \cite{wellons:oblivious}, \cite{dai:dynamic}, \cite{wang:routing}, 
+oblivious vs predictive routing? \cite{wellons:augmenting}, \cite{dai:dynamic}, \cite{wang:routing}, 
 
 \subsubsection{Software-Defined Mesh Routing}
 attempts to do mesh routing in sdn context. flow-based routing means routing based on flows (linked series of related packets eg all tcp traffic, all traffic from one mac address or to a particular ip subnet).
@@ -98,15 +96,7 @@ note that this is not "centralised" routing. once rules are installed packet for
 
 flow-based networking \cite[pp. 862--863]{cormen:algorithms} can be modelled as a multi-commodity flow problem
 
-this is literally stolen, rephrase this.
-
-Given a flow network $G(V,E)$, where edge $(u,v)$ has capacity $c(u,v)$, flow can be assigned as follows:
-
-\vspace{-0.5cm}
-\begin{equation}
-\sum\limits_{w \in V} f_i(s_i,w) = \sum\limits_{w \in V} f_i(w,t_i) = d_i
-\end{equation}
-
+\newpage
 \subsection{Protocols and Tools}
 \subsubsection{OpenFlow}
 spec? \cite{onf:switch140}. 
@@ -127,11 +117,9 @@ mininet benchmarks \cite{handigol:benchmarks}
 can use pretend openflow-enabled switches in the simulations, like openvswitch (no idea how to cite this)
 
 \subsubsection{POX}
-\emph{Give an overview and brief comparison of the key SDN controllers that are currently available, commercial and non-commercial.}
+There are a number of controller frameworks today which allow programmers to use familiar languages and development environments to send OpenFlow messages to switches in the network; selection in the first case is based on familiarity with the primary language used. One such controller framework, which uses Python, is POX \cite{onl:pox}, developed at Stanford concurrently with the related NOX (C++) framework.
 
-maybe list the major controllers, at least the related ones? pox is in python which is why i like it
-
-designed more for ease of research than speed/performance (NOX (C++) is that) (http://www.noxrepo.org/2012/03/introducing-pox/, dunno about source for this). this is okay if performance at the controller isn't the bottleneck. may need to actually confirm this is the case.
+POX is designed more for ease of research than speed and performance, NOX being more suited to the latter. This is acceptable if performance of the network is not bound by the performance of the controller, at least for initial development. Experiments to determine whether this assumption is reasonable can be performed as required.
 
 \newpage
 \section{Project Plan}
@@ -187,7 +175,7 @@ all of these steps including dates of assessment are summarised in Table \ref{ta
 			& Write up current progress in thesis report & 2 weeks & 8 Aug\\
 			& Revise test suite as necessary & 2 weeks & 22 Aug\\
 			& Iteratively develop/test new controller & 5 weeks & 26 Sept\\
-			& Gather final benchmarking results & 2 week & 10 Oct \\
+			& Gather final benchmarking results & 2 weeks & 10 Oct \\
 			\emph{Assessment} & Project demonstration & 2 weeks & 20-24 Oct \\
 			& Respond to demonstration feedback & 1 week & 31 Oct \\
 			\emph{Assessment} & Thesis report & 3 weeks & 10 Nov \\
