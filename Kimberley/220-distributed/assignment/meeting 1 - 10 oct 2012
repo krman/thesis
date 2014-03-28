@@ -1,0 +1,20 @@
+Heating system
+
+GUI - show heating throw pipes
+occupied or not
+open/closed doors
+
+if one room is getting hotter, other rooms around it heat up
+different things happen if room is occupied or not
+
+main server - controlling hot air pipes (open/close vent)
+
+>>
+
+room server - manages open/closed doors
+if room server is down then --> ? get other people
+rooms can heat themselves
+
+>>
+
+door sensor, 
