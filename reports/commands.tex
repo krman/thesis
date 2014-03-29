@@ -1,0 +1,78 @@
+\documentclass[12pt,openany,a4paper]{book}
+\usepackage{graphics}
+\usepackage{lscape}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{bigstrut}
+\usepackage{xr}
+\usepackage{geometry}
+\usepackage{adjustbox}
+\usepackage{xcolor,colortbl}
+\usepackage{color, colortbl}
+\definecolor{Green}{rgb}{0.84,0.89,0.74}
+\definecolor{Orange}{rgb}{0.98,0.75,0.56}
+\definecolor{Blue}{rgb}{0.72,0.8,0.89}
+\usepackage{setspace}
+\usepackage{url}
+\usepackage{todonotes}
+\graphicspath{ {./../img/} }
+\usepackage[section]{placeins}
+\usepackage{listings}
+\usepackage{color}
+\usepackage[toc]{glossaries}
+\makeglossaries
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{frame=tb,
+  language=MATLAB,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true
+  tabsize=3
+}
+
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+
+\pagestyle{headings}
+\raggedbottom
+
+\setlength{\topmargin}          {-5mm}
+\setlength{\oddsidemargin}      {10mm}
+\setlength{\evensidemargin}     {0mm}
+\setlength{\textwidth}          {150mm}
+\setlength{\textheight}         {240mm}
+\setlength{\parindent}		{0cm}
+
+\renewcommand{\baselinestretch}	{1.2}
+
+\renewcommand{\textfraction}	{0.25}
+\renewcommand{\topfraction}	{0.75}
+\renewcommand{\bottomfraction}	{0.75}
+\renewcommand{\floatpagefraction}{0.75}
+
+\newcommand{\eref}[1] {(\ref{#1})}              % (...)
+\newcommand{\eq}[1]   {Eq.\,(\ref{#1})}         % Eq.~(...)
+\newcommand{\eqs}[2]  {Eqs.~(\ref{#1}) and~(\ref{#2})}
+\newcommand{\dfn}[1]  {Definition~\ref{#1}}     % Definition~...
+\newcommand{\thrm}[1] {Theorem~\ref{#1}}        % Theorem~...
+\newcommand{\lem}[1]  {Lemma~\ref{#1}}          % Lemma~...
+\newcommand{\fig}[1]  {Fig.\,\ref{#1}}          % Fig.~...
+\newcommand{\tab}[1]  {Table~\ref{#1}}          % Table~...
+\newcommand{\chap}[1] {Chapter~\ref{#1}}        % Chapter~...
+\newcommand{\secn}[1] {Section~\ref{#1}}        % Section~...
+\newcommand{\ssec}[1] {Subsection~\ref{#1}}     % Subsection~...
