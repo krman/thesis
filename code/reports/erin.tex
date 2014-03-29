@@ -1,0 +1,351 @@
+\documentclass[12pt,openany,a4paper]{book}
+\usepackage{graphics}	% if you want encapsulated PS figures.
+\usepackage{lscape}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{bigstrut}
+\usepackage{xr}
+\usepackage{geometry}
+\usepackage{adjustbox}
+\usepackage{xcolor,colortbl}
+\usepackage{color, colortbl}
+\definecolor{Green}{rgb}{0.84,0.89,0.74}
+\definecolor{Orange}{rgb}{0.98,0.75,0.56}
+\definecolor{Blue}{rgb}{0.72,0.8,0.89}
+\usepackage{setspace}
+\usepackage{url}
+\usepackage{todonotes}
+\graphicspath{ {./../img/} } 
+\usepackage[section]{placeins}
+\usepackage{listings}
+\usepackage{color}
+\usepackage[toc]{glossaries}
+\makeglossaries
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{frame=tb,
+  language=MATLAB,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true
+  tabsize=3
+}
+
+%% If you use a macro file called macros.tex :
+% \input{macros}
+% Note: The present document has its macros built in.
+
+% Number subsections but not subsubsections:
+\setcounter{secnumdepth}{2}
+% Show subsections but not subsubsections in table of contents:
+\setcounter{tocdepth}{2}
+
+\pagestyle{headings}		% Chapter on left page, Section on right.
+\raggedbottom
+
+\setlength{\topmargin}		{-5mm}  %  25-5 = 20mm
+\setlength{\oddsidemargin}	{10mm}  % rhs page inner margin = 25+10mm
+\setlength{\evensidemargin}	{0mm}   % lhs page outer margin = 25mm
+\setlength{\textwidth}		{150mm} % 35 + 150 + 25 = 210mm
+\setlength{\textheight}		{240mm} % 
+
+\renewcommand{\baselinestretch}{1.2}	% Looks like 1.5 spacing.
+
+% Stop figure/tables smaller than 3/4 page from appearing alone on a page:
+\renewcommand{\textfraction}{0.25}
+\renewcommand{\topfraction}{0.75}
+\renewcommand{\bottomfraction}{0.75}
+\renewcommand{\floatpagefraction}{0.75}
+
+% AIDS TO CROSS-REFERENCING (All take a label as argument):
+\newcommand{\eref}[1] {(\ref{#1})}		% (...)
+\newcommand{\eq}[1]   {Eq.\,(\ref{#1})}		% Eq.~(...)
+\newcommand{\eqs}[2]  {Eqs.~(\ref{#1}) and~(\ref{#2})}
+\newcommand{\dfn}[1]  {Definition~\ref{#1}}	% Definition~...
+\newcommand{\thrm}[1] {Theorem~\ref{#1}}	% Theorem~...
+\newcommand{\lem}[1]  {Lemma~\ref{#1}}		% Lemma~...
+\newcommand{\fig}[1]  {Fig.\,\ref{#1}}		% Fig.~...
+\newcommand{\tab}[1]  {Table~\ref{#1}}		% Table~...
+\newcommand{\chap}[1] {Chapter~\ref{#1}}	% Chapter~...
+\newcommand{\secn}[1] {Section~\ref{#1}}	% Section~...
+\newcommand{\ssec}[1] {Subsection~\ref{#1}}	% Subsection~...
+
+\begin{document}
+
+\frontmatter
+% By default, frontmatter has Roman page-numbering (i,ii,...).
+
+\begin{titlepage}
+\renewcommand{\baselinestretch}{1.0}
+\begin{figure}[h]
+\centering
+%\includegraphics[scale = 1]{../images/UQ.jpg}
+\end{figure}
+\begin{center}
+\vspace*{35mm}
+\Huge\bf
+		Controlling a  \\
+		Prosthetic Hand \\
+		Using Surface EMG\\
+\vspace{20mm}
+\large\sl
+		Erin McColl\\
+		42023504
+		\bigskip\\
+\rm
+		School of Information Technology and Electrical Engineering,\\
+		The University of Queensland.\\
+\vspace{30mm}
+		Submitted for the degree of\\
+		Bachelor of Engineering (Honours)
+		\smallskip\\
+\normalsize
+		in the division of\\
+		Mechatronics Engineering
+		\medskip\\
+\large
+		November 2013.		
+\end{center}
+\end{titlepage}
+
+\pagestyle{fancy}
+\fancyfoot{}
+\fancyhead{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C] {\footnotesize \thepage}
+
+\cleardoublepage
+
+\begin{flushright}
+	\today\\
+	Erin McColl - 42023504\\
+	40 Chapel Hill Rd\\
+	Chapel Hill, QLD 4069\\
+	\medskip
+	
+\end{flushright}
+\begin{flushleft}
+  Prof. Paul Strooper\\
+  Head of School\\
+  School of Information Technology and Electrical Engineering\\
+  The University of Queensland\\
+  St Lucia, QLD 4072\\
+  \bigskip\bigskip
+  Dear Professor Strooper,\\
+\end{flushleft}
+In accordance with the requirements of the degree of Bachelor of Engineering (Honours) in the School of Information Technology and Electrical Engineering, I submit the following thesis entitled: 
+\begin{center}
+	``Controlling a Prosthetic Hand Using Surface EMG''.\\ 
+\end{center}
+This thesis was performed under the supervision of Prof. Andrew Bradley. I declare that the work submitted in this thesis is my own, except as acknowledged in the text and footnotes, and has not been previously submitted for a degree at the University of Queensland or any other institution.
+
+
+
+\begin{flushleft}
+	\medskip
+	Yours sincerely,\\
+	\bigskip
+	\emph\\
+	\bigskip
+	Erin McColl.
+\end{flushleft}
+
+\cleardoublepage
+\vspace*{70mm}
+\begin{center}
+\renewcommand{\baselinestretch}{1.0}
+\sl
+	
+
+	To Fin,\\
+	This is for your untiring love and emotional support over the last four years.\\
+	I wouldn't have made it this far without you. Thank you. 
+
+
+\end{center}
+
+\cleardoublepage
+\setlength{\parindent}{0cm}
+\chapter{Acknowledgments}
+
+I would like to acknowledge my supervisor Prof. Andrew Bradley. I have been very interested in creating a biologically controlled prosthetic hand for some time and Prof. Bradley willing took me and my topic on board. I would not have a successfully completed thesis without his guidance in scoping and shaping the project.\\
+
+In relation to the thesis content I acknowledge Prof. Bradley's assistance in teaching me a number of signals processing theories and methods. I have gained an enhanced skill set and an abundance of new knowledge from your invaluable assistance and patience. Thank you. \\
+
+I also wish the acknowledge help from a good friend of mine, Victoria McGregor, an occupational therapist. When I began this project as an engineering student I had very little understanding of the anatomical theory or needs and requirements of amputees. Victoria's help and guidance gave me a foundation to begin my work. Thank you. \\
+
+Finally I would like to acknowledge my parents, Lindsay and Vicki McColl, for their tireless efforts and sacrifices in getting me to university. My passion for engineering is founded on your influences.\\
+
+\cleardoublepage
+
+\chapter{Abstract}
+
+% Notice that all \include files are chapters -- a logical division.
+% But not all chapters are \include files; some chapters are short
+% enough to be in-lined in the main file.
+
+Developments in electronics have made electrically controlled limbs a viable option for those suffering from amputation or a congenital condition. However, studies show that current prosthetics do not function as intuitively as users would like. It was the aim of this thesis to demonstrate the level of intuitive functionally achievable in a prosthetic hand and replicate basic gestures using surface electromyography (EMG) data. \\
+
+Multiple methods of signals analysis were considered to obtain a digital representation of raw EMG data from the forearm. These methods were  compared against a known ground truth and scored on how accurately they represented the original data. It was found that the most successful method was a combination of full wave rectification, moving average filter and a hysteresis based threshold.\\
+
+These techniques along with basic post processing were applied to the original EMG data to achieve a digital signal which fed into a 3D-printed open-source prosthetic hand to complete simple gestures.\\
+
+From the limited data set tested, 100\% of the tested motions were classified correctly with an average accuracy of 75\% of the original raw EMG signal.  
+
+\cleardoublepage
+
+\tableofcontents
+
+\listoffigures
+\addcontentsline{toc}{chapter}{List of Figures}
+
+\listoftables
+\addcontentsline{toc}{chapter}{List of Tables}
+
+%\include{glossary}
+%\makeglossaries
+%\printglossaries
+
+
+\cleardoublepage
+
+
+
+\mainmatter
+\setlength{\parindent}{0cm}
+
+\include{Introduction}
+
+\include{LitReview}
+
+\include{theory}
+
+\include{Hardware}
+
+\include{Acquisition}
+
+\include{Methodology}
+
+\include{Conclusion}
+
+\appendix
+\newpage
+\addcontentsline{toc}{part}{Appendices}
+\mbox{}
+\newpage
+
+
+\chapter{Circuit Layout}\label{app:circuit}
+\begin{figure}[!ht]
+\centering
+%\includegraphics[scale = 0.8]{Circuit1Arduino.png}
+\caption{Circuit Design}
+\label{fig: Circuit Design}
+\end{figure}
+
+\newgeometry{top=-2.0cm,bottom=-2.0cm}
+\chapter{Filter Response}
+%\begin{landscape}
+\begin{figure}[!ht]
+\centering
+%\includegraphics[scale = 0.50]{MAF_2.jpg}
+\caption{Filter Response - Moving Average Filter}
+\label{fig: MAF}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+%\includegraphics[scale = 0.50]{Butterworth.jpg}
+\caption{Filter Response - Second Order Low Pass Butterworth Filter}
+\label{fig: Butt}
+\end{figure}
+%\end{landscape}
+\restoregeometry
+
+\begin{landscape}
+\chapter{Raw Impedance Data}
+%\input{./../img/impedance_tbl}
+\end{landscape}
+
+\newgeometry{top=-2.0cm,bottom=-2.0cm}
+\chapter{Jaccard Index Results}
+\begin{figure}[!hb]
+\centering
+%\includegraphics[scale = 0.55]{results_test.png} 
+\caption{Jaccard Index Results for the Training Set}
+\label{fig: JI1 }
+\end{figure}
+\begin{figure}[!hb]
+\centering
+%\includegraphics[scale = 0.6]{results_real.png} 
+\caption{Jaccard Index Results for the Test Set}
+\label{fig: JI2}
+\end{figure}
+\restoregeometry
+
+
+
+\chapter{Initial Project Plan}
+%\input{Plan}
+
+\begin{landscape}
+\begin{figure}[!hb]
+\centering
+%\includegraphics[width=24cm, height = 9cm]{Gantt.pdf} 
+\caption{Original Gantt Chart}
+\label{fig: Gant}
+\end{figure}
+\end{landscape}
+
+
+\chapter{Program listings}
+
+\section{Preprocessing \& Filtering Methods}
+%\input{Filtering}
+
+\section{Thresholding Methods}
+%\input{thresholding}
+
+\section{Get the Jaccard Index Results}
+%\input{jaccard_results}
+
+\section{Produce the Ground Truth Function}
+%\input{Ground_truth}
+
+\section{Gesture Control}
+%\input{gesture}
+
+\section{Classifying \& Initiating Motion}
+%\input{move_it}
+
+\section{Post Processing Methods}
+%\input{post_processing}
+
+\chapter{Arduino Uno}
+%\input{Uno}
+
+\chapter{CleveMed BioRadio}
+%\input{clevemed}
+
+\chapter{Companion disk}
+%\input{cd}
+
+\addcontentsline{toc}{chapter}{Bibliography}
+\include{Bib}
+
+
+\end{document}
