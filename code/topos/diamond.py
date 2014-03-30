@@ -1,8 +1,14 @@
 #!/usr/bin/python
 
-""" Simple topology:
+""" Diamond topology:
 
-h1 -- s1 -- h2
+         c
+         |
+         s2
+       /    \
+h1 -- s1    s3 -- h2
+       \    /
+         s4
 
 When run directly, starts up a remote pox controller
 of my own design and connects to that.
