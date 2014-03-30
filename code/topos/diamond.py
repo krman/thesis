@@ -10,8 +10,7 @@ h1 -- s1    s3 -- h2
        \    /
          s4
 
-When run directly, starts up a remote pox controller
-of my own design and connects to that.
+When run directly, connects to remote controller already running
 """
 
 from mininet.net import Mininet
@@ -19,46 +18,52 @@ from mininet.cli import CLI
 from mininet.topo import Topo
 from mininet.log import lg
 from mininet.node import Node, RemoteController
+from mininet.util import dumpNodeConnections
 from mininet.link import Link
 
-class SimpleTopo(Topo):
+class DiamondTopo(Topo):
     def __init__(self):
 	Topo.__init__(self)
 
 	# add hosts and switches
-	h1 = self.addHost('h1')
-	h2 = self.addHost('h2')
-	s1 = self.addSwitch('s1')
+	h = [self.addHost('h{}'.format(i+1)) for i in xrange(2)]
+	s = [self.addSwitch('s{}'.format(i+1)) for i in xrange(4)]
 
 	# link them up
-	self.addLink(h1,s1)
-	self.addLink(h2,s1)
+	self.addLink('h1','s1')
+	self.addLink('h2','s3')
 
-def startNetwork(network, switch, ip, routes):
-    root = Node('root', inNamespace=False)
-    intf = Link(root, switch).intf1
-    root.setIP(ip, intf=intf)
-    network.start()
-    for route in routes:
-        root.cmd( 'route add -net ' + route + ' dev ' + str( intf ) )
-
-def makeSimple():
-    topo = SimpleTopo()
+def makeDiamond():
+    topo = DiamondTopo()
     network = Mininet(topo, controller=RemoteController)
     return network
 
-def startSimple(network):
-    switch = network['s1']
+def testDiamond(net):
+
+    # configure network
+    switch = net['s1']
     ip = '10.123.123.1/32'
     routes = ['10.0.0.0/24']
-    startNetwork(network, switch, ip, routes)
-    print "*** Type 'exit' or ctrl-D to shut down network"
-    CLI(network)
-    network.stop()
+
+    # start network
+    root = Node('root', inNamespace=False)
+    intf = Link(root, switch).intf1
+    root.setIP(ip, intf=intf)
+    net.start()
+    for route in routes:
+        root.cmd( 'route add -net ' + route + ' dev ' + str( intf ) )
+
+    # start tests
+    print "Dumping host connections"
+    dumpNodeConnections(net.hosts)
+    print "Testing network connectivity"
+    #net.pingAll()
+    CLI(net)
+    net.stop()
 
 if __name__ == '__main__':
     lg.setLogLevel('info')
-    network = makeSimple()
-    startSimple(network)
+    net = makeDiamond()
+    testDiamond(net)
 else:
-    topos = {'simple': (lambda: SimpleTopo())}
+    topos = {'diamond': (lambda: DiamondTopo())}
