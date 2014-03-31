@@ -23,12 +23,14 @@ class Switch:
 	
     def _handle_PacketIn(self, event):
 	packet = event.parsed
+	log.info('packetin event on switch %s (%s)' % (self.connection, packet))
 
 	# flood...
 	msg = of.ofp_packet_out()
 	msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
 	msg.data = event.ofp
 	msg.in_port = event.port
+	log.info('sending: %s' % (msg))
 	self.connection.send(msg)
 
 
@@ -40,7 +42,7 @@ class Controller:
 	Switch(event.connection)
 
     def _handle_PortStatus(self, event):
-	log.info("port %s on switch %s has been modified" % (event.port, event.dpid))
+	log.info("port %s on switch %s has been modified:" % (event.port, event.dpid))
 
     def _handle_FlowStatsReceived(self, event):
 	stats = flow_stats_to_list(event.stats)
@@ -58,4 +60,4 @@ def request_stats():
 
 def launch():
     core.registerNew(Controller)
-    Timer(5, request_stats, recurring=True)
+    #Timer(5, request_stats, recurring=True)

@@ -23,7 +23,8 @@ class Switch:
 	
     def _handle_PacketIn(self, event):
 	packet = event.parsed
-	log.info(vars(self.connection))
+	#log.info(vars(self.connection))
+	log.info(packet)
 
 	# flood...
 	msg = of.ofp_packet_out()
