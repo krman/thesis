@@ -20,6 +20,7 @@ from mininet.log import setLogLevel, info
 
 
 def makeHost(i):
+    # note, there are some issues when i is large (>250 or so)
     label = 'h{}'.format(i)
     ip = '10.0.0.{}'.format(i)
     full = '{:012x}'.format(i)
