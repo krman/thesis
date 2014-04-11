@@ -17,6 +17,7 @@ from mininet.net import Mininet
 from mininet.node import RemoteController
 from mininet.cli import CLI
 from mininet.log import setLogLevel, info
+from mininet.link import TCLink
 
 
 def makeHost(i):
@@ -47,12 +48,12 @@ def makeDiamond():
     s = [0] + [net.addSwitch(label, **opts) for label,opts in switches]
 
     # link them up
-    net.addLink(h[1],s[1])
-    net.addLink(h[2],s[4])
-    net.addLink(s[1],s[2])
-    net.addLink(s[1],s[3])
-    net.addLink(s[2],s[4])
-    net.addLink(s[3],s[4])
+    net.addLink(h[1],s[1], bw=100)
+    net.addLink(h[2],s[4], bw=100)
+    net.addLink(s[1],s[2], bw=100)
+    net.addLink(s[1],s[3], bw=20)
+    net.addLink(s[2],s[4], bw=100)
+    net.addLink(s[3],s[4], bw=20)
 
     net.start()
     CLI(net)
