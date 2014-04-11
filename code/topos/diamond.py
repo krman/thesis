@@ -48,12 +48,12 @@ def makeDiamond():
     s = [0] + [net.addSwitch(label, **opts) for label,opts in switches]
 
     # link them up
-    net.addLink(h[1],s[1], bw=100)
-    net.addLink(h[2],s[4], bw=100)
-    net.addLink(s[1],s[2], bw=100)
-    net.addLink(s[1],s[3], bw=20)
-    net.addLink(s[2],s[4], bw=100)
-    net.addLink(s[3],s[4], bw=20)
+    TCLink(h[1],s[1], bw=100)
+    TCLink(h[2],s[4], bw=100)
+    TCLink(s[1],s[2], bw=100)
+    TCLink(s[1],s[3], bw=20)
+    TCLink(s[2],s[4], bw=100)
+    TCLink(s[3],s[4], bw=20)
 
     net.start()
     CLI(net)
