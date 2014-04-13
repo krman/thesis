@@ -55,11 +55,12 @@ def makeDiamond():
     TCLink(s[2],s[4], bw=100)
     TCLink(s[3],s[4], bw=20)
 
-    net.start()
-    CLI(net)
-    net.stop()
+    return net
 
 
 if __name__ == '__main__':
-    setLogLevel('info')
-    makeDiamond()
+    setLogLevel('output')
+    net = makeDiamond()
+    net.start()
+    CLI(net)
+    net.stop()
