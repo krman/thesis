@@ -7,6 +7,7 @@ Route things! This is the base controller, which various modules plug into
 from pox.core import core
 from pox.lib.recoco import Timer
 import pox.openflow.libopenflow_01 as of
+import pox.lib.packet as pkt
 
 import pox.openflow.discovery as discovery
 import pox.openflow.spanning_tree as spanning_tree
@@ -28,12 +29,10 @@ class Switch:
 	#log.info(vars(self.connection))
 	#log.info("new packet on switch {0}".format(self.connection))
 
-	# flood...
-        msg = of.ofp_packet_out()
+	# flood... 
+	msg = of.ofp_flow_mod()
         msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
-        msg.data = event.ofp
-        msg.in_port = event.port
-        self.connection.send(msg)
+	self.connection.send(msg)
 
 
 class Controller:
@@ -53,6 +52,7 @@ def print_topology():
 
 def launch():
     #Timer(5, print_topology, recurring=True)
-    for module in (discovery, spanning_tree, statistics): 
-	module.launch()
+    discovery.launch()
+    spanning_tree.launch(no_flood=True, hold_down=True)
+    statistics.launch()
     core.registerNew(Controller)
