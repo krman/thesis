@@ -1,0 +1,428 @@
+INFO:core:POX 0.2.0 (carp) is up.
+INFO:openflow.of_01:[00-00-00-00-00-01 1] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 4 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s1-eth1:1, s1-eth2:2, s1-eth3:3, s1:65534>
+INFO:openflow.of_01:[00-00-00-00-00-02 2] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 3 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s2-eth1:1, s2-eth2:2, s2:65534>
+INFO:openflow.of_01:[00-00-00-00-00-03 3] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 3 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s3-eth1:1, s3-eth2:2, s3:65534>
+INFO:openflow.of_01:[00-00-00-00-00-04 4] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 4 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s4-eth1:1, s4-eth2:2, s4-eth3:3, s4:65534>
+INFO:thesis.base-flow-mod:port 1 on switch 1 has been modified
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.3 -> 00-00-00-00-00-03.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.2 -> 00-00-00-00-00-02.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-02.1 -> 00-00-00-00-00-01.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-02.2 -> 00-00-00-00-00-04.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-03.1 -> 00-00-00-00-00-01.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-03.2 -> 00-00-00-00-00-04.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-04.3 -> 00-00-00-00-00-03.2
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 82, time: 5
+INFO:thesis.statistics:bytes: 1712, time: 5
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 41, time: 10
+INFO:thesis.statistics:bytes: 1552, time: 10
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 82, time: 15
+INFO:thesis.statistics:bytes: 1628, time: 15
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 82, time: 20
+INFO:thesis.statistics:bytes: 1816, time: 20
+INFO:openflow.discovery:link detected: 00-00-00-00-00-04.2 -> 00-00-00-00-00-02.2
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:2 ports changed
+INFO:openflow.spanning_tree:1 ports changed
+INFO:openflow.spanning_tree:2 ports changed
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 123, time: 25
+INFO:thesis.statistics:bytes: 3130, time: 25
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 164, time: 30
+INFO:thesis.statistics:bytes: 3206, time: 30
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 164, time: 35
+INFO:thesis.statistics:bytes: 2982, time: 35
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 164, time: 40
+INFO:thesis.statistics:bytes: 3018, time: 40
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 246, time: 45
+INFO:thesis.statistics:bytes: 4634, time: 45
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 205, time: 50
+INFO:thesis.statistics:bytes: 5088, time: 50
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 246, time: 55
+INFO:thesis.statistics:bytes: 4892, time: 55
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 246, time: 60
+INFO:thesis.statistics:bytes: 4668, time: 60
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 328, time: 65
+INFO:thesis.statistics:bytes: 5844, time: 65
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 287, time: 70
+INFO:thesis.statistics:bytes: 6298, time: 70
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 328, time: 75
+INFO:thesis.statistics:bytes: 6444, time: 75
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 287, time: 80
+INFO:thesis.statistics:bytes: 5878, time: 80
+INFO:openflow.of_01:[00-00-00-00-00-01 1] closed
+INFO:thesis.base-flow-mod:port 1 on switch 2 has been modified
+INFO:thesis.base-flow-mod:port 1 on switch 2 has been modified
+INFO:thesis.base-flow-mod:port 1 on switch 3 has been modified
+INFO:thesis.base-flow-mod:port 1 on switch 3 has been modified
+INFO:openflow.of_01:[00-00-00-00-00-02 2] closed
+INFO:openflow.spanning_tree:2 ports changed
+INFO:thesis.base-flow-mod:port 2 on switch 4 has been modified
+INFO:thesis.base-flow-mod:port 2 on switch 4 has been modified
+INFO:openflow.of_01:[00-00-00-00-00-03 3] closed
+INFO:thesis.base-flow-mod:port 3 on switch 4 has been modified
+INFO:thesis.base-flow-mod:port 3 on switch 4 has been modified
+INFO:openflow.of_01:[00-00-00-00-00-04 4] closed
+INFO:core:POX 0.2.0 (carp) is up.
+INFO:openflow.of_01:[00-00-00-00-00-01 1] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 4 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s1-eth1:1, s1-eth2:2, s1-eth3:3, s1:65534>
+INFO:openflow.of_01:[00-00-00-00-00-02 2] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 3 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s2-eth1:1, s2-eth2:2, s2:65534>
+INFO:openflow.of_01:[00-00-00-00-00-03 3] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 3 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s3-eth1:1, s3-eth2:2, s3:65534>
+INFO:openflow.of_01:[00-00-00-00-00-04 4] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 4 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s4-eth1:1, s4-eth2:2, s4-eth3:3, s4:65534>
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.3 -> 00-00-00-00-00-03.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.2 -> 00-00-00-00-00-02.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-02.1 -> 00-00-00-00-00-01.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-02.2 -> 00-00-00-00-00-04.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-03.1 -> 00-00-00-00-00-01.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-03.2 -> 00-00-00-00-00-04.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-04.3 -> 00-00-00-00-00-03.2
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 82, time: 5
+INFO:thesis.statistics:bytes: 3016, time: 5
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 82, time: 10
+INFO:thesis.statistics:bytes: 1832, time: 10
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 41, time: 15
+INFO:thesis.statistics:bytes: 1684, time: 15
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 82, time: 20
+INFO:thesis.statistics:bytes: 1852, time: 20
+INFO:openflow.discovery:link detected: 00-00-00-00-00-04.2 -> 00-00-00-00-00-02.2
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:2 ports changed
+INFO:openflow.spanning_tree:1 ports changed
+INFO:openflow.spanning_tree:2 ports changed
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 164, time: 25
+INFO:thesis.statistics:bytes: 2656, time: 25
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 123, time: 30
+INFO:thesis.statistics:bytes: 2648, time: 30
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 164, time: 35
+INFO:thesis.statistics:bytes: 3910, time: 35
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 164, time: 40
+INFO:thesis.statistics:bytes: 3430, time: 40
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 246, time: 45
+INFO:thesis.statistics:bytes: 5596, time: 45
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 205, time: 50
+INFO:thesis.statistics:bytes: 4684, time: 50
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 205, time: 55
+INFO:thesis.statistics:bytes: 4614, time: 55
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 246, time: 60
+INFO:thesis.statistics:bytes: 5062, time: 60
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 328, time: 65
+INFO:thesis.statistics:bytes: 6806, time: 65
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 287, time: 70
+INFO:thesis.statistics:bytes: 5552, time: 70
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 287, time: 75
+INFO:thesis.statistics:bytes: 5824, time: 75
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 328, time: 80
+INFO:thesis.statistics:bytes: 6272, time: 80
+INFO:openflow.of_01:[00-00-00-00-00-01 1] closed
+INFO:thesis.base-flow-mod:port 1 on switch 2 has been modified
+INFO:thesis.base-flow-mod:port 1 on switch 2 has been modified
+INFO:thesis.base-flow-mod:port 1 on switch 3 has been modified
+INFO:thesis.base-flow-mod:port 1 on switch 3 has been modified
+INFO:openflow.of_01:[00-00-00-00-00-02 2] closed
+INFO:openflow.spanning_tree:2 ports changed
+INFO:thesis.base-flow-mod:port 2 on switch 4 has been modified
+INFO:thesis.base-flow-mod:port 2 on switch 4 has been modified
+INFO:openflow.of_01:[00-00-00-00-00-03 3] closed
+INFO:thesis.base-flow-mod:port 3 on switch 4 has been modified
+INFO:thesis.base-flow-mod:port 3 on switch 4 has been modified
+INFO:openflow.of_01:[00-00-00-00-00-04 4] closed
+INFO:core:POX 0.2.0 (carp) is up.
+INFO:openflow.of_01:[00-00-00-00-00-01 1] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 4 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s1-eth1:1, s1-eth2:2, s1-eth3:3, s1:65534>
+INFO:openflow.of_01:[00-00-00-00-00-02 2] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 3 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s2-eth1:1, s2-eth2:2, s2:65534>
+INFO:openflow.of_01:[00-00-00-00-00-03 3] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 3 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s3-eth1:1, s3-eth2:2, s3:65534>
+INFO:openflow.of_01:[00-00-00-00-00-04 4] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 4 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s4-eth1:1, s4-eth2:2, s4-eth3:3, s4:65534>
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.3 -> 00-00-00-00-00-03.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.2 -> 00-00-00-00-00-02.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-02.1 -> 00-00-00-00-00-01.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-02.2 -> 00-00-00-00-00-04.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-03.1 -> 00-00-00-00-00-01.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-03.2 -> 00-00-00-00-00-04.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-04.3 -> 00-00-00-00-00-03.2
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 82, time: 5
+INFO:thesis.statistics:bytes: 2662, time: 5
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 41, time: 10
+INFO:thesis.statistics:bytes: 1914, time: 10
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 82, time: 15
+INFO:thesis.statistics:bytes: 1746, time: 15
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 82, time: 20
+INFO:thesis.statistics:bytes: 1992, time: 20
+INFO:openflow.discovery:link detected: 00-00-00-00-00-04.2 -> 00-00-00-00-00-02.2
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:2 ports changed
+INFO:openflow.spanning_tree:1 ports changed
+INFO:openflow.spanning_tree:2 ports changed
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 164, time: 25
+INFO:thesis.statistics:bytes: 3626, time: 25
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 123, time: 30
+INFO:thesis.statistics:bytes: 3150, time: 30
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 164, time: 35
+INFO:thesis.statistics:bytes: 2912, time: 35
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 164, time: 40
+INFO:thesis.statistics:bytes: 3570, time: 40
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 246, time: 45
+INFO:thesis.statistics:bytes: 4256, time: 45
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 246, time: 50
+INFO:thesis.statistics:bytes: 4900, time: 50
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 205, time: 55
+INFO:thesis.statistics:bytes: 4424, time: 55
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 246, time: 60
+INFO:thesis.statistics:bytes: 4572, time: 60
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 287, time: 65
+INFO:thesis.statistics:bytes: 7002, time: 65
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 287, time: 70
+INFO:thesis.statistics:bytes: 6492, time: 70
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 328, time: 75
+INFO:thesis.statistics:bytes: 6808, time: 75
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 328, time: 80
+INFO:thesis.statistics:bytes: 7478, time: 80
+INFO:openflow.of_01:[00-00-00-00-00-01 1] closed
+INFO:thesis.base-flow-mod:port 1 on switch 2 has been modified
+INFO:thesis.base-flow-mod:port 1 on switch 2 has been modified
+INFO:thesis.base-flow-mod:port 1 on switch 3 has been modified
+INFO:thesis.base-flow-mod:port 1 on switch 3 has been modified
+INFO:openflow.of_01:[00-00-00-00-00-02 2] closed
+INFO:openflow.spanning_tree:2 ports changed
+INFO:thesis.base-flow-mod:port 2 on switch 4 has been modified
+INFO:thesis.base-flow-mod:port 2 on switch 4 has been modified
+INFO:openflow.of_01:[00-00-00-00-00-03 3] closed
+INFO:thesis.base-flow-mod:port 3 on switch 4 has been modified
+INFO:thesis.base-flow-mod:port 3 on switch 4 has been modified
+INFO:openflow.of_01:[00-00-00-00-00-04 4] closed
+INFO:core:POX 0.2.0 (carp) is up.
+INFO:openflow.of_01:[00-00-00-00-00-01 1] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 4 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s1-eth1:1, s1-eth2:2, s1-eth3:3, s1:65534>
+INFO:openflow.of_01:[00-00-00-00-00-02 2] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 3 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s2-eth1:1, s2-eth2:2, s2:65534>
+INFO:openflow.of_01:[00-00-00-00-00-03 3] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 3 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s3-eth1:1, s3-eth2:2, s3:65534>
+INFO:openflow.of_01:[00-00-00-00-00-04 4] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 4 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s4-eth1:1, s4-eth2:2, s4-eth3:3, s4:65534>
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.3 -> 00-00-00-00-00-03.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.2 -> 00-00-00-00-00-02.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-02.1 -> 00-00-00-00-00-01.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-02.2 -> 00-00-00-00-00-04.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-03.1 -> 00-00-00-00-00-01.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-03.2 -> 00-00-00-00-00-04.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-04.3 -> 00-00-00-00-00-03.2
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 41, time: 5
+INFO:thesis.statistics:bytes: 1774, time: 5
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 82, time: 10
+INFO:thesis.statistics:bytes: 2020, time: 10
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 82, time: 15
+INFO:thesis.statistics:bytes: 2230, time: 15
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 82, time: 20
+INFO:thesis.statistics:bytes: 1844, time: 20
+INFO:openflow.discovery:link detected: 00-00-00-00-00-04.2 -> 00-00-00-00-00-02.2
+INFO:openflow.spanning_tree:6 ports changed
+INFO:openflow.spanning_tree:2 ports changed
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 164, time: 25
+INFO:thesis.statistics:bytes: 3536, time: 25
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 123, time: 30
+INFO:thesis.statistics:bytes: 2738, time: 30
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 164, time: 35
+INFO:thesis.statistics:bytes: 3256, time: 35
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 164, time: 40
+INFO:thesis.statistics:bytes: 3352, time: 40
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 246, time: 45
+INFO:thesis.statistics:bytes: 4810, time: 45
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 205, time: 50
+INFO:thesis.statistics:bytes: 4362, time: 50
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 246, time: 55
+INFO:thesis.statistics:bytes: 4888, time: 55
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 205, time: 60
+INFO:thesis.statistics:bytes: 4012, time: 60
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 328, time: 65
+INFO:thesis.statistics:bytes: 6020, time: 65
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 287, time: 70
+INFO:thesis.statistics:bytes: 5914, time: 70
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 328, time: 75
+INFO:thesis.statistics:bytes: 6440, time: 75
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 287, time: 80
+INFO:thesis.statistics:bytes: 5564, time: 80
+INFO:openflow.of_01:[00-00-00-00-00-01 1] closed
+INFO:thesis.base-flow-mod:port 1 on switch 2 has been modified
+INFO:thesis.base-flow-mod:port 1 on switch 2 has been modified
+INFO:thesis.base-flow-mod:port 1 on switch 3 has been modified
+INFO:thesis.base-flow-mod:port 1 on switch 3 has been modified
+INFO:openflow.of_01:[00-00-00-00-00-02 2] closed
+INFO:openflow.spanning_tree:2 ports changed
+INFO:thesis.base-flow-mod:port 2 on switch 4 has been modified
+INFO:thesis.base-flow-mod:port 2 on switch 4 has been modified
+INFO:openflow.of_01:[00-00-00-00-00-03 3] closed
+INFO:thesis.base-flow-mod:port 3 on switch 4 has been modified
+INFO:thesis.base-flow-mod:port 3 on switch 4 has been modified
+INFO:openflow.of_01:[00-00-00-00-00-04 4] closed
+INFO:core:POX 0.2.0 (carp) is up.
+INFO:openflow.of_01:[00-00-00-00-00-01 1] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 4 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s1-eth1:1, s1-eth2:2, s1-eth3:3, s1:65534>
+INFO:openflow.of_01:[00-00-00-00-00-02 2] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 3 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s2-eth1:1, s2-eth2:2, s2:65534>
+INFO:openflow.of_01:[00-00-00-00-00-03 3] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 3 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s3-eth1:1, s3-eth2:2, s3:65534>
+INFO:openflow.of_01:[00-00-00-00-00-04 4] connected
+INFO:thesis.base-flow-mod:setting NO_FLOOD on 4 ports on new switch
+INFO:thesis.base-flow-mod:port <Ports: s4-eth1:1, s4-eth2:2, s4-eth3:3, s4:65534>
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.3 -> 00-00-00-00-00-03.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.2 -> 00-00-00-00-00-02.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-02.1 -> 00-00-00-00-00-01.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-02.2 -> 00-00-00-00-00-04.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-03.1 -> 00-00-00-00-00-01.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-03.2 -> 00-00-00-00-00-04.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-04.3 -> 00-00-00-00-00-03.2
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 82, time: 5
+INFO:thesis.statistics:bytes: 1914, time: 5
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 82, time: 10
+INFO:thesis.statistics:bytes: 1672, time: 10
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 82, time: 15
+INFO:thesis.statistics:bytes: 2494, time: 15
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 41, time: 20
+INFO:thesis.statistics:bytes: 1824, time: 20
+INFO:openflow.discovery:link detected: 00-00-00-00-00-04.2 -> 00-00-00-00-00-02.2
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:2 ports changed
+INFO:openflow.spanning_tree:1 ports changed
+INFO:openflow.spanning_tree:2 ports changed
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 164, time: 25
+INFO:thesis.statistics:bytes: 3800, time: 25
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 164, time: 30
+INFO:thesis.statistics:bytes: 3150, time: 30
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 164, time: 35
+INFO:thesis.statistics:bytes: 2838, time: 35
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 123, time: 40
+INFO:thesis.statistics:bytes: 2718, time: 40
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 205, time: 45
+INFO:thesis.statistics:bytes: 4272, time: 45
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 246, time: 50
+INFO:thesis.statistics:bytes: 4774, time: 50
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 205, time: 55
+INFO:thesis.statistics:bytes: 4462, time: 55
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 246, time: 60
+INFO:thesis.statistics:bytes: 5354, time: 60
+INFO:thesis.statistics:switch [00-00-00-00-00-01 1]: 2 flows detected
+INFO:thesis.statistics:bytes: 328, time: 65
+INFO:thesis.statistics:bytes: 7248, time: 65
+INFO:thesis.statistics:switch [00-00-00-00-00-04 4]: 2 flows detected
+INFO:thesis.statistics:bytes: 328, time: 70
+INFO:thesis.statistics:bytes: 6668, time: 70
+INFO:thesis.statistics:switch [00-00-00-00-00-03 3]: 2 flows detected
+INFO:thesis.statistics:bytes: 287, time: 75
+INFO:thesis.statistics:bytes: 6356, time: 75
+INFO:thesis.statistics:switch [00-00-00-00-00-02 2]: 2 flows detected
+INFO:thesis.statistics:bytes: 287, time: 80
+INFO:thesis.statistics:bytes: 6166, time: 80
+INFO:openflow.of_01:[00-00-00-00-00-01 1] closed
+INFO:thesis.base-flow-mod:port 1 on switch 2 has been modified
+INFO:thesis.base-flow-mod:port 1 on switch 2 has been modified
+INFO:thesis.base-flow-mod:port 1 on switch 3 has been modified
+INFO:openflow.of_01:[00-00-00-00-00-02 2] closed
+INFO:openflow.spanning_tree:2 ports changed
+INFO:thesis.base-flow-mod:port 2 on switch 4 has been modified
+INFO:thesis.base-flow-mod:port 2 on switch 4 has been modified
+INFO:openflow.of_01:[00-00-00-00-00-03 3] closed
+INFO:thesis.base-flow-mod:port 3 on switch 4 has been modified
+INFO:thesis.base-flow-mod:port 3 on switch 4 has been modified
+INFO:openflow.of_01:[00-00-00-00-00-04 4] closed
