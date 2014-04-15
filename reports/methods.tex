@@ -1,0 +1,14 @@
+\chapter{Methodology}
+
+The goal of this thesis is to implement a controller to do optimal routing in a mesh network, with comparable or better performance than existing solutions available, assuming that the controller has topology and link capacity information and a route to each switch in the network. The problem can be initially modelled as a multi-commodity flow problem and solved using standard optimisation techniques.
+
+In order to assess the performance of the controller, a set of meaningful network tests will be devised and the controller's performance benchmarked against that of a selection of existing techniques for software-defined networking in wireless mesh networks.
+
+The project can be divided into a number of steps:
+
+\begin{enumerate}
+\item Compile an overview of common approaches, and select a representative sample which can be experimentally reproduced; implement a working version of each selected approach
+\item Mathematically model the proposed new controller; implement it in POX
+\item Explicitly define the performance objectives and benchmarking metrics; design a set of topologies to capture performance differences between approaches; outline a range of network events to simulate in Mininet 
+\item Conduct benchmarking of existing approaches and new controller; note relative performance on various metrics, and improve controller based on benchmarking results
+\end{enumerate}
