@@ -26,11 +26,19 @@ class Switch:
 
     def _handle_PacketIn(self, event):
 	packet = event.parsed
-	#log.info(vars(self.connection))
+	#log.info(vars(packet))
 	#log.info("new packet on switch {0}".format(self.connection))
 
-	# flood... 
+	# flood arp
 	msg = of.ofp_flow_mod()
+	msg.match.dl_type = pkt.ethernet.ARP_TYPE
+        msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
+	self.connection.send(msg)
+
+	# only allow pings with certain tos
+	msg = of.ofp_flow_mod()
+	msg.match.dl_type = pkt.ethernet.IP_TYPE
+	msg.match.nw_tos = 0x04
         msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
 	self.connection.send(msg)
 
