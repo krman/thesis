@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<head>
+	<title>pcap visualiser</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<!--<script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>-->
+	<script type="text/javascript" src="d3.v3.min.js"></script>
+	<style>
+		.files {
+			padding: 10px;
+			border: 1px solid #ccc;
+			background: #eee;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="files">
+		vcap | <input type="file" id="pcap">
+	</div>
+
+	<div id="print"></div>
+
+	<script type="text/javascript" language="javascript">
+		function parse_pcap(pcap) {
+			buffer = new Uint8Array(pcap);
+			header = new DataView(pcap,0,24);
+			packets = new DataView(pcap,24);
+
+			var le, magic = header.getUint32(0);
+			switch(magic) {
+				case 0xa1b2c3d4:
+					le = 0; break;
+				case 0xd4c3b2a1:
+					le = 1; break;
+				case 0xa1b23c4d:
+				case 0x4d3cb2a1:
+					console.log("no support for nanosecond resolution pcaps"); break;
+				default:
+					console.log("bad magic number"); break;
+			}
+			
+			var data_link = header.getUint32(20,le);
+			if (data_link != 113) {
+				console.log("bad link-layer header type (not LINUX_SLL)");
+			}
+
+			var packet = 0, i = 0, next = 0;
+			var ts_sec, ts_usec, incl_len, orig_len; // pcap
+			var packet_type, arphrd, ll_addr_len, ll_addr, protocol; // linux_sll
+			var tos, ip_len, src_addr = new Array(4), dst_addr = new Array(4); // ipv4
+
+			while (i < buffer.length-24) {
+				console.log("Packet "+packet+" (i="+i+")");
+
+				// pcap packet header: host byte order
+			  ts_sec = packets.getUint32(i,le).toString();
+			  ts_usec = packets.getUint32(i+4,le).toString();
+				timestamp = new Date(parseInt(parseFloat(ts_sec + "." + ts_usec)*1000));
+				i += 8;
+
+			  incl_len = packets.getUint32(i,le);
+				i += 4;
+
+			  orig_len = packets.getUint32(i,le);
+				i += 4;
+
+				next = i + incl_len;
+
+				// linux_sll header: network byte order
+			  packet_type = packets.getUint16(i); // multicast, broadcast, unicast etc
+				i += 2+2+2+8; // skip arphrd, ll-addr-len & ll-addr
+
+				protocol = packets.getUint16(i);
+				if (protocol != 0x0800) {
+					i = next; continue;
+				}
+				i += 2;
+
+				// ipv4 header: network byte order
+				i += 1; // skip version & IHL
+				tos = packets.getUint8(i);
+				console.log("tos: "+tos);
+				i += 1;
+
+				i += 10; // skip length, id, flags, offset, ttl, protocol, checksum
+
+				src_addr[3] = packets.getUint8(i); i += 1;
+				src_addr[2] = packets.getUint8(i); i += 1;
+				src_addr[1] = packets.getUint8(i); i += 1;
+				src_addr[0] = packets.getUint8(i); i += 1;
+
+				dst_addr[3] = packets.getUint8(i); i += 1;
+				dst_addr[2] = packets.getUint8(i); i += 1;
+				dst_addr[1] = packets.getUint8(i); i += 1;
+				dst_addr[0] = packets.getUint8(i); i += 1;
+
+				console.log("from "+src_addr+" to "+dst_addr);
+				i += 8;
+
+				i = next;
+				packet += 1;
+			}
+		}
+
+		// initial selection of packet file
+		function select_file(e) {
+			var file = e.target.files[0];
+
+			var reader = new FileReader();
+      reader.onload = (function(file) {
+        return function(e) { parse_pcap(e.target.result); };
+      })(file);
+      reader.readAsArrayBuffer(file);
+		}
+
+		document.getElementById('pcap').addEventListener('change', select_file, false);
+	</script>
+</body>
+</html>
