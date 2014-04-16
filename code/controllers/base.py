@@ -12,6 +12,7 @@ import pox.lib.packet as pkt
 import pox.openflow.discovery as discovery
 import pox.openflow.spanning_tree as spanning_tree
 import pox.thesis.statistics as statistics
+import pox.thesis.multicommodity as multicommodity
 
 log = core.getLogger()
 
@@ -63,4 +64,5 @@ def launch():
     discovery.launch()
     spanning_tree.launch(no_flood=True, hold_down=True)
     statistics.launch()
+    multicommodity.launch()
     core.registerNew(Controller)
