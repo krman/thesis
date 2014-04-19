@@ -32,15 +32,23 @@ class Statistics:
 
     def _handle_FlowStatsReceived(self, event):
 	stats = flow_stats_to_list(event.stats)
-	log.info("switch {0}: {1} flows detected at time {2}".format(event.connection, len(stats), self.time))
+	#log.info("switch {0}: {1} flows detected at time {2}".format(event.connection, len(stats), self.time))
+
+	# update window
+	#old = self.window.popleft()
+
 	for flow in stats:
 	    bps = float(flow['byte_count']) / self.time
-	    log.info("match {0}: {1} bytes/sec".format(flow['match'], bps))
+	    #log.info("match {0}: {1} bytes/sec".format(flow['match'], bps))
+	    #log.info(str(dict_to_match(flow['match'])))
+	    #log.info(hash(dict_to_match(flow['match'])))
 
     #def _handle_PortStatsReceived(self, event):
 	#stats = flow_stats_to_list(event.stats)
 	#log.info("port stats: %s" % (stats))
 
+    def get_flows(self):
+	return self.flows
 
 def launch(period=5, length=1):
     core.registerNew(Statistics, period=period, length=length)

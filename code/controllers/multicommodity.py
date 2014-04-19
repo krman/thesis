@@ -17,13 +17,20 @@ log = core.getLogger()
 
 
 class Multicommodity:
-    def __init__(self, period=5, length=1):
+    _core_name = "thesis_mcf"
+
+    def __init__(self):
+	Timer(5, self._update_flows, recurring=True)
+	self.flows = {}
 	core.openflow.addListeners(self)
 
-    #def _handle_PortStatsReceived(self, event):
-	#stats = flow_stats_to_list(event.stats)
-	#log.info("port stats: %s" % (stats))
-    def 
+    def _update_flows(self):
+	#log.info(core.openflow_discovery.adjacency)
+	#log.info(self.flows)
+	a = 1+1
+
+    def add_flow(self, flow):
+	self.flows[flow] = 0
 
 
 def launch():
