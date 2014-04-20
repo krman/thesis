@@ -5,9 +5,11 @@ Route things! This is the base controller, which various modules plug into
 """
 
 from pox.core import core
-from pox.lib.recoco import Timer
 import pox.openflow.libopenflow_01 as of
 import pox.lib.packet as pkt
+from pox.lib.recoco import Timer
+from pox.openflow.of_json import *
+from collections import namedtuple
 
 import pox.openflow.discovery as discovery
 import pox.openflow.spanning_tree as spanning_tree
@@ -32,29 +34,20 @@ class Switch:
 	self.connection.send(msg)
 
     def _handle_PacketIn(self, event):
-	eth_packet = event.parsed
-	tcp = 0
-	if eth_packet.type == pkt.ethernet.IP_TYPE:
-	    ip_packet = eth_packet.payload
-	    #log.info(vars(ip_packet))
-	    if ip_packet.protocol == pkt.ipv4.TCP_PROTOCOL:
-		tcp_packet = ip_packet.next
-		#log.info(vars(tcp_packet))
-		tcp = 1
-	else:
-	    #log.info(eth_packet)
-	    pass
-	
-	if tcp:
-	    flow = (ip_packet.srcip, tcp_packet.srcport, ip_packet.dstip, tcp_packet.dstport, ip_packet.protocol)
-	    #log.info("Adding flow: {0}".format(flow))
-	    core.thesis_mcf.add_flow(flow)
-	    msg = of.ofp_flow_mod()
-	    msg.match = msg.match.from_packet(eth_packet)
-	    #log.info(str(msg.match))
-	    #log.info(hash(msg.match))
+	msg = of.ofp_flow_mod()
+	msg.match = msg.match.from_packet(event.parsed)
+	d = match_to_dict(msg.match)
+
+	try:
+	    f = { k:d[k] for k in ["nw_src", "nw_dst", "tp_src", "tp_dst", "nw_proto"] }
+	    flow = core.thesis_mcf.Flow(**f)
 	    msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
 	    self.connection.send(msg)
+	    core.thesis_mcf.add_flow(flow)
+	    #log.info("added flow to switch {0}: {1}".format(self.connection, flow))
+	except Exception, e:
+	    pass
+	    
 
 
 class Controller:
@@ -73,9 +66,9 @@ def print_topology():
     log.info(core.openflow_discovery.adjacency)
 
 def launch():
-    #Timer(5, print_topology, recurring=True)
     discovery.launch()
     spanning_tree.launch(no_flood=True, hold_down=True)
     statistics.launch()
     multicommodity.launch()
+
     core.registerNew(Controller)
