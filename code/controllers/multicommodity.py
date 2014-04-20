@@ -30,8 +30,22 @@ class Multicommodity:
 	#log.info(core.openflow_discovery.adjacency)
 	log.info(self.flows)
 
-    def add_flow(self, flow):
-	self.flows[flow] = 0
+    def add_flow(self, msg):
+        try:
+            d = match_to_dict(msg.match)
+            f = { k:d[k] for k in ["nw_src", "nw_dst", "tp_src", "tp_dst", "nw_proto"] }
+            flow = core.thesis_mcf.Flow(**f)
+	    self.flows[flow] = 0
+	    log.info("added flow: {0}".format(flow))
+        except KeyError:
+            pass
+
+    def _handle_PacketIn(self, event):
+        msg = of.ofp_flow_mod()
+        msg.match = msg.match.from_packet(event.parsed)
+        core.thesis_mcf.add_flow(msg)
+	msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
+	event.connection.send(msg)
 
 
 def launch():

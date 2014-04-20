@@ -33,22 +33,6 @@ class Switch:
         msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
 	self.connection.send(msg)
 
-    def _handle_PacketIn(self, event):
-	msg = of.ofp_flow_mod()
-	msg.match = msg.match.from_packet(event.parsed)
-	d = match_to_dict(msg.match)
-
-	try:
-	    f = { k:d[k] for k in ["nw_src", "nw_dst", "tp_src", "tp_dst", "nw_proto"] }
-	    flow = core.thesis_mcf.Flow(**f)
-	    msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
-	    self.connection.send(msg)
-	    core.thesis_mcf.add_flow(flow)
-	    #log.info("added flow to switch {0}: {1}".format(self.connection, flow))
-	except Exception, e:
-	    pass
-	    
-
 
 class Controller:
     def __init__(self):
@@ -59,7 +43,6 @@ class Controller:
 
     def _handle_PortStatus(self, event):
 	log.info("port %s on switch %s has been modified" % (event.port, event.dpid))
-
 
 
 def print_topology():
