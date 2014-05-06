@@ -17,6 +17,8 @@ However, the difficulty of managing WMNs due to their distributed nature means t
 \subsection{Traditional Mesh Routing}
 Mesh routing is inherently distributed and a number of protocols explicitly designed for distributed routing exist to address this, such as AODV, B.A.T.M.A.N. and OLSR. These protocols do not rely on centralised control, and make design decisions based on the high turnover and fragmentation in such networks \cite{dely:wmn, detti:wmsdn}. Of these, Optimized Link State Routing (OLSR) \cite{rfc3626} is frequently used as a backup protocol for SDN-based solutions so it is worth examining. Generally, link-state routing protocol require that nodes each maintain a copy of the network topology database. In OLSR, compared to the similar IP routing protocol OSPF \cite{rfc5340}, only a subset of nodes store the data, and the protocol does not attempt to ensure that all nodes are always up-to-date, but simply floods the network often enough that each node's database is updated reasonably often.
 
+what about traditional routing. not specific to meshes, but related to multipath stuff? eg equal-cost multipath forwarding (ECMP) (reference? see alfares). uses hash of packet headers to choose a path arbitrarily, but such that all the packets go down that path for related flows (as dlg explained) \cite{alfares:hedera}
+
 \subsection{Software-Defined Mesh Routing}
 Software-defined networks rely on two concepts: flow-based routing and the existence of a central controller. Flow-based routing means routing based on flows (linked series of related packets such as all TCP traffic, all traffic from one MAC address or to a particular IP subnet). This concept was reasonably well-developed \cite{wellons:oblivious,wang:routing} before SDN.
 
