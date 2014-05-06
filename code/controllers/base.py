@@ -10,6 +10,7 @@ import pox.lib.packet as pkt
 from pox.lib.recoco import Timer
 from pox.openflow.of_json import *
 from collections import namedtuple
+import yappi
 
 import pox.openflow.discovery as discovery
 import pox.openflow.spanning_tree as spanning_tree
@@ -24,22 +25,32 @@ class Switch:
 	self.connection = connection
 	connection.addListeners(self)
 
-	log.info("setting NO_FLOOD on {0} ports on new switch".format(len(connection.ports)))
-	log.info("port {0}".format(connection.ports))
-
 	# flood arp
 	msg = of.ofp_flow_mod()
 	msg.match.dl_type = pkt.ethernet.ARP_TYPE
         msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
+        msg.actions.append(of.ofp_action_output(port = of.OFPP_CONTROLLER))
 	self.connection.send(msg)
 
 
 class Controller:
-    def __init__(self):
+    _core_name = "thesis_base"
+
+    def __init__(self, profile=False):
+	self.switches = {}
+	self.profile = profile
 	core.openflow.addListeners(self)
+	core.addListeners(self)
+
+    def _handle_GoingDownEvent(self, event):
+	if self.profile:
+	    profile = yappi.get_func_stats()
+	    profile.sort("totaltime")
+	    profile.print_all(out=open("profile", "w+"))
+	    yappi.stop()
 
     def _handle_ConnectionUp(self, event):
-	Switch(event.connection)
+	self.switches[event.dpid] = Switch(event.connection)
 
     def _handle_PortStatus(self, event):
 	log.info("port %s on switch %s has been modified" % (event.port, event.dpid))
@@ -48,10 +59,13 @@ class Controller:
 def print_topology():
     log.info(core.openflow_discovery.adjacency)
 
-def launch():
+def launch(profile=False):
+    if profile:
+	yappi.start()
+
     discovery.launch()
     spanning_tree.launch(no_flood=True, hold_down=True)
     statistics.launch()
     multicommodity.launch()
 
-    core.registerNew(Controller)
+    core.registerNew(Controller, profile=profile)
