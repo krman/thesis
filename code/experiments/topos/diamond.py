@@ -21,13 +21,9 @@ from mininet.link import TCLink
 
 
 def makeHost(i):
-    # note, there are some issues when i is large (>250 or so)
     label = 'h{}'.format(i)
     ip = '10.0.0.{}'.format(i)
-    full = '{:012x}'.format(i)
-    mac = ':'.join(full[j:j+2] for j in xrange(0,12,2))
-    opts = {'ip':ip, 'mac':mac}
-    return (label, opts)
+    return (label, {'ip':ip})
 
 
 def makeSwitch(i):
