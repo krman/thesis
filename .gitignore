@@ -44,3 +44,5 @@ wiki/
 temp/
 code/controllers/pox.py
 *.pyc
+*.lp
+*~
