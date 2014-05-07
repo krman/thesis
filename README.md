@@ -4,10 +4,11 @@
 
 ### uq academic integrity tutorial
 due: 20 march 16:00 (sem 1, week 3)
-** DONE **
+** DONE ** : PASS
 
 ### project proposal
 due: 27 march 16:00 (sem 1, week 4)
+** DONE ** : 8.9 / 10%
 
 ### progress seminar
 due: 19 may 09:00 - 23 may 16:00 (sem 1, week 11)

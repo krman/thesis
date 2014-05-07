@@ -21,13 +21,9 @@ from mininet.link import TCLink
 
 
 def makeHost(i):
-    # note, there are some issues when i is large (>250 or so)
     label = 'h{}'.format(i)
     ip = '10.0.0.{}'.format(i)
-    full = '{:012x}'.format(i)
-    mac = ':'.join(full[j:j+2] for j in xrange(0,12,2))
-    opts = {'ip':ip, 'mac':mac}
-    return (label, opts)
+    return (label, {'ip':ip})
 
 
 def makeSwitch(i):
@@ -48,12 +44,12 @@ def makeDiamond():
     s = [0] + [net.addSwitch(label, **opts) for label,opts in switches]
 
     # link them up
-    TCLink(h[1],s[1], bw=100)
-    TCLink(h[2],s[4], bw=100)
-    TCLink(s[1],s[2], bw=100)
-    TCLink(s[1],s[3], bw=20)
-    TCLink(s[2],s[4], bw=100)
-    TCLink(s[3],s[4], bw=20)
+    TCLink(h[1],s[1], bw=1)
+    TCLink(h[2],s[4], bw=1)
+    TCLink(s[1],s[2], bw=1)
+    TCLink(s[1],s[3], bw=1)
+    TCLink(s[2],s[4], bw=1)
+    TCLink(s[3],s[4], bw=1)
 
     return net
 

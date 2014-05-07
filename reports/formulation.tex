@@ -1,19 +1,32 @@
-\chapter{Algorithm Design}
+\documentclass[12pt,a4paper]{article}
+\usepackage{textgreek}
 
-end to end flow is important
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{setspace}
+\usepackage{fullpage}
+\usepackage{parskip}
+\onehalfspacing
+\setlength{\parindent}{0cm}
 
-aggregation of flows is important
 
-some smart dudes \cite{bonsma:ufp}, \cite{anag:mazing} and \cite{chakrabarti:ufp}
+%\chapter{Algorithm Design}
 
-\section{Considerations}
-tcp imposes two significant restrictions:
+%end to end flow is important
 
-\begin{enumerate}
-	\item everything goes to shit if you send things down multiple paths
-	\item tcp slows down its sending rate if you lose packets, so demand changes
-\end{enumerate}
+%aggregation of flows is important
 
+%some smart dudes \cite{bonsma:ufp}, \cite{anag:mazing} and \cite{chakrabarti:ufp}
+
+%\section{Considerations}
+%tcp imposes two significant restrictions:
+
+%\begin{enumerate}
+	%\item everything goes to shit if you send things down multiple paths
+	%\item tcp slows down its sending rate if you lose packets, so demand changes
+%\end{enumerate}
+
+\begin{document}
 \section{Formulation}
 The following formulation of the problem attempts to maximise the minimum spare capacity over all links, and is adapted from a formulation by Walkowiak \cite{walkowiak:residual}.
 
@@ -37,5 +50,8 @@ The problem can be expressed as a linear program as follows.
 
 In short: the goal is to maximise $z$. Constraint (3.5) defines $z$ so that for every edge (or link), the spare capacity on that link is at least $z$. The total traffic routed through each link, defined in (3.3), must be less than its capacity, by (3.4). Each possible route for a given commodity is either selected or not, and only one route per commodity is selected, by (3.2) and (3.1) respectively.
 
-\newpage
-when i get home, write out how to formulate this in the standard form expected by algorithms and pulp and stuff. eg there was that stackoverflow question saying how to change (3.3) from the weird 3 variable thing into a standard linear equation constraint, coz 2 of the variables are binary, so you can fix it. yeah. 2 variables are binary and 1 is constant defined at the start (well, as constant as demand can be).
+%\newpage
+%when i get home, write out how to formulate this in the standard form expected by algorithms and pulp and stuff. eg there was that stackoverflow question saying how to change (3.3) from the weird 3 variable thing into a standard linear equation constraint, coz 2 of the variables are binary, so you can fix it. yeah. 2 variables are binary and 1 is constant defined at the start (well, as constant as demand can be).
+
+\end{document}
+book

@@ -1,0 +1,55 @@
+\documentclass{article}
+\usepackage{pdftricks}
+\usepackage{fullpage}
+\usepackage{xcolor}
+\begin{psinputs}
+	\usepackage{pstricks}
+	\usepackage{pst-node}
+	\usepackage{pst-tree}
+\end{psinputs}
+
+\begin{document}
+\thispagestyle{empty}
+
+\begin{pdfpic}
+	\begin{pspicture}(30,10)
+		\newcommand{\controller}[1]{[mnode=dia]{#1}}
+		\newcommand{\switch}[1]{\psframebox[framesep=5pt]{#1}}
+		\newcommand{\host}[1]{[mnode=circle]{#1}}
+		\psmatrix[colsep=1.7cm,rowsep=1cm]
+		& & & & \host{h1} \\
+		& & \switch{s1} & & \switch{s2} \\
+		\host{h2} & \switch{s3} & & \switch{s4} & & \switch{s5} & \host{h3} \\
+		& & \switch{s6} & & \switch{s7} \\
+		& & \host{h4}
+		\ncline{1,5}{2,5}
+		\naput{5Gbps}
+		\ncline{3,1}{3,2}
+		\naput{5Gbps}
+		\ncline{3,2}{2,3}
+		\naput{1Gbps}
+		\ncline{2,3}{3,4}
+		\naput{1Gbps}
+		\ncline{2,3}{4,3}
+		\nbput{1Gbps}
+		\ncline{3,4}{2,5}
+		\naput{1Gbps}
+		\ncline{4,3}{3,4}
+		\nbput{1Gbps}
+		\ncline{3,4}{4,5}
+		\naput{10Gbps}
+		\ncline{4,3}{4,5}
+		\nbput{1Gbps}
+		\ncline{4,3}{5,3}
+		\naput{5Gbps}
+		\ncline{3,4}{3,6}
+		\naput{1Gbps}
+		\ncline{4,5}{3,6}
+		\nbput{10Gbps}
+		\ncline{3,6}{3,7}
+		\naput{5Gbps}
+		\endpsmatrix
+	\end{pspicture}
+\end{pdfpic}
+
+\end{document}
