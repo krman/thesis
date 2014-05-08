@@ -75,7 +75,6 @@ class Node:
 class Topology:
     def __init__(self):
 	self.graph = nx.Graph()
-	self.hosts = []
 
     def _add_node(self, node):
 	""" this is where ids are assigned. so the h1, s1 etc. """
@@ -95,11 +94,33 @@ class Topology:
 	h = Node("switch", ports, ips)
 	pass
 
-    def get_switch(self, switch):
+    def get_switch(self, dpid):
 	pass
 
     def add_link(self, n1, n2):
 	self.graph.add_edge(s1, s2)
+
+    def get_network(self):
+	self.graph.clear()
+
+	# add switches
+	for link in core.openflow_discovery.adjacency:
+	    s1 = self.get_switch(link.dpid1)
+	    s2 = self.get_switch(link.dpid2)
+	    self.add_link(s1, link.port1, s2, link.port2)
+
+	# add hosts
+	for src, entry in self.ht.entryByMAC:
+	    if entry.port == 65534: # controller port
+		continue
+	    if not core.openflow_discovery.is_edge_port(entry.dpid, entry.port):
+		continue
+
+	    h = self.get_host(entry.macaddr)
+	    s = self.get_switch(entry.dpid)
+	    self.add_link(h, None, s, entry.port)
+
+
 	
 	
 class Multicommodity:
@@ -127,8 +148,7 @@ class Multicommodity:
     def _handle_core_ComponentRegistered(self, event):
 	log.info("component up: {}".format(event.name))
 	if event.name == "host_tracker":
-	    event.component.addListenerByName("HostEvent", self._handle_host_tracker_HostEvent)
-
+	    event.component.addListenerByName("HostEvent", self._handle_host_tracker_HostEvent) 
     def _handle_host_tracker_HostEvent(self, event):
 	log.info("host detected")
 	log.info(event)
@@ -172,21 +192,28 @@ class Multicommodity:
 	    core.thesis_base.switches[switch.dpid].connection.send(msg)
 
     def _get_network(self):
-	self.graph.clear()
+	self.net.get_network()
 
+	
+	"""
 	# add switches
 	for link in core.openflow_discovery.adjacency:
 	    self.nodes.add
 	    s1 = Switch(dpid=link.dpid1)
 	    s2 = Switch(dpid=link.dpid2)
-	    self.nodes.update(Node(type="switch",data=s1), Node(type="switch",data=s2))
+	    #self.nodes.update(Node(type="switch",data=s1), Node(type="switch",data=s2))
 	    self.graph.add_edge(s1, s2)
 	
 	# add hosts
+	log.info("senthtent")
+	log.info(self.ht.entryByMAC)
 	for e in self.ht.entryByMAC:
 	    entry = self.ht.entryByMAC[e]
 	    if entry.port == 65534: continue
+	    log.info("general port: {}".format(entry))
 	    ep = core.openflow_discovery.is_edge_port(entry.dpid, entry.port)
+	    if ep:
+		log.info("edge port: {}".format(entry))
 	    if ep:
 		ip = None
 		for key in entry.ipAddrs:
@@ -195,14 +222,14 @@ class Multicommodity:
 		host = Host(mac=entry.macaddr, ip=ip)
 		self.graph.add_edge(host, Switch(dpid=entry.dpid))
 		self.nodes.add(host)
-		""" code i want to write
-		get_{host,switch} will create them if it can't find them
-		wait, but entry.macaddr is the macaddr of the switch on that port, isn't it?
+	    code i want to write
+	    get_{host,switch} will create them if it can't find them
+	    wait, but entry.macaddr is the macaddr of the switch on that port, isn't it?
 
-		h = self.net.get_host(mac=entry.macaddr, ip)
-		s = self.net.get_switch(dpid=entry.dpid)
-		self.net.add_link(h, s)
-		"""
+	    h = self.net.get_host(mac=entry.macaddr, ip)
+	    s = self.net.get_switch(dpid=entry.dpid)
+	    self.net.add_link(h, s)
+	"""
 
 	#log.info("edges:" + str(self.graph.edges()))
 
