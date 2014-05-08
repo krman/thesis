@@ -19,10 +19,12 @@ from pulp import *
 log = core.getLogger()
 
 
-Flow = namedtuple("Flow", ["nw_proto", "nw_src", "nw_dst", "tp_src", "tp_dst"])
-Hop = namedtuple("Hop", ["dpid", "port"])
+Flow = namedtuple("Flow", "nw_proto nw_src nw_dst tp_src tp_dst")
+Hop = namedtuple("Hop", "dpid port")
+Port = namedtuple("Port", "port_num mac_addr")
 
 
+"""
 class Host(namedtuple("Host", ["mac", "ip"])):
     def __new__(self, mac, ip=None):
 	return super(Host, self).__new__(self, mac, ip)
@@ -41,14 +43,15 @@ class Switch(namedtuple("Switch", ["dpid", "ip"])):
     
     def __str__(self):
 	return self.__repr__()
+"""
 
 
 class Node:
     def __init__(self, id, type, ports=[], ips=[]):
+	self.id = id
 	self.type = type
-	self.ports = dict().update(ports) # whatever it is for dicts
-	# ports is dict[EthAddr] = int ? or would the other way be better?
-	self.ips = set().update(ips)
+	self.ports = set(ports)
+	self.ips = set(ips)
 
     def __eq__(self, other):
 	""" i don't actually know what it would mean for nodes to be
@@ -57,7 +60,25 @@ class Node:
 	and macs are unlikely to suddenly switch... (vs ips).
 	incidentally... do i care if the port numbers match? not for now. 
 	actually, yeah, i kind of do. can relax if required (viewkeys)"""
-	return self.ports.viewitems() & other.ports.viewitems()
+	return (type(self) == type(other) and
+	    self.ports.viewitems() & other.ports.viewitems())
+
+    def __key(self):
+	return (self.id, self.type)
+
+    def __hash__(self):
+	return hash(self.__key())
+
+    def __repr__(self):
+	string = "{0}{1}".format(self.type, self.id)
+	if self.ports:
+	    string.append(" ports={}".format(self.ports))
+	if self.ips:
+	    string.append(" ips={}".format(self.ips))
+	return string
+
+    def ports_overlap(self, ports):
+	return self.ports & set([ports])
 
     def combine(self, other):
 	self.ports.update(other.ports)
@@ -71,10 +92,29 @@ class Node:
 	even mac address required. so ids are really just for printing
 	and it doesn't matter if some get lost/subsumed. """
 
+    def update(self, ports=[], ips=[]):
+	self.ports.update(ports)
+	self.ips.update(ips)
+
+
+class Host(Node):
+    def __init__(self, id, ports=[], ips=[]):
+	Node.__init__(self, id, "h", ports, ips)
+
+
+class Switch(Node):
+    def __init__(self, id, ports=[], ips=[]):
+	Node.__init__(self, id, "s", ports, ips)
+
 
 class Topology:
     def __init__(self):
 	self.graph = nx.Graph()
+	self.ht = host_tracker.host_tracker()
+
+	self.host_count = 0
+	self.hosts = set()
+	self.switches = dict()
 
     def _add_node(self, node):
 	""" this is where ids are assigned. so the h1, s1 etc. """
@@ -91,16 +131,34 @@ class Topology:
 	logical effect is to combine them into one single node.
 	either way, a message/info thing is printed. """
 	# add to the set of hosts
-	h = Node("switch", ports, ips)
-	pass
+	try:
+	    host = next(h for h in self.hosts if h.ports_overlap(ports))
+	    log.info("found host {0}".format(host.id))
+	except StopIteration:
+	    self.host_count += 1
+	    host = Host(self.host_count)
+	    self.hosts.add(host)
+	    log.info("created host {0}: {1}".format(self.host_count, ports))
+	return host
 
-    def get_switch(self, dpid):
-	pass
+    def get_switch(self, dpid, ports=[], ips=[]):
+	if dpid not in self.switches:
+	    self.switches[dpid] = Switch(dpid)
+	    log.info("created switch {}".format(dpid))
+	return self.switches[dpid]
+    
+    def mod_switch(self, dpid, ports=[], ips=[]):
+	if dpid not in self.switches:
+	    self.switches[dpid] = Switch(dpid)
+	    log.info("created switch {}".format(dpid))
+	self.switches[dpid].update(ports=ports, ips=ips)
 
-    def add_link(self, n1, n2):
-	self.graph.add_edge(s1, s2)
+    def add_link(self, n1, p1, n2, p2):
+	""" TODO make this care about ports """
+	log.info("adding link: {0}:{1} -> {2}:{3}".format(n1,p1,n2,p2))
+	self.graph.add_edge(n1, n2)
 
-    def get_network(self):
+    def refresh_network(self):
 	self.graph.clear()
 
 	# add switches
@@ -110,7 +168,7 @@ class Topology:
 	    self.add_link(s1, link.port1, s2, link.port2)
 
 	# add hosts
-	for src, entry in self.ht.entryByMAC:
+	for src, entry in self.ht.entryByMAC.items():
 	    if entry.port == 65534: # controller port
 		continue
 	    if not core.openflow_discovery.is_edge_port(entry.dpid, entry.port):
@@ -120,8 +178,9 @@ class Topology:
 	    s = self.get_switch(entry.dpid)
 	    self.add_link(h, None, s, entry.port)
 
+	log.info("network nodes: {}".format(self.graph.nodes()))
+	log.info("network edges: {}".format(self.graph.edges()))
 
-	
 	
 class Multicommodity:
     _core_name = "thesis_mcf"
@@ -136,11 +195,7 @@ class Multicommodity:
 	#Timer(5, self._update_flows, recurring=True)
 	Timer(15, self._solve_mcf)
 	self.flows = {}
-	self.graph = nx.Graph()
-	self.nodes = set()
-
-	# hosts attached to switches
-	self.ht = host_tracker.host_tracker()
+	self.net = Topology()
 
 	core.openflow.addListeners(self)
 	core.addListeners(self)
@@ -191,55 +246,9 @@ class Multicommodity:
 	    msg.actions.append(of.ofp_action_output(port = switch.port))
 	    core.thesis_base.switches[switch.dpid].connection.send(msg)
 
-    def _get_network(self):
-	self.net.get_network()
-
-	
-	"""
-	# add switches
-	for link in core.openflow_discovery.adjacency:
-	    self.nodes.add
-	    s1 = Switch(dpid=link.dpid1)
-	    s2 = Switch(dpid=link.dpid2)
-	    #self.nodes.update(Node(type="switch",data=s1), Node(type="switch",data=s2))
-	    self.graph.add_edge(s1, s2)
-	
-	# add hosts
-	log.info("senthtent")
-	log.info(self.ht.entryByMAC)
-	for e in self.ht.entryByMAC:
-	    entry = self.ht.entryByMAC[e]
-	    if entry.port == 65534: continue
-	    log.info("general port: {}".format(entry))
-	    ep = core.openflow_discovery.is_edge_port(entry.dpid, entry.port)
-	    if ep:
-		log.info("edge port: {}".format(entry))
-	    if ep:
-		ip = None
-		for key in entry.ipAddrs:
-		    ip = key
-		if not ip: continue
-		host = Host(mac=entry.macaddr, ip=ip)
-		self.graph.add_edge(host, Switch(dpid=entry.dpid))
-		self.nodes.add(host)
-	    code i want to write
-	    get_{host,switch} will create them if it can't find them
-	    wait, but entry.macaddr is the macaddr of the switch on that port, isn't it?
-
-	    h = self.net.get_host(mac=entry.macaddr, ip)
-	    s = self.net.get_switch(dpid=entry.dpid)
-	    self.net.add_link(h, s)
-	"""
-
-	#log.info("edges:" + str(self.graph.edges()))
-
     def _solve_mcf(self):
 	log.info("solving... getting network edges:");
-	log.info("nodes: {}".format(self.nodes))
-	self._get_network()
-	edges = self.graph.edges()
-	log.info("edges: {}".format(edges))
-	log.info("nodes: {}".format(self.nodes))
+	self.net.refresh_network()
 
 	mcf = LpProblem("routes", LpMaximize)
 
@@ -250,6 +259,7 @@ class Multicommodity:
 	# constraints
 	mcf += z <= 10
 	log.info("constraints: src/dst pairs")
+	"""
 	for flow in self.flows:
 	    nw_src = flow.nw_src
 	    nw_dst = flow.nw_dst.split('/')[0]
@@ -261,6 +271,7 @@ class Multicommodity:
 	    log.info("{0} -> {1} becomes {2} -> {3}".format(nw_src, nw_dst, dl_src.mac, dl_dst.mac))
 	    for i in nx.all_simple_paths(self.graph, dl_src, dl_dst):
 		log.info(i)
+	"""
 
 	# solve
 	mcf.writeLP("mcf.lp")
