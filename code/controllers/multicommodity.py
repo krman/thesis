@@ -44,23 +44,58 @@ class Switch(namedtuple("Switch", ["dpid", "ip"])):
 
 
 class Node:
-    def __init__(self, type, ports=[], ips=[]):
+    def __init__(self, id, type, ports=[], ips=[]):
 	self.type = type
-	self.ports = ports
-	self.ips = ips
+	self.ports = dict().update(ports) # whatever it is for dicts
+	# ports is dict[EthAddr] = int ? or would the other way be better?
+	self.ips = set().update(ips)
+
+    def __eq__(self, other):
+	""" i don't actually know what it would mean for nodes to be
+	equal. possibly only that one of the macs is the same, coz
+	possibly this could happen at different stages of discovery.
+	and macs are unlikely to suddenly switch... (vs ips).
+	incidentally... do i care if the port numbers match? not for now. 
+	actually, yeah, i kind of do. can relax if required (viewkeys)"""
+	return self.ports.viewitems() & other.ports.viewitems()
+
+    def combine(self, other):
+	self.ports.update(other.ports)
+	self.ips.update(other.ips)
+	return self
+	""" ugh. does this mean a single node can have multiple ids?! 
+	would it though? the ids are more for humans. at each stage
+	when the rules are being applied, the commodities are listed
+	as 5-tuples, and i just look up at that exact moment and see
+	the man of my dreams? no. i look up the associated Node, not
+	even mac address required. so ids are really just for printing
+	and it doesn't matter if some get lost/subsumed. """
 
 
 class Topology:
     def __init__(self):
 	self.graph = nx.Graph()
+	self.hosts = []
 
     def _add_node(self, node):
+	""" this is where ids are assigned. so the h1, s1 etc. """
 	pass
 
-    def add_host(self, host):
+    def get_host(self, ports=[], ips=[]):
+	""" Returns a Node for the host matching the macs/ips given.
+	either macs or ips can be an empty list but not both
+	ideally this should only match one Node (eg if multiple macs/ips
+	are specified, they'll all be associated with one thing).
+	i guess if they're not, ips will be unassociated with the existing
+	Node/s and reassigned to this one. i can't imagine a world where
+	you'd put in two macs from different nodes but i guess the only
+	logical effect is to combine them into one single node.
+	either way, a message/info thing is printed. """
+	# add to the set of hosts
+	h = Node("switch", ports, ips)
 	pass
 
-    def add_switch(self, switch):
+    def get_switch(self, switch):
 	pass
 
     def add_link(self, n1, n2):
@@ -160,6 +195,14 @@ class Multicommodity:
 		host = Host(mac=entry.macaddr, ip=ip)
 		self.graph.add_edge(host, Switch(dpid=entry.dpid))
 		self.nodes.add(host)
+		""" code i want to write
+		get_{host,switch} will create them if it can't find them
+		wait, but entry.macaddr is the macaddr of the switch on that port, isn't it?
+
+		h = self.net.get_host(mac=entry.macaddr, ip)
+		s = self.net.get_switch(dpid=entry.dpid)
+		self.net.add_link(h, s)
+		"""
 
 	#log.info("edges:" + str(self.graph.edges()))
 
