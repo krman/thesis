@@ -15,6 +15,7 @@ import pox.host_tracker.host_tracker as host_tracker
 import networkx as nx
 from collections import namedtuple
 from pulp import *
+from pox.lib.addresses import IPAddr
 
 log = core.getLogger()
 
@@ -50,6 +51,7 @@ class Node:
     def __init__(self, id, type, ports=[], ips=[]):
 	self.id = id
 	self.type = type
+	log.info("new node: ports {0}, ips {1}".format(ports, ips))
 	self.ports = set(ports)
 	self.ips = set(ips)
 
@@ -60,8 +62,7 @@ class Node:
 	and macs are unlikely to suddenly switch... (vs ips).
 	incidentally... do i care if the port numbers match? not for now. 
 	actually, yeah, i kind of do. can relax if required (viewkeys)"""
-	return (type(self) == type(other) and
-	    self.ports.viewitems() & other.ports.viewitems())
+	return (type(self) == type(other) and self.ports & other.ports)
 
     def __key(self):
 	return (self.id, self.type)
@@ -71,14 +72,18 @@ class Node:
 
     def __repr__(self):
 	string = "{0}{1}".format(self.type, self.id)
-	if self.ports:
-	    string.append(" ports={}".format(self.ports))
+	"""if self.ports:
+	    string += " ports={}".format(self.ports)
 	if self.ips:
-	    string.append(" ips={}".format(self.ips))
+	    string += " ips={}".format(self.ips)
+	"""
 	return string
 
     def ports_overlap(self, ports):
 	return self.ports & set([ports])
+
+    def ips_overlap(self, ips):
+	return self.ips & set([ips])
 
     def combine(self, other):
 	self.ports.update(other.ports)
@@ -120,6 +125,15 @@ class Topology:
 	""" this is where ids are assigned. so the h1, s1 etc. """
 	pass
 
+    def get_host_from_ip(self, ip):
+	try:
+	    log.info("trying to find ip {0}".format(ip))
+	    host = next(h for h in self.hosts if ip in h.ips)
+	    log.info("found host {0} from ip {1}".format(host.id, ip))
+	    return host
+	except StopIteration:
+	    return None
+
     def get_host(self, ports=[], ips=[]):
 	""" Returns a Node for the host matching the macs/ips given.
 	either macs or ips can be an empty list but not both
@@ -136,7 +150,7 @@ class Topology:
 	    log.info("found host {0}".format(host.id))
 	except StopIteration:
 	    self.host_count += 1
-	    host = Host(self.host_count)
+	    host = Host(self.host_count, ports=[ports], ips=ips)
 	    self.hosts.add(host)
 	    log.info("created host {0}: {1}".format(self.host_count, ports))
 	return host
@@ -173,8 +187,8 @@ class Topology:
 		continue
 	    if not core.openflow_discovery.is_edge_port(entry.dpid, entry.port):
 		continue
-
-	    h = self.get_host(entry.macaddr)
+	    h = self.get_host(entry.macaddr, ips=entry.ipAddrs.keys())
+	    log.info("adding host {0}, has ips {1}".format(h, entry.ipAddrs.keys()))
 	    s = self.get_switch(entry.dpid)
 	    self.add_link(h, None, s, entry.port)
 
@@ -204,6 +218,7 @@ class Multicommodity:
 	log.info("component up: {}".format(event.name))
 	if event.name == "host_tracker":
 	    event.component.addListenerByName("HostEvent", self._handle_host_tracker_HostEvent) 
+
     def _handle_host_tracker_HostEvent(self, event):
 	log.info("host detected")
 	log.info(event)
@@ -258,20 +273,24 @@ class Multicommodity:
 
 	# constraints
 	mcf += z <= 10
-	log.info("constraints: src/dst pairs")
-	"""
-	for flow in self.flows:
-	    nw_src = flow.nw_src
-	    nw_dst = flow.nw_dst.split('/')[0]
-	    log.info(self.nodes)
-	    dl_src = next((h for h in self.nodes if h.ip==nw_src), None)
-	    dl_dst = next((h for h in self.nodes if h.ip==nw_dst), None)
-	    if not (dl_src and dl_dst): continue
 
-	    log.info("{0} -> {1} becomes {2} -> {3}".format(nw_src, nw_dst, dl_src.mac, dl_dst.mac))
-	    for i in nx.all_simple_paths(self.graph, dl_src, dl_dst):
+	log.info("constraints: src/dst pairs")
+	for flow in self.flows:
+	    log.info("new flow: {}".format(flow))
+	    src = self.net.get_host_from_ip(flow.nw_src)
+	    dst = self.net.get_host_from_ip(IPAddr(flow.nw_dst.split('/')[0]))
+	    log.info("flow: {0} -> {1}".format(src, dst))
+	    if not (src and dst):
+		continue
+	    log.info("continuing! a good flow!")
+	    if src in self.net.graph.nodes() and dst in self.net.graph.nodes():
+		log.info("yes, src {0} and dst {1} are in self.net.graph".format(src, dst))
+	    else:
+		log.info("src {0} and dst {1} not in graph, skipping".format(src, dst))
+		continue
+	    log.info("possible routes for this flow:")
+	    for i in nx.all_simple_paths(self.net.graph, src, dst):
 		log.info(i)
-	"""
 
 	# solve
 	mcf.writeLP("mcf.lp")
