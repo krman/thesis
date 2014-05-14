@@ -51,7 +51,7 @@ class Node:
     def __init__(self, id, type, ports=[], ips=[]):
 	self.id = id
 	self.type = type
-	log.info("new node: ports {0}, ips {1}".format(ports, ips))
+	#log.info("new node: ports {0}, ips {1}".format(ports, ips))
 	self.ports = set(ports)
 	self.ips = set(ips)
 
@@ -112,14 +112,20 @@ class Switch(Node):
 	Node.__init__(self, id, "s", ports, ips)
 
 
+class Link:
+    """ capacity. """
+    pass
+
+
 class Topology:
     def __init__(self):
 	self.graph = nx.Graph()
 	self.ht = host_tracker.host_tracker()
 
 	self.host_count = 0
-	self.hosts = set()
-	self.switches = dict()
+	self.hosts = set()	# Host
+	self.switches = dict()	# dpid:Switch
+	self.links = dict()	# (n1,n2):capacity
 
     def _add_node(self, node):
 	""" this is where ids are assigned. so the h1, s1 etc. """
@@ -127,9 +133,9 @@ class Topology:
 
     def get_host_from_ip(self, ip):
 	try:
-	    log.info("trying to find ip {0}".format(ip))
+	    #log.info("trying to find ip {0}".format(ip))
 	    host = next(h for h in self.hosts if ip in h.ips)
-	    log.info("found host {0} from ip {1}".format(host.id, ip))
+	    #log.info("found host {0} from ip {1}".format(host.id, ip))
 	    return host
 	except StopIteration:
 	    return None
@@ -147,30 +153,34 @@ class Topology:
 	# add to the set of hosts
 	try:
 	    host = next(h for h in self.hosts if h.ports_overlap(ports))
-	    log.info("found host {0}".format(host.id))
+	    #log.info("found host {0}".format(host.id))
 	except StopIteration:
 	    self.host_count += 1
 	    host = Host(self.host_count, ports=[ports], ips=ips)
 	    self.hosts.add(host)
-	    log.info("created host {0}: {1}".format(self.host_count, ports))
+	    #log.info("created host {0}: {1}".format(self.host_count, ports))
 	return host
 
     def get_switch(self, dpid, ports=[], ips=[]):
 	if dpid not in self.switches:
 	    self.switches[dpid] = Switch(dpid)
-	    log.info("created switch {}".format(dpid))
+	    #log.info("created switch {}".format(dpid))
 	return self.switches[dpid]
     
     def mod_switch(self, dpid, ports=[], ips=[]):
 	if dpid not in self.switches:
 	    self.switches[dpid] = Switch(dpid)
-	    log.info("created switch {}".format(dpid))
+	    #log.info("created switch {}".format(dpid))
 	self.switches[dpid].update(ports=ports, ips=ips)
 
     def add_link(self, n1, p1, n2, p2):
-	""" TODO make this care about ports """
-	log.info("adding link: {0}:{1} -> {2}:{3}".format(n1,p1,n2,p2))
 	self.graph.add_edge(n1, n2)
+	capacity = 5e6 if n1.type == 'h' or n2.type == 'h' else 1e6
+	self.links[(n1,n2)] = capacity   # hardcode all links at 1 Mbps, except ones directly to hosts
+	#log.info("adding link: {0} -> {1}, capacity {2}".format(n1,n2,capacity))
+
+    def get_links(self):
+	return self.links
 
     def refresh_network(self):
 	self.graph.clear()
@@ -188,7 +198,7 @@ class Topology:
 	    if not core.openflow_discovery.is_edge_port(entry.dpid, entry.port):
 		continue
 	    h = self.get_host(entry.macaddr, ips=entry.ipAddrs.keys())
-	    log.info("adding host {0}, has ips {1}".format(h, entry.ipAddrs.keys()))
+	    log.info("host {0} has ip {1}".format(h, entry.ipAddrs.keys()))
 	    s = self.get_switch(entry.dpid)
 	    self.add_link(h, None, s, entry.port)
 
@@ -207,7 +217,7 @@ class Multicommodity:
 
     def __init__(self):
 	#Timer(5, self._update_flows, recurring=True)
-	Timer(15, self._solve_mcf)
+	Timer(18, self._solve_mcf)
 	self.flows = {}
 	self.net = Topology()
 
@@ -253,7 +263,7 @@ class Multicommodity:
 
 	flow = self.match_to_flow(msg.match)
 	if flow:
-	    self.flows[flow] = 0
+	    self.flows[flow] = 500000	# set demand to 0.5 Mbps for shiggles
 
     def _install_forward_rule(self, msg, hops):
 	for switch in hops:
@@ -262,7 +272,6 @@ class Multicommodity:
 	    core.thesis_base.switches[switch.dpid].connection.send(msg)
 
     def _solve_mcf(self):
-	log.info("solving... getting network edges:");
 	self.net.refresh_network()
 
 	mcf = LpProblem("routes", LpMaximize)
@@ -271,26 +280,81 @@ class Multicommodity:
 	z = LpVariable("z")
 	mcf += z
 
-	# constraints
-	mcf += z <= 10
-
-	log.info("constraints: src/dst pairs")
+	# "for all i in P" (per-commodity) constraints
+	chosen = {}	# x[flow][path]: whether path is selected for flow
 	for flow in self.flows:
-	    log.info("new flow: {}".format(flow))
+	    #log.info("")
+	    #log.info("new flow: {}".format(flow))
 	    src = self.net.get_host_from_ip(flow.nw_src)
 	    dst = self.net.get_host_from_ip(IPAddr(flow.nw_dst.split('/')[0]))
-	    log.info("flow: {0} -> {1}".format(src, dst))
 	    if not (src and dst):
 		continue
-	    log.info("continuing! a good flow!")
+	    #log.info("continuing! a good flow!")
 	    if src in self.net.graph.nodes() and dst in self.net.graph.nodes():
-		log.info("yes, src {0} and dst {1} are in self.net.graph".format(src, dst))
+		#log.info("yes, src {0} and dst {1} are in self.net.graph".format(src, dst))
+		pass
 	    else:
-		log.info("src {0} and dst {1} not in graph, skipping".format(src, dst))
+		#log.info("src {0} and dst {1} not in graph, skipping".format(src, dst))
 		continue
-	    log.info("possible routes for this flow:")
-	    for i in nx.all_simple_paths(self.net.graph, src, dst):
-		log.info(i)
+	    log.info("possible routes for {0} -> {1}:".format(src,dst))
+
+	    chosen[(src,dst)] = LpVariable.dicts("x[{0},{1}]".format(src,dst),[str(i) for i in nx.all_simple_paths(self.net.graph, src, dst)], None, None, 'Binary')
+	    x = chosen[(src,dst)]
+	    selected = 0
+	    
+	    for path in nx.all_simple_paths(self.net.graph, src, dst):
+		log.info(path)
+		selected += (x[str(path)])
+
+	    mcf += selected == 1
+
+	# "for all j in E" (per-link) constraints
+	for link,capacity in self.net.get_links().iteritems():
+	    #log.info(" ")
+	    log.info("link {0}: {1} Mbps".format(link, capacity/1e6))
+	    traffic = 0
+
+	    # calculate capacity
+	    result = 0
+	    for flow,demand in self.flows.iteritems():
+		#log.info("new flow: {}".format(flow))
+		src = self.net.get_host_from_ip(flow.nw_src)
+		dst = self.net.get_host_from_ip(IPAddr(flow.nw_dst.split('/')[0]))
+		#log.info("flow: {0} -> {1}".format(src, dst))
+		if not (src and dst):
+		    continue
+		#log.info("continuing! a good flow!")
+		if src in self.net.graph.nodes() and dst in self.net.graph.nodes():
+		    #log.info("yes, src {0} and dst {1} are in self.net.graph".format(src, dst))
+		    pass
+		else:
+		    #log.info("src {0} and dst {1} not in graph, skipping".format(src, dst))
+		    continue
+		#log.info("possible routes for this flow:")
+		#for i in nx.all_simple_paths(self.net.graph, src, dst):
+		#log.info(i)
+
+		x = chosen[(src,dst)]
+		selected = 0
+		for path in nx.all_simple_paths(self.net.graph, src, dst):
+		    edges = zip(path[:-1],path[1:])
+		    #log.info(edges)
+		    #log.info("link {0}{1} in path".format(link, " not" if link not in edges and (link[1],link[0]) not in edges else ""))
+		    a = 1 if link in edges or (link[1],link[0]) in edges else 0
+		    #log.info("a={0}, d={1}, x={2}".format(a, demand/1e6, x[str(path)]))
+		    traffic += (a * demand * x[str(path)])
+
+
+		    #subtotal = 1
+		    #subtotal *= 1 if link in path else 0
+		    #subtotal *= LpVariable('xik')
+		    #subtotal *= flow.demand
+
+
+	    #log.info("TERMS FOR LINK {0}".format(link))
+	    #log.info(traffic)
+	    mcf += traffic <= capacity
+	    mcf += z <= capacity - traffic
 
 	# solve
 	mcf.writeLP("mcf.lp")
