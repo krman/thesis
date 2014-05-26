@@ -13,15 +13,49 @@
 			border: 1px solid #ccc;
 			background: #eee;
 		}
+		#sidebar {
+			float: left;
+		}
+		.packet {
+			width: 200px;
+			padding: 10px;
+			border-width: 0 1px 1px 1px;
+			border-style: solid;
+			border-color: #ccc;
+		}
+		.packet.current {
+			background: #eee;
+		}
+		#controls {
+			float: right;
+		}
+		#reset, #step, #play {
+			border: 1px solid #ccc;
+			background: #ddd;
+		}
+		#display {
+			padding: 10px;
+			text-align: center;
+		}
 	</style>
 </head>
 
 <body>
 	<div class="files">
 		vcap | <input type="file" id="pcap">
+		<div id="controls">
+			<button id="reset">reset</button>
+			<button id="step">step</button>
+			<button id="play">play</button>
+		</div>
 	</div>
 
-	<div id="print"></div>
+	<div id="sidebar">
+		<div>
+		</div>
+	</div>
+
+	<div id="display"></div>
 
 	<script type="text/javascript" language="javascript">
 		function parse_pcap(pcap) {
@@ -51,10 +85,44 @@
 			var ts_sec, ts_usec, incl_len, orig_len; // pcap
 			var packet_type, arphrd, ll_addr_len, ll_addr, protocol; // linux_sll
 			var tos, ip_len, src_addr = new Array(4), dst_addr = new Array(4); // ipv4
+			
+			ofp_type = {
+				0:"Hello", 
+				1:"Error", 
+				2:"Echo-Request", 
+				3:"Echo-Reply",
+				4:"Experimenter",
+				5:"Features-Request",
+				6:"Features-Reply",
+				7:"Get-Config-Request",
+				8:"Get-Config-Reply",
+				9:"Set-Config",
+				10:"Packet-In",
+				11:"Flow-Removed",
+				12:"Port-Status",
+				13:"Packet-Out",
+				14:"Flow-Mod",
+				15:"Group-Mod",
+				16:"Port-Mod",
+				17:"Table-Mod",
+				18:"Multipart-Request",
+				19:"Multipart-Reply",
+				20:"Barrier-Request",
+				21:"Barrier-Reply",
+				24:"Role-Request",
+				25:"Role-Reply",
+				26:"Get-Async-Request",
+				27:"Get-Async-Reply",
+				28:"Set-Async",
+				29:"Meter-Mod",
+				30:"Role-Status",
+				31:"Table-Status",
+				32:"Requestforward",
+				33:"Bundle-Control",
+				34:"Bundle-Add-Message"
+			};
 
 			while (i < buffer.length-24) {
-				console.log("Packet "+packet+" (i="+i+")");
-
 				// pcap packet header: host byte order
 			  ts_sec = packets.getUint32(i,le).toString();
 			  ts_usec = packets.getUint32(i+4,le).toString();
@@ -79,13 +147,16 @@
 				}
 				i += 2;
 
-				// ipv4 header: network byte order
-				i += 1; // skip version & IHL
-				tos = packets.getUint8(i);
-				console.log("tos: "+tos);
-				i += 1;
+				// ipv4 header
+				i += 9; // skip version, ihl, tos, length, id, flags, offset, ttl
 
-				i += 10; // skip length, id, flags, offset, ttl, protocol, checksum
+				protocol = packets.getUint8(i);
+				if (protocol != 6) {
+					i = next; continue;
+				}
+				i += 1;
+				
+				i += 2; // skip header checksum
 
 				src_addr[3] = packets.getUint8(i); i += 1;
 				src_addr[2] = packets.getUint8(i); i += 1;
@@ -97,8 +168,28 @@
 				dst_addr[1] = packets.getUint8(i); i += 1;
 				dst_addr[0] = packets.getUint8(i); i += 1;
 
-				console.log("from "+src_addr+" to "+dst_addr);
-				i += 8;
+				// tcp header
+				tcp_start = i;
+				src_port = packets.getUint16(i); i += 2;
+				dst_port = packets.getUint16(i); i += 2;
+
+				i += 8; // skip seq/ack numbers
+
+				tcp_offset = packets.getUint8(i) / 16; i += 1;
+				
+				i = tcp_start + tcp_offset*4; // skip rest of tcp header
+
+				if (i >= next) {
+					i = next; continue;
+				}
+
+				// openflow header
+				of_version = packets.getUint8(i); i += 1;
+				of_type = packets.getUint8(i); i += 1;
+				of_len = packets.getUint16(i); i += 2;
+				of_xid = packets.getUint32(i); i += 4;
+
+				add_packet(ofp_type[of_type]);
 
 				i = next;
 				packet += 1;
@@ -116,7 +207,54 @@
       reader.readAsArrayBuffer(file);
 		}
 
+		// packet creation
+		function add_packet(p) {
+			model.objects.push(p);
+			var np = document.createElement("div");
+			np.classList.add("packet");
+			np.innerHTML = p;
+			np.addEventListener('click', select_packet, false);
+			sidebar.firstElementChild.appendChild(np);
+		}
+
+		// packet selection
+		function get_selected_packet() {
+			return document.getElementsByClassName('current')[0];
+		}
+
+		function change_selected_packet(p) {
+			if (old = get_selected_packet()) {
+				old.classList.remove("current");
+			}
+			p.classList.add("current");
+			display.innerHTML = p.innerHTML;
+		}
+
+		function select_packet(e) {
+			change_selected_packet(e.target);
+		}
+
+		// reset/step/play button callbacks
+		function reset_visualisation(e) {
+			change_selected_packet(sidebar.firstElementChild.firstElementChild);
+		}
+		function step_visualisation(e) {
+			next = get_selected_packet().nextElementSibling;
+			if (next) {
+				change_selected_packet(next);
+			}
+		}
+
+		model = {"objects":[], "changes":{}};
 		document.getElementById('pcap').addEventListener('change', select_file, false);
+		display = document.getElementById('display');
+		sidebar = document.getElementById('sidebar');
+		packets = document.getElementsByClassName('packet');
+		for (var i = 0; i < packets.length; i++) {
+			packets[i].addEventListener('click', select_packet, false);
+		}
+		document.getElementById('reset').addEventListener('click', reset_visualisation, false);
+		document.getElementById('step').addEventListener('click', step_visualisation, false);
 	</script>
 </body>
 </html>
