@@ -281,78 +281,44 @@ class Multicommodity:
 	mcf += z
 
 	# "for all i in P" (per-commodity) constraints
-	chosen = {}	# x[flow][path]: whether path is selected for flow
+	chosen = {}
 	for flow in self.flows:
-	    #log.info("")
-	    #log.info("new flow: {}".format(flow))
 	    src = self.net.get_host_from_ip(flow.nw_src)
 	    dst = self.net.get_host_from_ip(IPAddr(flow.nw_dst.split('/')[0]))
 	    if not (src and dst):
 		continue
-	    #log.info("continuing! a good flow!")
-	    if src in self.net.graph.nodes() and dst in self.net.graph.nodes():
-		#log.info("yes, src {0} and dst {1} are in self.net.graph".format(src, dst))
-		pass
-	    else:
-		#log.info("src {0} and dst {1} not in graph, skipping".format(src, dst))
+	    if not (src in self.net.graph.nodes() and dst in self.net.graph.nodes()):
 		continue
-	    log.info("possible routes for {0} -> {1}:".format(src,dst))
 
-	    chosen[(src,dst)] = LpVariable.dicts("x[{0},{1}]".format(src,dst),[str(i) for i in nx.all_simple_paths(self.net.graph, src, dst)], None, None, 'Binary')
+	    paths = list(nx.all_simple_paths(self.net.graph, src, dst))
+	    labels = [str(k) for k in paths]
+
+	    chosen[(src,dst)] = LpVariable.dicts("x[{0},{1}]".format(src,dst),labels, None, None, 'Binary')
 	    x = chosen[(src,dst)]
-	    selected = 0
 	    
-	    for path in nx.all_simple_paths(self.net.graph, src, dst):
-		log.info(path)
-		selected += (x[str(path)])
-
+	    selected = sum([x[str(k)] for k in paths])
 	    mcf += selected == 1
 
 	# "for all j in E" (per-link) constraints
 	for link,capacity in self.net.get_links().iteritems():
-	    #log.info(" ")
-	    log.info("link {0}: {1} Mbps".format(link, capacity/1e6))
 	    traffic = 0
-
-	    # calculate capacity
 	    result = 0
+
 	    for flow,demand in self.flows.iteritems():
-		#log.info("new flow: {}".format(flow))
 		src = self.net.get_host_from_ip(flow.nw_src)
 		dst = self.net.get_host_from_ip(IPAddr(flow.nw_dst.split('/')[0]))
-		#log.info("flow: {0} -> {1}".format(src, dst))
 		if not (src and dst):
 		    continue
-		#log.info("continuing! a good flow!")
-		if src in self.net.graph.nodes() and dst in self.net.graph.nodes():
-		    #log.info("yes, src {0} and dst {1} are in self.net.graph".format(src, dst))
-		    pass
-		else:
-		    #log.info("src {0} and dst {1} not in graph, skipping".format(src, dst))
+		if not (src in self.net.graph.nodes() and dst in self.net.graph.nodes()):
 		    continue
-		#log.info("possible routes for this flow:")
-		#for i in nx.all_simple_paths(self.net.graph, src, dst):
-		#log.info(i)
 
 		x = chosen[(src,dst)]
 		selected = 0
 		for path in nx.all_simple_paths(self.net.graph, src, dst):
 		    edges = zip(path[:-1],path[1:])
-		    #log.info(edges)
-		    #log.info("link {0}{1} in path".format(link, " not" if link not in edges and (link[1],link[0]) not in edges else ""))
 		    a = 1 if link in edges or (link[1],link[0]) in edges else 0
-		    #log.info("a={0}, d={1}, x={2}".format(a, demand/1e6, x[str(path)]))
 		    traffic += (a * demand * x[str(path)])
 
-
-		    #subtotal = 1
-		    #subtotal *= 1 if link in path else 0
-		    #subtotal *= LpVariable('xik')
-		    #subtotal *= flow.demand
-
-
-	    #log.info("TERMS FOR LINK {0}".format(link))
-	    #log.info(traffic)
 	    mcf += traffic <= capacity
 	    mcf += z <= capacity - traffic
 
