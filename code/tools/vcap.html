@@ -15,9 +15,9 @@
 		}
 		#sidebar {
 			float: left;
+			width: 200px;
 		}
 		.packet {
-			width: 200px;
 			padding: 10px;
 			border-width: 0 1px 1px 1px;
 			border-style: solid;
@@ -34,7 +34,7 @@
 			background: #ddd;
 		}
 		#display {
-			padding: 10px;
+			padding: 50px;
 			text-align: center;
 		}
 	</style>
@@ -43,18 +43,17 @@
 <body>
 	<div class="files">
 		vcap | <input type="file" id="pcap">
-		<div id="controls">
-			<button id="reset">reset</button>
-			<button id="step">step</button>
-			<button id="play">play</button>
-		</div>
 	</div>
 
 	<div id="sidebar">
-		<div>
-		</div>
+		<div></div>
 	</div>
 
+	<div id="controls">
+		<button id="reset">reset</button>
+		<button id="step">step</button>
+		<button id="play">play</button>
+	</div>
 	<div id="display"></div>
 
 	<script type="text/javascript" language="javascript">
@@ -123,6 +122,8 @@
 			};
 
 			while (i < buffer.length-24) {
+				changelog[packet] = new Object();
+
 				// pcap packet header: host byte order
 			  ts_sec = packets.getUint32(i,le).toString();
 			  ts_usec = packets.getUint32(i+4,le).toString();
@@ -191,9 +192,39 @@
 
 				add_packet(ofp_type[of_type]);
 
+				// this should be nowhere near this part of the code
+				if (of_type === 0) {
+					console.log("hello?");
+					// of hello header (need to do the hello elements stuff)
+					if (src_port != 6633) {
+						console.log("hello from "+src_port+" packet "+packet);
+						id = add_switch(src_port);
+						changelog[packet].added = id;
+					}
+				}
+
 				i = next;
 				packet += 1;
 			}
+		}
+
+		/* ------------------------------------------------------- *\
+		** functions dealing with objects and changelogs and stuff **
+		\* ------------------------------------------------------- */
+
+		components = [];
+		changelog = [];
+		switchcount = 0;
+
+		// add switch on hello message
+		function add_switch(port) {
+			s = new Object();
+			switchcount += 1;
+			s.label = "s"+switchcount;
+			s.type = "switch";
+			id = components.push(s) - 1;
+			console.log(components);
+			return id;
 		}
 
 		// initial selection of packet file
@@ -227,7 +258,10 @@
 				old.classList.remove("current");
 			}
 			p.classList.add("current");
-			display.innerHTML = p.innerHTML;
+			console.log(p);
+			console.log(sidebar);
+			index = Array.prototype.slice.call(sidebar.firstElementChild.children).indexOf(p);
+			display.innerHTML = p.innerHTML + components.toSource() + changelog[index].toSource();
 		}
 
 		function select_packet(e) {
@@ -239,8 +273,11 @@
 			change_selected_packet(sidebar.firstElementChild.firstElementChild);
 		}
 		function step_visualisation(e) {
-			next = get_selected_packet().nextElementSibling;
-			if (next) {
+			current = get_selected_packet();
+			if (!current) {
+				reset_visualisation();
+			}
+			if (next = current.nextElementSibling) {
 				change_selected_packet(next);
 			}
 		}
