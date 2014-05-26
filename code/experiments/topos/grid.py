@@ -3,11 +3,20 @@
 from mininet.cli import CLI
 from mininet.log import setLogLevel
 from mininet.node import RemoteController
-from topolib import PartialMeshNet
+from topolib import GridNet
 
 if __name__ == '__main__':
+    import sys
+
+    try:
+	m = int(sys.argv[1])
+	n = int(sys.argv[2])
+    except Exception:
+	print "usage: grid.py n m"
+	exit()
+
     setLogLevel('output')
-    net = PartialMeshNet(n=6, m=2, p=70, controller=RemoteController)
+    net = GridNet(n, m, controller=RemoteController)
     c = net.addController('c0')
 
     net.start()

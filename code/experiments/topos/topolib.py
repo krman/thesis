@@ -57,8 +57,14 @@ class PartialMeshTopo(Topo):
 	    random.shuffle(dist)
 	    for i,s2 in enumerate(switches):
 		if dist[i]:
-		    self.addLink(s1,s2)
-		    print "link {0} -> {1}".format(s1,s2)
+		    t1,t2 = s1,s2
+		    if s1 == s2:
+			try:
+			    t2 = switches[i+1]
+			except Exception:   # i+1 is too big
+			    t2 = switches[i-1]
+		    print "link {0} -> {1}".format(t1,t2)
+		    self.addLink(t1,t2)
 	
 	# Add and link hosts
 	hosts = [self.addHost('h{}'.format(i+1)) for i in range(m)]
@@ -69,11 +75,47 @@ class PartialMeshTopo(Topo):
 	    self.addLink(hosts[h],switches[s])
 	    print "link {0} -> {1}".format(hosts[h],switches[s])
 	    
-	
-
 	    
-
 def PartialMeshNet(n=6, m=2, p=30, **kwargs):
     "Convenience function for creating partial mesh networks."
     topo = PartialMeshTopo(n, m, p)
+    return Mininet(topo, **kwargs)
+
+
+
+class GridTopo(Topo):
+    """
+    Manhattan-style m x n grid, 2 hosts connected to opposite corners
+    """
+    def __init__(self, m=2, n=6):
+        super(GridTopo, self).__init__()
+
+        # Numbering:  h1..N, s1..M
+        hostNum = 1
+        switchNum = 1
+
+        # Add and link switches
+	switches = [[self.addSwitch('s{0}-{1}'.format(j+1, i+1)) for i in range(n)] for j in range(m)]
+	print switches
+	for i,row in enumerate(switches):
+	    for j,s in enumerate(row):
+		r,c = i+1,j+1
+		if r < m:
+		    print "{0},{1} -> {2},{3}".format(r,c,r+1,c)
+		    #print "link: {0} -> {1}".format(switches[r][c]. switches[r+1][c])
+		    self.addLink(switches[i][j], switches[i+1][j])
+		if c < n:
+		    print "{0},{1} -> {2},{3}".format(r,c,r,c+1)
+		    #print "link: {0} -> {1}".format(switches[r][c]. switches[r][c+1])
+		    self.addLink(switches[i][j], switches[i][j+1])
+
+	# Add and link hosts
+	hosts = [self.addHost('h{}'.format(i+1)) for i in range(2)]
+	self.addLink(hosts[0], switches[0][0])
+	self.addLink(hosts[1], switches[m-1][n-1])
+	    
+	    
+def GridNet(n=6, m=2, **kwargs):
+    "Convenience function for creating partial mesh networks."
+    topo = GridTopo(n, m)
     return Mininet(topo, **kwargs)

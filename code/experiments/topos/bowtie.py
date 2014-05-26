@@ -46,19 +46,21 @@ def makeBowtie():
     s = [0] + [net.addSwitch(label, **opts) for label,opts in switches]
 
     # link them up
-    TCLink(h[1],s[2], bw=1)
+    TCLink(h[1],s[1], bw=1)
     TCLink(h[2],s[3], bw=1)
     TCLink(h[3],s[5], bw=1)
-    TCLink(h[4],s[6], bw=1)
+    TCLink(h[4],s[7], bw=1)
 
-    TCLink(s[1],s[3], bw=1)
+    TCLink(s[1],s[2], bw=1)
     TCLink(s[1],s[4], bw=1)
     TCLink(s[1],s[6], bw=1)
-    TCLink(s[2],s[4], bw=1)
+    TCLink(s[2],s[5], bw=1)
+    TCLink(s[2],s[7], bw=1)
+    TCLink(s[3],s[4], bw=1)
+    TCLink(s[3],s[6], bw=1)
     TCLink(s[4],s[5], bw=1)
-    TCLink(s[4],s[6], bw=1)
     TCLink(s[4],s[7], bw=1)
-    TCLink(s[5],s[7], bw=1)
+    TCLink(s[6],s[7], bw=1)
 
     return net
 
@@ -72,8 +74,8 @@ if __name__ == '__main__':
     h2 = net.get('h2')
     h3 = net.get('h3')
     h4 = net.get('h4')
-    h1.cmd('ping {} &'.format(h2.IP()))
-    h3.cmd('ping {} &'.format(h4.IP()))
+    h1.cmd('ping {} &'.format(h4.IP()))
+    h2.cmd('ping {} &'.format(h3.IP()))
 
     from time import sleep
     sleep(20)
