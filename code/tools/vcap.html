@@ -123,6 +123,8 @@
 
 			while (i < buffer.length-24) {
 				changelog[packet] = new Object();
+				changelog[packet].added = [];
+				changelog[packet].removed = [];
 
 				// pcap packet header: host byte order
 			  ts_sec = packets.getUint32(i,le).toString();
@@ -199,7 +201,7 @@
 					if (src_port != 6633) {
 						console.log("hello from "+src_port+" packet "+packet);
 						id = add_switch(src_port);
-						changelog[packet].added = id;
+						changelog[packet].added = [id];
 					}
 				}
 
@@ -208,13 +210,14 @@
 			}
 		}
 
-		/* ------------------------------------------------------- *\
-		** functions dealing with objects and changelogs and stuff **
-		\* ------------------------------------------------------- */
+		/* -------------------------------- *\
+		** objects and changelogs and stuff **
+		\* -------------------------------- */
 
 		components = [];
 		changelog = [];
 		switchcount = 0;
+		displayed = [];
 
 		// add switch on hello message
 		function add_switch(port) {
@@ -226,6 +229,50 @@
 			console.log(components);
 			return id;
 		}
+
+		// display current items appropriate for this stage
+		function update_components(start, end) {
+			console.log("old "+start+" new "+end);
+			diff_between(start, end);
+		}
+
+		function add_to_display(e) {
+			console.log("from packet "+i+" add "+e);
+			displayed.push(e);
+		}
+
+		function remove_from_display(e) {
+			console.log("from packet "+i+" remove "+e);
+			console.log(displayed);
+			console.log(e);
+			console.log(displayed.indexOf(e));
+			index = displayed.indexOf(e);
+			if (index > -1) {
+				displayed.splice(index, 1);
+			}
+		}
+
+		// components added/deleted from one packet to another
+		function diff_between(from, to) {
+			diff = to - from;
+			if (diff > 0) {
+				for (i=from+1; i<to+1; i++) {
+					changelog[i].added.forEach(add_to_display);
+					changelog[i].removed.forEach(remove_from_display);
+				}
+			} else {
+				console.log("going backwards");
+				for (i=from; i>to; i--) {
+					console.log(i);
+					changelog[i].added.forEach(remove_from_display);
+					changelog[i].removed.forEach(add_to_display);
+				}
+			}
+		}
+
+		/* --------------------------------- *\
+		** displaying packets in the sidebar **
+		\* --------------------------------- */
 
 		// initial selection of packet file
 		function select_file(e) {
@@ -253,15 +300,23 @@
 			return document.getElementsByClassName('current')[0];
 		}
 
+		function get_index_of_packet(p) {
+			return Array.prototype.slice.call(sidebar.firstElementChild.children).indexOf(p);
+		}
+
+		function get_selected_packet_index() {
+			p = get_selected_packet();
+			return get_index_of_packet(p);
+		}
+
 		function change_selected_packet(p) {
 			if (old = get_selected_packet()) {
 				old.classList.remove("current");
 			}
 			p.classList.add("current");
-			console.log(p);
-			console.log(sidebar);
-			index = Array.prototype.slice.call(sidebar.firstElementChild.children).indexOf(p);
-			display.innerHTML = p.innerHTML + components.toSource() + changelog[index].toSource();
+			index = get_selected_packet_index();
+			update_components(get_index_of_packet(old), get_index_of_packet(p));
+			display.innerHTML = p.innerHTML + displayed.toSource() + changelog[index].toSource();
 		}
 
 		function select_packet(e) {
