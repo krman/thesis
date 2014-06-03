@@ -37,6 +37,15 @@
 			padding: 50px;
 			text-align: center;
 		}
+
+		.node {
+			stroke: #fff;
+			stroke-width: 1.5px;
+		}
+		.link {
+			stroke: #999;
+			stroke-opacity: .6;
+		}
 	</style>
 </head>
 
@@ -80,45 +89,84 @@
 				console.log("bad link-layer header type (not LINUX_SLL)");
 			}
 
-			var packet = 0, i = 0, next = 0;
+			packet = 0, i = 0, next = 0;
 			var ts_sec, ts_usec, incl_len, orig_len; // pcap
 			var packet_type, arphrd, ll_addr_len, ll_addr, protocol; // linux_sll
 			var tos, ip_len, src_addr = new Array(4), dst_addr = new Array(4); // ipv4
-			
+				
+				/*
 			ofp_type = {
-				0:"Hello", 
-				1:"Error", 
-				2:"Echo-Request", 
-				3:"Echo-Reply",
-				4:"Experimenter",
-				5:"Features-Request",
-				6:"Features-Reply",
-				7:"Get-Config-Request",
-				8:"Get-Config-Reply",
-				9:"Set-Config",
-				10:"Packet-In",
-				11:"Flow-Removed",
-				12:"Port-Status",
-				13:"Packet-Out",
-				14:"Flow-Mod",
-				15:"Group-Mod",
-				16:"Port-Mod",
-				17:"Table-Mod",
-				18:"Multipart-Request",
-				19:"Multipart-Reply",
-				20:"Barrier-Request",
-				21:"Barrier-Reply",
-				24:"Role-Request",
-				25:"Role-Reply",
-				26:"Get-Async-Request",
-				27:"Get-Async-Reply",
-				28:"Set-Async",
-				29:"Meter-Mod",
-				30:"Role-Status",
-				31:"Table-Status",
-				32:"Requestforward",
-				33:"Bundle-Control",
-				34:"Bundle-Add-Message"
+				0:{name:"Hello", func:parse_hello},
+				1:{name:"Error", func:parse_error},
+				2:{name:"Echo-Request", func:parse_echo_request},
+				3:{name:"Echo-Reply", func:parse_echo_reply},
+				4:{name:"Experimenter", func:parse_experimenter},
+				5:{name:"Features-Request", func:parse_features_request},
+				6:{name:"Features-Reply", func:parse_features_reply},
+				7:{name:"Get-Config-Request", func:parse_get_config_request},
+				8:{name:"Get-Config-Reply", func:parse_get_config_reply},
+				9:{name:"Set-Config", func:parse_set_config},
+				10:{name:"Packet-In", func:parse_packet_in},
+				11:{name:"Flow-Removed", func:parse_flow_removed},
+				12:{name:"Port-Status", func:parse_port_status},
+				13:{name:"Packet-Out", func:parse_packet_out},
+				14:{name:"Flow-Mod", func:parse_flow_mod},
+				15:{name:"Group-Mod", func:parse_group_mod},
+				16:{name:"Port-Mod", func:parse_port_mod},
+				17:{name:"Table-Mod", func:parse_table_mod},
+				18:{name:"Multipart-Request", func:parse_multipart_request},
+				19:{name:"Multipart-Reply", func:parse_multipart_reply},
+				20:{name:"Barrier-Request", func:parse_barrier_request},
+				21:{name:"Barrier-Reply", func:parse_barrier_reply},
+				24:{name:"Role-Request", func:parse_role_request},
+				25:{name:"Role-Reply", func:parse_role_reply},
+				26:{name:"Get-Async-Request", func:parse_get_async_request},
+				27:{name:"Get-Async-Reply", func:parse_get_async_reply},
+				28:{name:"Set-Async", func:parse_set_async},
+				29:{name:"Meter-Mod", func:parse_meter_mod},
+				30:{name:"Role-Status", func:parse_role_status},
+				31:{name:"Table-Status", func:parse_table_status},
+				32:{name:"Requestforward", func:parse_requestforward},
+				33:{name:"Bundle-Control", func:parse_bundle_control},
+				34:{name:"Bundle-Add-Message", func:parse_bundle_add_message}
+			};
+			*/
+
+
+			ofp_type = {
+				0:{name:"Hello", func:parse_hello},
+				1:{name:"Error", func:parse_hello},
+				2:{name:"Echo-Request", func:parse_hello},
+				3:{name:"Echo-Reply", func:parse_hello},
+				4:{name:"Experimenter", func:parse_hello},
+				5:{name:"Features-Request", func:parse_hello},
+				6:{name:"Features-Reply", func:parse_hello},
+				7:{name:"Get-Config-Request", func:parse_hello},
+				8:{name:"Get-Config-Reply", func:parse_hello},
+				9:{name:"Set-Config", func:parse_hello},
+				10:{name:"Packet-In", func:parse_hello},
+				11:{name:"Flow-Removed", func:parse_hello},
+				12:{name:"Port-Status", func:parse_hello},
+				13:{name:"Packet-Out", func:parse_hello},
+				14:{name:"Flow-Mod", func:parse_hello},
+				15:{name:"Group-Mod", func:parse_hello},
+				16:{name:"Port-Mod", func:parse_hello},
+				17:{name:"Table-Mod", func:parse_hello},
+				18:{name:"Multipart-Request", func:parse_hello},
+				19:{name:"Multipart-Reply", func:parse_hello},
+				20:{name:"Barrier-Request", func:parse_hello},
+				21:{name:"Barrier-Reply", func:parse_hello},
+				24:{name:"Role-Request", func:parse_hello},
+				25:{name:"Role-Reply", func:parse_hello},
+				26:{name:"Get-Async-Request", func:parse_hello},
+				27:{name:"Get-Async-Reply", func:parse_hello},
+				28:{name:"Set-Async", func:parse_hello},
+				29:{name:"Meter-Mod", func:parse_hello},
+				30:{name:"Role-Status", func:parse_hello},
+				31:{name:"Table-Status", func:parse_hello},
+				32:{name:"Requestforward", func:parse_hello},
+				33:{name:"Bundle-Control", func:parse_hello},
+				34:{name:"Bundle-Add-Message", func:parse_hello}
 			};
 
 			while (i < buffer.length-24) {
@@ -192,22 +240,19 @@
 				of_len = packets.getUint16(i); i += 2;
 				of_xid = packets.getUint32(i); i += 4;
 
-				add_packet(ofp_type[of_type]);
+				console.log("new packet: "+ofp_type[of_type].name);
 
+/*
 				// this should be nowhere near this part of the code
 				if (of_type === 0) {
-					console.log("hello?");
-					// of hello header (need to do the hello elements stuff)
-					if (src_port != 6633) {
-						console.log("hello from "+src_port+" packet "+packet);
-						id = add_switch(src_port);
-						changelog[packet].added = [id];
-					}
 				}
-
+*/
+				add_packet(ofp_type[of_type], new DataView(pcap, i, next-i));
+				
 				i = next;
 				packet += 1;
 			}
+			console.log("stoping");
 		}
 
 		/* -------------------------------- *\
@@ -226,13 +271,11 @@
 			s.label = "s"+switchcount;
 			s.type = "switch";
 			id = components.push(s) - 1;
-			console.log(components);
 			return id;
 		}
 
 		// display current items appropriate for this stage
 		function update_components(start, end) {
-			console.log("old "+start+" new "+end);
 			diff_between(start, end);
 		}
 
@@ -254,6 +297,8 @@
 
 		// components added/deleted from one packet to another
 		function diff_between(from, to) {
+			console.log("changelog");
+			console.log(changelog);
 			diff = to - from;
 			if (diff > 0) {
 				for (i=from+1; i<to+1; i++) {
@@ -261,12 +306,23 @@
 					changelog[i].removed.forEach(remove_from_display);
 				}
 			} else {
-				console.log("going backwards");
 				for (i=from; i>to; i--) {
-					console.log(i);
 					changelog[i].added.forEach(remove_from_display);
 					changelog[i].removed.forEach(add_to_display);
 				}
+			}
+		}
+
+		/* --------------------------*\
+		** parsing openflow contents **
+		\* --------------------------*/
+
+		function parse_hello(pkt) {
+			console.log("parsing hello");
+			// of hello header (need to do the hello elements stuff)
+			if (src_port != 6633) {
+				id = add_switch(src_port);
+				changelog[packet].added = [id];
 			}
 		}
 
@@ -286,11 +342,12 @@
 		}
 
 		// packet creation
-		function add_packet(p) {
-			model.objects.push(p);
+		function add_packet(type, packet) {
+			model.objects.push(type.name);
 			var np = document.createElement("div");
 			np.classList.add("packet");
-			np.innerHTML = p;
+			np.innerHTML = type.name;
+			type.func(packet);
 			np.addEventListener('click', select_packet, false);
 			sidebar.firstElementChild.appendChild(np);
 		}
@@ -316,7 +373,11 @@
 			p.classList.add("current");
 			index = get_selected_packet_index();
 			update_components(get_index_of_packet(old), get_index_of_packet(p));
-			display.innerHTML = p.innerHTML + displayed.toSource() + changelog[index].toSource();
+			//display.innerHTML = p.innerHTML + displayed.toSource() + changelog[index].toSource();
+			console.log(components);
+			nodes.push({name:4});
+			links.push({source:3, target:1});
+			update_view();
 		}
 
 		function select_packet(e) {
@@ -327,6 +388,7 @@
 		function reset_visualisation(e) {
 			change_selected_packet(sidebar.firstElementChild.firstElementChild);
 		}
+
 		function step_visualisation(e) {
 			current = get_selected_packet();
 			if (!current) {
@@ -337,6 +399,89 @@
 			}
 		}
 
+		// reusable chart!
+		function networkGraph() {
+			var width = 960,
+					height = 500,
+					color = d3.scale.category20();
+
+			svg = d3.select("#display").append("svg")
+					.attr("width", width)
+					.attr("height", height);
+
+			nodes = [{name:1}, {name:2}, {name:3}];
+			links = [{source:1,target:2}, {source:2,target:0}];
+
+			force = d3.layout.force()
+					.charge(-500)
+					.linkDistance(100)
+					.size([width, height])
+					.nodes(nodes)
+					.links(links);
+
+			function my(selection, elements) {
+				selection.each(function(d, i) {
+
+					link = svg.selectAll(".link")
+							.data(force.links());
+
+					link.exit().remove();
+
+					link.enter()
+							.append("line")
+							.attr("class", "link")
+							.style("stroke-width", function(d) { return 1; });
+
+					node = svg.selectAll(".node")
+							.data(force.nodes());
+					
+					node.exit().remove();
+
+					node.enter()
+							.append("circle")
+							.attr("class", "node")
+							.attr("r", 10)
+							.style("fill", function(d) { if (d.name == 4) { return "red"; } return color(d); })
+							.call(force.drag);
+
+					force.on("tick", function() {
+						link.attr("x1", function(d) { return d.source.x; })
+								.attr("y1", function(d) { return d.source.y; })
+								.attr("x2", function(d) { return d.target.x; })
+								.attr("y2", function(d) { return d.target.y; });
+
+						node.attr("cx", function(d) { return d.x; })
+								.attr("cy", function(d) { return d.y; });
+					});
+
+					force.start();
+				});
+			}
+
+			my.width = function(value) {
+				if (!arguments.length) return width;
+				width = value;
+				return my;
+			};
+
+			my.height = function(value) {
+				if (!arguments.length) return height;
+				height = value;
+				return my;
+			};
+
+			return my;
+		}
+
+		function start_view() {
+			update_view();
+		}
+
+		function update_view() {
+			d3.select("#display").call(update_network_graph, displayed);
+		}
+
+		update_network_graph = networkGraph();
 		model = {"objects":[], "changes":{}};
 		document.getElementById('pcap').addEventListener('change', select_file, false);
 		display = document.getElementById('display');
@@ -347,6 +492,7 @@
 		}
 		document.getElementById('reset').addEventListener('click', reset_visualisation, false);
 		document.getElementById('step').addEventListener('click', step_visualisation, false);
+		start_view();
 	</script>
 </body>
 </html>
