@@ -10,11 +10,11 @@ import pox.lib.packet as pkt
 from pox.lib.recoco import Timer
 from pox.openflow.of_json import *
 from collections import namedtuple
-import yappi
 
 import pox.openflow.discovery as discovery
 import pox.openflow.spanning_tree as spanning_tree
 import pox.thesis.statistics as statistics
+import pox.thesis.topology as topology
 import pox.thesis.multicommodity as multicommodity
 
 log = core.getLogger()
@@ -36,18 +36,10 @@ class Switch:
 class Controller:
     _core_name = "thesis_base"
 
-    def __init__(self, profile=False):
+    def __init__(self):
 	self.switches = {}
-	self.profile = profile
 	core.openflow.addListeners(self)
 	core.addListeners(self)
-
-    def _handle_GoingDownEvent(self, event):
-	if self.profile:
-	    profile = yappi.get_func_stats()
-	    profile.sort("totaltime")
-	    profile.print_all(out=open("profile", "w+"))
-	    yappi.stop()
 
     def _handle_ConnectionUp(self, event):
 	self.switches[event.dpid] = Switch(event.connection)
@@ -59,13 +51,11 @@ class Controller:
 def print_topology():
     log.info(core.openflow_discovery.adjacency)
 
-def launch(profile=False):
-    if profile:
-	yappi.start()
-
+def launch():
     discovery.launch()
     spanning_tree.launch(no_flood=True, hold_down=True)
     statistics.launch()
+    topology.launch()
     multicommodity.launch()
 
-    core.registerNew(Controller, profile=profile)
+    core.registerNew(Controller)
