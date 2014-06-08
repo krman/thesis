@@ -240,8 +240,6 @@
 				of_len = packets.getUint16(i); i += 2;
 				of_xid = packets.getUint32(i); i += 4;
 
-				console.log("new packet: "+ofp_type[of_type].name);
-
 /*
 				// this should be nowhere near this part of the code
 				if (of_type === 0) {
@@ -252,7 +250,6 @@
 				i = next;
 				packet += 1;
 			}
-			console.log("stoping");
 		}
 
 		/* -------------------------------- *\
@@ -286,12 +283,25 @@
 
 		function remove_from_display(e) {
 			console.log("from packet "+i+" remove "+e);
-			console.log(displayed);
-			console.log(e);
-			console.log(displayed.indexOf(e));
 			index = displayed.indexOf(e);
 			if (index > -1) {
 				displayed.splice(index, 1);
+			}
+		}
+
+		function remove_from_model(e) {
+			console.log("from packet "+i+" remove from nodes "+components[e]);
+			console.log(nodes);
+			console.log(components[e]);
+			index = nodes.indexOf(components[e]);
+			// this will clearly never work the way this is currently set up
+			// i need to do the code review stuff sooner rather than later
+			// also this should probably be its own project
+			console.log(index);
+			if (index > -1) {
+				nodes.splice(index, 1);
+				console.log("successfully removed");
+				console.log(nodes);
 			}
 		}
 
@@ -304,10 +314,12 @@
 				for (i=from+1; i<to+1; i++) {
 					changelog[i].added.forEach(add_to_display);
 					changelog[i].removed.forEach(remove_from_display);
+					changelog[i].removed.forEach(remove_from_model);
 				}
 			} else {
 				for (i=from; i>to; i--) {
 					changelog[i].added.forEach(remove_from_display);
+					changelog[i].added.forEach(remove_from_model);
 					changelog[i].removed.forEach(add_to_display);
 				}
 			}
@@ -318,7 +330,6 @@
 		\* --------------------------*/
 
 		function parse_hello(pkt) {
-			console.log("parsing hello");
 			// of hello header (need to do the hello elements stuff)
 			if (src_port != 6633) {
 				id = add_switch(src_port);
@@ -373,11 +384,7 @@
 			p.classList.add("current");
 			index = get_selected_packet_index();
 			update_components(get_index_of_packet(old), get_index_of_packet(p));
-			//display.innerHTML = p.innerHTML + displayed.toSource() + changelog[index].toSource();
-			console.log(components);
-			nodes.push({name:4});
-			links.push({source:3, target:1});
-			update_view();
+			update_view(index);
 		}
 
 		function select_packet(e) {
@@ -409,8 +416,10 @@
 					.attr("width", width)
 					.attr("height", height);
 
-			nodes = [{name:1}, {name:2}, {name:3}];
-			links = [{source:1,target:2}, {source:2,target:0}];
+			//nodes = [{name:1}, {name:2}, {name:3}];
+			//links = [{source:1,target:2}, {source:2,target:0}];
+			nodes = [];
+			links = [];
 
 			force = d3.layout.force()
 					.charge(-500)
@@ -477,8 +486,22 @@
 			update_view();
 		}
 
-		function update_view() {
+		function update_view(index) {
+			//display.innerHTML = p.innerHTML + displayed.toSource() + changelog[index].toSource();
+			added = changelog[index].added;
+			removed = changelog[index].removed;
+			console.log("added "+added+" removed "+removed);
+			for (var i = 0; i < added.length; i++) {
+				nodes.push({name: added[i]});
+			}
+			for (var i = 0; i < removed.length; i++) {
+				console.log("removing "+removed[i]);
+				j = nodes.indexOf(removed[i]);
+				nodes.splice(j, 1);
+			}
 			d3.select("#display").call(update_network_graph, displayed);
+			console.log(nodes);
+			console.log(displayed);
 		}
 
 		update_network_graph = networkGraph();
