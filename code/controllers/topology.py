@@ -8,6 +8,7 @@ from pox.core import core
 from pox.lib.recoco import Timer
 import pox.openflow.libopenflow_01 as of
 from pox.openflow.of_json import *
+from pox.topology.topology import *
 
 import pox.openflow.discovery as discovery
 import pox.host_tracker.host_tracker as host_tracker
@@ -26,7 +27,6 @@ Port = namedtuple("Port", "port_num mac_addr")
 
 
 class Node:
-
     def __init__(self, id, type, ports=[], ips=[]):
 	self.id = id
 	self.type = type
@@ -96,7 +96,7 @@ class Link:
     pass
 
 
-class Topology:
+class Network(Topology):
     _core_name = "thesis_topo"
 
     Flow = Flow
@@ -193,4 +193,4 @@ class Topology:
 
 
 def launch():
-    core.registerNew(Topology)
+    core.registerNew(Network)
