@@ -8,9 +8,11 @@ from pox.core import core
 from pox.lib.recoco import Timer
 import pox.openflow.libopenflow_01 as of
 from pox.openflow.of_json import *
-from collections import deque
+from collections import deque, namedtuple
 
 log = core.getLogger()
+
+Flow = namedtuple("Flow", "nw_proto nw_src nw_dst tp_src tp_dst")
 
 class Entry:
     def __init__(self, switch, id, recent=0, total=0):
@@ -28,6 +30,7 @@ class Entry:
 class Statistics:
     _core_name = "thesis_stats"
     Entry = Entry
+    Flow = Flow
 
     def __init__(self, period=5, length=1):
 	#Timer(period, self._update_time, recurring=True)

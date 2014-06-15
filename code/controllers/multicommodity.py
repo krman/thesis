@@ -26,7 +26,6 @@ class Multicommodity:
 	#Timer(5, self._update_flows, recurring=True)
 	Timer(18, self._solve_mcf)
 	self.flows = {}
-	self.net = topology.Topology()
 
 	core.openflow.addListeners(self)
 	core.addListeners(self)
@@ -72,8 +71,7 @@ class Multicommodity:
 	    core.thesis_base.switches[switch.dpid].connection.send(msg)
 
     def _solve_mcf(self):
-	self.net.refresh_network()
-
+	core.thesis_topo.get_links()
 	mcf = LpProblem("routes", LpMaximize)
 
 	# objective function
@@ -83,14 +81,17 @@ class Multicommodity:
 	# "for all i in P" (per-commodity) constraints
 	chosen = {}
 	for flow in self.flows:
-	    src = self.net.get_host_from_ip(flow.nw_src)
-	    dst = self.net.get_host_from_ip(IPAddr(flow.nw_dst.split('/')[0]))
+	    print "FLOW", flow
+	    src = core.thesis_topo.get_host(ip=flow.nw_src)
+	    dst = core.thesis_topo.get_host(ip=IPAddr(flow.nw_dst.split('/')[0]))
+	    print "src", src, "dst", dst
 	    if not (src and dst):
 		continue
-	    if not (src in self.net.graph.nodes() and dst in self.net.graph.nodes()):
+	    if not (src in core.thesis_topo.graph.nodes() and dst in core.thesis_topo.graph.nodes()):
 		continue
 
-	    paths = list(nx.all_simple_paths(self.net.graph, src, dst))
+	    print "still here"
+	    paths = list(nx.all_simple_paths(core.thesis_topo.graph, src, dst))
 	    labels = [str(k) for k in paths]
 
 	    chosen[(src,dst)] = LpVariable.dicts("x[{0},{1}]".format(src,dst),labels, None, None, 'Binary')
@@ -100,21 +101,22 @@ class Multicommodity:
 	    mcf += selected == 1
 
 	# "for all j in E" (per-link) constraints
-	for link,capacity in self.net.get_links().iteritems():
+	for link,capacity in core.thesis_topo.get_links().iteritems():
+	    print "LINK", link, capacity
 	    traffic = 0
 	    result = 0
 
 	    for flow,demand in self.flows.iteritems():
-		src = self.net.get_host_from_ip(flow.nw_src)
-		dst = self.net.get_host_from_ip(IPAddr(flow.nw_dst.split('/')[0]))
+		src = core.thesis_topo.get_host(ip=flow.nw_src)
+		dst = core.thesis_topo.get_host(ip=IPAddr(flow.nw_dst.split('/')[0]))
 		if not (src and dst):
 		    continue
-		if not (src in self.net.graph.nodes() and dst in self.net.graph.nodes()):
+		if not (src in core.thesis_topo.graph.nodes() and dst in core.thesis_topo.graph.nodes()):
 		    continue
 
 		x = chosen[(src,dst)]
 		selected = 0
-		for path in nx.all_simple_paths(self.net.graph, src, dst):
+		for path in nx.all_simple_paths(core.thesis_topo.graph, src, dst):
 		    edges = zip(path[:-1],path[1:])
 		    a = 1 if link in edges or (link[1],link[0]) in edges else 0
 		    traffic += (a * demand * x[str(path)])
@@ -139,7 +141,7 @@ class Multicommodity:
     def match_to_flow(self, match):
 	d = match if type(match) == dict else match_to_dict(match)
 	try:
-            f = { k:d[k] for k in ["nw_proto", "nw_src", "nw_dst", "tp_src", "tp_dst"]}
+            f = { k:d[k] for k in ["nw_proto", "nw_src", "nw_dst", "tp_src", "tp_dst"] }
             flow = core.thesis_topo.Flow(**f)
 	    return flow
         except KeyError:
