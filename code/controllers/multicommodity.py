@@ -26,7 +26,7 @@ class Multicommodity:
 	#Timer(5, self._update_flows, recurring=True)
 	Timer(18, self._solve_mcf)
 	self.flows = {}
-	self.net = topology.Topology()
+	self.net = core.thesis_topo
 
 	core.openflow.addListeners(self)
 	core.addListeners(self)
