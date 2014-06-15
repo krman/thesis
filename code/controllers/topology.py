@@ -156,6 +156,12 @@ class Network(Topology):
 	print self._hosts
 	return self._links
 
+    """
+    def refresh_network(self):
+	# horrible hack coz host_tracker doesn't update IPs
+	pass
+    """
+
 
 def launch():
     core.registerNew(Network)
