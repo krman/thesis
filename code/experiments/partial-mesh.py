@@ -32,3 +32,4 @@ from time import sleep
 sleep(20)
 net.stop()
 
+cleanup()
