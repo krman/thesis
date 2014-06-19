@@ -11,10 +11,7 @@ from pox.openflow.of_json import *
 
 import pox.thesis.topology as topology
 
-import networkx as nx
 from collections import namedtuple
-from pulp import *
-from pox.lib.addresses import IPAddr
 
 log = core.getLogger()
 
@@ -22,11 +19,12 @@ log = core.getLogger()
 class Multicommodity:
     _core_name = "thesis_mcf"
 
-    def __init__(self):
+    def __init__(self, objective):
 	#Timer(5, self._update_flows, recurring=True)
 	Timer(18, self._solve_mcf)
 	self.flows = {}
 	self.net = core.thesis_topo
+	self.objective = objective
 
 	core.openflow.addListeners(self)
 	core.addListeners(self)
@@ -72,63 +70,7 @@ class Multicommodity:
 	    core.thesis_base.switches[switch.dpid].connection.send(msg)
 
     def _solve_mcf(self):
-	self.net.refresh_network()
-
-	mcf = LpProblem("routes", LpMaximize)
-
-	# objective function
-	z = LpVariable("z")
-	mcf += z
-
-	# "for all i in P" (per-commodity) constraints
-	chosen = {}
-	for flow in self.flows:
-	    src = self.net.get_host_from_ip(flow.nw_src)
-	    dst = self.net.get_host_from_ip(IPAddr(flow.nw_dst.split('/')[0]))
-	    if not (src and dst):
-		continue
-	    if not (src in self.net.graph.nodes() and dst in self.net.graph.nodes()):
-		continue
-
-	    paths = list(nx.all_simple_paths(self.net.graph, src, dst))
-	    labels = [str(k) for k in paths]
-
-	    chosen[(src,dst)] = LpVariable.dicts("x[{0},{1}]".format(src,dst),labels, None, None, 'Binary')
-	    x = chosen[(src,dst)]
-	    
-	    selected = sum([x[str(k)] for k in paths])
-	    mcf += selected == 1
-
-	# "for all j in E" (per-link) constraints
-	for link,capacity in self.net.get_links().iteritems():
-	    traffic = 0
-	    result = 0
-
-	    for flow,demand in self.flows.iteritems():
-		src = self.net.get_host_from_ip(flow.nw_src)
-		dst = self.net.get_host_from_ip(IPAddr(flow.nw_dst.split('/')[0]))
-		if not (src and dst):
-		    continue
-		if not (src in self.net.graph.nodes() and dst in self.net.graph.nodes()):
-		    continue
-
-		x = chosen[(src,dst)]
-		selected = 0
-		for path in nx.all_simple_paths(self.net.graph, src, dst):
-		    edges = zip(path[:-1],path[1:])
-		    a = 1 if link in edges or (link[1],link[0]) in edges else 0
-		    traffic += (a * demand * x[str(path)])
-
-	    mcf += traffic <= capacity
-	    mcf += z <= capacity - traffic
-
-	# solve
-	mcf.writeLP("mcf.lp")
-	mcf.solve(GLPK())
-	print "Status:", LpStatus[mcf.status]
-	for v in mcf.variables():
-	    print v.name, "=", v.varValue
-	print "z =", value(mcf.objective)
+	self.objective(self.net, self.flows)
 
     def _update_flows(self):
 	#self._get_network()
@@ -146,5 +88,14 @@ class Multicommodity:
             return None
 
 
-def launch():
-    core.registerNew(Multicommodity)
+def default_objective(net, flows):
+    print "Default objective function, given:"
+    print "net:", net
+    print "flows:", flows
+
+def launch(objective=None):
+    import sys, os
+    sys.path.append(os.path.abspath('../experiments/objectives'))
+    obj_module = __import__(objective)
+
+    core.registerNew(Multicommodity, objective=obj_module.objective)

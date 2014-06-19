@@ -51,7 +51,7 @@ class DiamondTopo(Topo):
 	return (label, {})
 
 
-def DiamondNet(**kwargs):
+def create_net(**kwargs):
     topo = DiamondTopo()
     kwargs['link'] = TCLink
     return Mininet(topo, **kwargs)
@@ -59,7 +59,7 @@ def DiamondNet(**kwargs):
 
 if __name__ == "__main__":
     setLogLevel('output')
-    net = DiamondNet(controller=RemoteController)
+    net = create_net(controller=RemoteController)
     net.start()
     CLI(net)
     net.stop()

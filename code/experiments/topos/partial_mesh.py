@@ -1,10 +1,14 @@
+#!/usr/bin/python
+
 """
 Partial mesh topology with n switches, m hosts, p% connected switches
 """
 
 from mininet.topo import Topo
 from mininet.net import Mininet
+from mininet.node import RemoteController
 from mininet.cli import CLI
+from mininet.log import setLogLevel
 
 import random
 
@@ -50,5 +54,5 @@ if __name__ == "__main__":
     setLogLevel('output')
     net = PartialMeshNet(n=6, m=2, p=70, controller=RemoteController)
     net.start()
-    CLI()
+    CLI(net)
     net.stop()

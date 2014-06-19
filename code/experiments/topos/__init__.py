@@ -1,1 +1,1 @@
-import partial_mesh
+import partial_mesh, diamond

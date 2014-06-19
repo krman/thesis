@@ -7,20 +7,21 @@ import sys
 from mininet.cli import CLI
 from mininet.log import setLogLevel
 from mininet.node import RemoteController
-from topos.diamond import DiamondNet
 
-def startup():
-    subprocess.Popen(['./controller.sh', 'start'])
+from topos import diamond as topo
+
+def startup(objective):
+    subprocess.Popen(['./controller.sh', 'start', objective])
 
 def cleanup(signal=None, frame=None):
     subprocess.Popen(['./controller.sh', 'stop'])
     sys.exit(0)
 
 signal.signal(signal.SIGINT, cleanup)
-startup()
+startup('max_spare_capacity')
 
 setLogLevel('output')
-net = DiamondNet(controller=RemoteController)
+net = topo.create_net(controller=RemoteController)
 c = net.addController('c0')
 
 net.start()

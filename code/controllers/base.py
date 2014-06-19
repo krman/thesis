@@ -51,11 +51,11 @@ class Controller:
 def print_topology():
     log.info(core.openflow_discovery.adjacency)
 
-def launch():
+def launch(objective=None):
     discovery.launch()
     spanning_tree.launch(no_flood=True, hold_down=True)
     statistics.launch()
     topology.launch()
-    multicommodity.launch()
+    multicommodity.launch(objective=objective)
 
     core.registerNew(Controller)
