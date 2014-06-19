@@ -1,12 +1,23 @@
 #!/usr/bin/python
 
 import subprocess
+import signal
+import sys
+
 from mininet.cli import CLI
 from mininet.log import setLogLevel
 from mininet.node import RemoteController
 from topos.partial_mesh import PartialMeshNet
 
-subprocess.Popen(['./controller.sh', 'start'])
+def startup():
+    subprocess.Popen(['./controller.sh', 'start'])
+
+def cleanup(signal, frame):
+    subprocess.Popen(['./controller.sh', 'stop'])
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, cleanup)
+startup()
 
 setLogLevel('output')
 net = PartialMeshNet(n=6, m=2, p=70, controller=RemoteController)
@@ -21,4 +32,3 @@ from time import sleep
 sleep(20)
 net.stop()
 
-subprocess.Popen(['./controller.sh', 'stop'])
