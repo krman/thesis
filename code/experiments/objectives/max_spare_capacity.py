@@ -2,7 +2,17 @@ from pulp import *
 from pox.lib.addresses import IPAddr
 import networkx as nx
 
+
+def var2fh(var):
+    var = var[2:]
+    flow, x, hops = var.partition('_')
+    hops = hops[1:-1].split(',_')[1:-1]
+    flow = tuple(flow.split(','))
+    return (flow, hops)
+
+
 def objective(net, flows):
+    print "FLOWS", flows
     net.refresh_network()
 
     mcf = LpProblem("routes", LpMaximize)
@@ -57,6 +67,26 @@ def objective(net, flows):
     mcf.writeLP("mcf.lp")
     mcf.solve()
     print "Status:", LpStatus[mcf.status]
+
+    # plot evil
+    rules = {}
+    a = net.get_adjacency()
     for v in mcf.variables():
 	print v.name, "=", v.varValue
+	if v.name != 'z':
+	    flow, hops = var2fh(v.name)
+	    s,d = flow
+	    f = (net.get_ip_from_host(s[1:]), net.get_ip_from_host(d[1:]))
+	    real = []
+	    for i,s in enumerate(hops):
+		dpid = int(s[1:]) # hope and pray
+		if i != len(hops)-1:
+		    s2 = hops[i+1]
+		    dpid2 = int(s2[1:])
+		    port = [l.port1 for l in a if l.dpid1==dpid and l.dpid2==dpid2][0]
+		else:
+		    port = 1
+		real.append(net.Hop(dpid=dpid,port=port))
+	    rules[f] = real
     print "z =", value(mcf.objective)
+    return rules

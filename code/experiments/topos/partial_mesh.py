@@ -45,14 +45,14 @@ class PartialMeshTopo(Topo):
 	    self.addLink(hosts[h],switches[s])
 	    
 	    
-def PartialMeshNet(n=6, m=2, p=30, **kwargs):
+def create_net(n=6, m=2, p=30, **kwargs):
     topo = PartialMeshTopo(n, m, p)
     return Mininet(topo, **kwargs)
 
 
 if __name__ == "__main__":
     setLogLevel('output')
-    net = PartialMeshNet(n=6, m=2, p=70, controller=RemoteController)
+    net = create_net(n=6, m=2, p=70, controller=RemoteController)
     net.start()
     CLI(net)
     net.stop()

@@ -3,12 +3,19 @@
 import subprocess
 import signal
 import sys
+import importlib
+
+from time import sleep
 
 from mininet.cli import CLI
 from mininet.log import setLogLevel
 from mininet.node import RemoteController
 
-from topos import diamond as topo
+TOPOLOGY = 'partial_mesh'
+OBJECTIVE = 'max_spare_capacity'
+RESULTS = 'results'
+
+topo = importlib.import_module('topos.' + TOPOLOGY)
 
 def startup(objective):
     subprocess.Popen(['./controller.sh', 'start', objective])
@@ -18,19 +25,21 @@ def cleanup(signal=None, frame=None):
     sys.exit(0)
 
 signal.signal(signal.SIGINT, cleanup)
-startup('max_spare_capacity')
+startup(OBJECTIVE)
 
 setLogLevel('output')
 net = topo.create_net(controller=RemoteController)
 c = net.addController('c0')
 
 net.start()
-h1 = net.get('h1')
-h2 = net.get('h2')
-h1.cmd('ping {} &'.format(h2.IP()))
+bw = net.iperf()
 
-from time import sleep
-sleep(20)
+f = open(RESULTS, "ab")
+f.write("{0},{1},{2},{3}\n".format(TOPOLOGY, OBJECTIVE, bw[0], bw[1]))
+f.close()
+
+sleep(27)
+CLI(net)
 net.stop()
 
 cleanup()
