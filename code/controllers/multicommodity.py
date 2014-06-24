@@ -44,20 +44,6 @@ class Multicommodity:
 	    return
 	msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
 	event.connection.send(msg)
-	"""
-	TODO use output of mcf to do this
-
-	if str(event.parsed.src) == '00:00:00:00:00:01':
-	    hops = self.all["ltr"][self.ltr]
-	    self.ltr = 1 - self.ltr
-	elif str(event.parsed.src) == '00:00:00:00:00:02':
-	    hops = self.all["rtl"][self.rtl]
-	    self.rtl = 1 - self.rtl
-	else:
-	    return
-	log.info("PacketIn on s{0}: src {1}, path {2}".format(event.dpid, event.parsed.src, hops))
-	self._install_forward_rule(msg, hops)
-	"""
 
 	flow = self.match_to_flow(msg.match)
 	if flow:
