@@ -26,7 +26,6 @@ Port = namedtuple("Port", "port_num mac_addr")
 
 
 class Node:
-
     def __init__(self, id, type, ports=[], ips=[]):
 	self.id = id
 	self.type = type
@@ -124,6 +123,15 @@ class Topology:
 	    return host
 	except StopIteration:
 	    return None
+    
+    def get_ip_from_host(self, hid):
+	try:
+	    host = next(next(iter(h.ips)) for h in self.hosts if h.id==int(hid))
+	    print hid, host
+	    return host
+	except StopIteration:
+	    print hid, None
+	    return none
 
     def get_host(self, ports=[], ips=[]):
 	""" Returns a Node for the host matching the macs/ips given.
@@ -166,6 +174,9 @@ class Topology:
 
     def get_links(self):
 	return self.links
+
+    def get_adjacency(self):
+	return core.openflow_discovery.adjacency
 
     def refresh_network(self):
 	self.graph.clear()

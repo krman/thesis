@@ -21,7 +21,7 @@ class Multicommodity:
 
     def __init__(self, objective):
 	#Timer(5, self._update_flows, recurring=True)
-	Timer(18, self._solve_mcf)
+	Timer(25, self._solve_mcf)
 	self.flows = {}
 	self.net = core.thesis_topo
 	self.objective = objective
@@ -67,10 +67,22 @@ class Multicommodity:
 	for switch in hops:
 	    msg.actions = []
 	    msg.actions.append(of.ofp_action_output(port = switch.port))
+	    print "{0}.{1}".format(switch.dpid,switch.port),
 	    core.thesis_base.switches[switch.dpid].connection.send(msg)
+	print
 
     def _solve_mcf(self):
-	self.objective(self.net, self.flows)
+	rules = self.objective(self.net, self.flows)
+	print "RULES", rules
+	for flow,hops in rules.items():
+	    nw_src, nw_dst = flow
+	    msg = of.ofp_flow_mod()
+	    msg.match.dl_type = 0x800
+	    msg.match.nw_proto = 6
+	    msg.match.nw_src = nw_src
+	    msg.match.nw_dst = nw_dst
+	    print "INSTALLING", nw_src, nw_dst,
+	    self._install_forward_rule(msg, hops)
 
     def _update_flows(self):
 	#self._get_network()
@@ -96,6 +108,10 @@ def default_objective(net, flows):
 def launch(objective=None):
     import sys, os
     sys.path.append(os.path.abspath('../experiments/objectives'))
-    obj_module = __import__(objective)
+    try:
+	obj_module = __import__(objective)
+	f = obj_module.objective
+    except Exception:
+	f = default_objective
 
-    core.registerNew(Multicommodity, objective=obj_module.objective)
+    core.registerNew(Multicommodity, objective=f)
