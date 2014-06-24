@@ -17,15 +17,20 @@ RESULTS = 'results'
 
 topo = importlib.import_module('topos.' + TOPOLOGY)
 
-def startup(objective):
-    subprocess.Popen(['./controller.sh', 'start', objective])
-
 def cleanup(signal=None, frame=None):
-    subprocess.Popen(['./controller.sh', 'stop'])
+    try:
+	controller.kill()
+	net.stop()
+    except Exception:
+	pass
     sys.exit(0)
 
 signal.signal(signal.SIGINT, cleanup)
-startup(OBJECTIVE)
+
+clean = subprocess.Popen(['sudo', 'mn', '-c'])
+clean.wait()
+controller = subprocess.Popen(['../controllers/pox_base.sh',
+			       '--objective='+OBJECTIVE])
 
 setLogLevel('output')
 net = topo.create_net(controller=RemoteController)
