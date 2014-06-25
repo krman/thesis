@@ -12,6 +12,7 @@ due: 27 march 16:00 (sem 1, week 4)
 
 ### progress seminar
 due: 19 may 09:00 - 23 may 16:00 (sem 1, week 11)
+** DONE ** 12.45 / 15%
 
 ### oral presentation
 due: 20 oct 09:00 - 24 oct 16:00 (sem 2, week 12)
