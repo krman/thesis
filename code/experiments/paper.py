@@ -11,7 +11,7 @@ from mininet.cli import CLI
 from mininet.log import setLogLevel
 from mininet.node import RemoteController
 
-TOPOLOGY = 'partial_mesh'
+TOPOLOGY = 'fat_tree'
 OBJECTIVE = 'max_spare_capacity'
 RESULTS = 'results'
 
@@ -43,7 +43,7 @@ f = open(RESULTS, "ab")
 f.write("{0},{1},{2},{3}\n".format(TOPOLOGY, OBJECTIVE, bw[0], bw[1]))
 f.close()
 
-sleep(27)
+sleep(50)
 CLI(net)
 net.stop()
 

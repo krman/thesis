@@ -21,7 +21,7 @@ class Multicommodity:
 
     def __init__(self, objective):
 	#Timer(5, self._update_flows, recurring=True)
-	Timer(25, self._solve_mcf)
+	Timer(50, self._solve_mcf)
 	self.flows = {}
 	self.net = core.thesis_topo
 	self.objective = objective
@@ -63,12 +63,13 @@ class Multicommodity:
 	for flow,hops in rules.items():
 	    nw_src, nw_dst = flow
 	    msg = of.ofp_flow_mod()
+	    msg.command = of.OFPFC_MODIFY
 	    msg.match.dl_type = 0x800
 	    msg.match.nw_proto = 6
 	    msg.match.nw_src = nw_src
 	    msg.match.nw_dst = nw_dst
 	    print "INSTALLING", nw_src, nw_dst,
-	    self._install_forward_rule(msg, hops)
+	    #self._install_forward_rule(msg, hops)
 
     def _update_flows(self):
 	#self._get_network()
