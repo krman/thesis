@@ -1,6 +1,37 @@
 from pulp import *
-from pox.lib.addresses import IPAddr
+#from pox.lib.addresses import IPAddr
 import networkx as nx
+
+
+class IPAddr (object):
+  """
+  Represents an IPv4 address.
+  """
+  def __init__ (self, addr, networkOrder = False):
+    """
+    Initialize using several possible formats
+
+    If addr is an int/long, then it is assumed to be in host byte order
+    unless networkOrder = True
+    Stored in network byte order as a signed int
+    """
+
+    # Always stores as a signed network-order int
+    if isinstance(addr, basestring) or isinstance(addr, bytes):
+      if len(addr) != 4:
+        # dotted quad
+        self._value = struct.unpack('i', socket.inet_aton(addr))[0]
+      else:
+        self._value = struct.unpack('i', addr)[0]
+    elif isinstance(addr, IPAddr):
+      self._value = addr._value
+    elif isinstance(addr, int) or isinstance(addr, long):
+      addr = addr & 0xffFFffFF # unsigned long
+      self._value = struct.unpack("!i",
+          struct.pack(('!' if networkOrder else '') + "I", addr))[0]
+    else:
+      raise RuntimeError("Unexpected IP address format")
+
 
 
 def var2fh(var):
