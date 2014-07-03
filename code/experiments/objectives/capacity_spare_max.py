@@ -30,7 +30,7 @@ def var2fh(var):
     return (flow, hops)
 
 
-def objective(net, flows):
+def objective(net, flows, cutoff=None):
     G = net.graph
     rules = {}
 
@@ -44,6 +44,7 @@ def objective(net, flows):
     chosen = {}
     hosts = {}
     pair2flow = {}
+    label2path = {}
 
     for flow in flows:
 	src = get_host_from_ip(G, flow.nw_src)
@@ -54,19 +55,20 @@ def objective(net, flows):
 	if not (src in net.graph.nodes() and dst in net.graph.nodes()):
 	    continue
 
+	print "madeit"
 	hosts[flow.nw_src] = src
 	hosts[flow.nw_dst] = dst
 	pair2flow[(src,dst)] = flow
 	
-	paths = list(nx.all_simple_paths(net.graph, src, dst))
-	labels = [str(k) for k in paths]
-	print [len(i) for i in paths]
+	paths = list(nx.all_simple_paths(net.graph, src, dst, cutoff=cutoff))
+	labels = [i for i in range(len(paths))]
+	
 	# TODO make labels not be path names - i only use in this function
 
-	chosen[(src,dst)] = LpVariable.dicts("x[{0},{1}]".format(src,dst),labels, None, None, 'Binary')
+	chosen[(src,dst)] = LpVariable.dicts("x_{0},{1}".format(src,dst),labels, None, None, 'Binary')
 	x = chosen[(src,dst)]
 	
-	selected = sum([x[str(k)] for k in paths])
+	selected = sum([x[i] for i,k in enumerate(paths)])
 	mcf += selected == 1
 
     # "for all j in E" (per-link) constraints
@@ -91,10 +93,11 @@ def objective(net, flows):
 
 	    x = chosen[(src,dst)]
 	    selected = 0
-	    for path in nx.all_simple_paths(net.graph, src, dst, cutoff=10):
+	    paths = nx.all_simple_paths(net.graph, src, dst, cutoff=cutoff)
+	    for i,path in enumerate(paths):
 		edges = zip(path[:-1],path[1:])
 		a = 1 if link in edges or (link[1],link[0]) in edges else 0
-		traffic += (a * demand * x[str(path)])
+		traffic += (a * demand * x[i])
 
 	mcf += traffic <= capacity
 	mcf += z <= capacity - traffic

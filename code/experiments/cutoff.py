@@ -51,18 +51,19 @@ class TestTopology:
 	self.graph = fat_tree_graph(k=k)
 
 
-print "k,cutoff,obj time"
+print "max path len,k,num paths,obj time"
 #for k in [2,4,6,8,10]:
     #for i in range(5):
-for k in [2,4,6,8,10]:
-    for c in [10]:
-	print "{0}, {1},".format(k,c),
+for c in [10]:
+    for k in [2,4,6,8,10]:
+	print "{0}, {1},".format(c,k),
 
 	net = TestTopology(k=k)
 	flows = {Flow(nw_src='10.1.3.2', nw_dst='10.3.2.3',nw_proto=None,tp_src=None,tp_dst=None):3}
+	print "{0},".format(len(list(nx.all_simple_paths(net.graph,'h1,3.2','h3,2.3',cutoff=c)))),
 
 	start = datetime.now()
-	rules = obj.objective(net, flows)
+	rules = obj.objective(net, flows, cutoff=c)
 	end = datetime.now()
 	#assert rules == expected, "incorrect result"
 	print end-start
