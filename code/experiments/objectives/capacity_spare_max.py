@@ -60,6 +60,8 @@ def objective(net, flows):
 	
 	paths = list(nx.all_simple_paths(net.graph, src, dst))
 	labels = [str(k) for k in paths]
+	print [len(i) for i in paths]
+	# TODO make labels not be path names - i only use in this function
 
 	chosen[(src,dst)] = LpVariable.dicts("x[{0},{1}]".format(src,dst),labels, None, None, 'Binary')
 	x = chosen[(src,dst)]
@@ -89,7 +91,7 @@ def objective(net, flows):
 
 	    x = chosen[(src,dst)]
 	    selected = 0
-	    for path in nx.all_simple_paths(net.graph, src, dst, cutoff=9):
+	    for path in nx.all_simple_paths(net.graph, src, dst, cutoff=10):
 		edges = zip(path[:-1],path[1:])
 		a = 1 if link in edges or (link[1],link[0]) in edges else 0
 		traffic += (a * demand * x[str(path)])

@@ -60,7 +60,7 @@ for i in range(1):
 	print "{0}, {1},".format(k,i),
 
 	net = TestTopology(k=k)
-	flows = {Flow(nw_src='10.1.3.1', nw_dst='10.3.2.1',nw_proto=None,tp_src=None,tp_dst=None):3}
+	flows = {Flow(nw_src='10.1.3.2', nw_dst='10.3.2.3',nw_proto=None,tp_src=None,tp_dst=None):3}
 
 	start = datetime.now()
 	rules = obj.objective(net, flows)
