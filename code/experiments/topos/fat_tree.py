@@ -56,19 +56,15 @@ class FatTreeTopo(Topo):
 	return (label, {'ip':ip})
 
 
-def create_net(**kwargs):
-    topo = FatTreeTopo()
+def create_net(k=4, **kwargs):
+    topo = FatTreeTopo(k=k)
     kwargs['link'] = TCLink
-    try:
-	del kwargs['k']
-    except KeyError:
-	pass
     return Mininet(topo, **kwargs)
 
 
 if __name__ == "__main__":
     setLogLevel('output')
-    net = create_net(controller=RemoteController)
+    net = create_net(controller=RemoteController, k=2)
     net.start()
     CLI(net)
     net.stop()
