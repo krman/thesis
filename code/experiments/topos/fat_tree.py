@@ -41,17 +41,17 @@ class FatTreeTopo(Topo):
 		    self.addLink(switch, host)
 
     def makeCoreSwitch(self, i, j, k):
-	label = 'c.{0},{1}'.format(i,j)
+	label = 'cr{0}c{1}'.format(i,j)
 	ip = '10.{0}.{1}.{2}'.format(k,i,j)
 	return (label, {'ip':ip})
 
     def makePodSwitch(self, p, s):
-	label = 'p.{0},{1}'.format(p,s)
+	label = 'p{0}s{1}'.format(p,s)
 	ip = '10.{0}.{1}.1'.format(p,s)
 	return (label, {'ip':ip})
 
     def makeHost(self, p, s, i):
-	label = 'h.{0},{1}.{2}'.format(p,s,i)
+	label = 'h{2}p{0}s{1}'.format(p,s,i)
 	ip = '10.{0}.{1}.{2}'.format(p,s,i)
 	return (label, {'ip':ip})
 
