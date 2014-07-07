@@ -1,50 +1,47 @@
+#!/usr/bin/python
+
 from pulp import *
-#from pox.lib.addresses import IPAddr
+from collections import namedtuple
 import networkx as nx
+import itertools
 
 
-class IPAddr (object):
-  """
-  Represents an IPv4 address.
-  """
-  def __init__ (self, addr, networkOrder = False):
-    """
-    Initialize using several possible formats
+Flow = namedtuple("Flow", "nw_proto nw_src nw_dst tp_src tp_dst")
+Hop = namedtuple("Hop", "dpid port")
 
-    If addr is an int/long, then it is assumed to be in host byte order
-    unless networkOrder = True
-    Stored in network byte order as a signed int
-    """
 
-    # Always stores as a signed network-order int
-    if isinstance(addr, basestring) or isinstance(addr, bytes):
-      if len(addr) != 4:
-        # dotted quad
-        self._value = struct.unpack('i', socket.inet_aton(addr))[0]
-      else:
-        self._value = struct.unpack('i', addr)[0]
-    elif isinstance(addr, IPAddr):
-      self._value = addr._value
-    elif isinstance(addr, int) or isinstance(addr, long):
-      addr = addr & 0xffFFffFF # unsigned long
-      self._value = struct.unpack("!i",
-          struct.pack(('!' if networkOrder else '') + "I", addr))[0]
-    else:
-      raise RuntimeError("Unexpected IP address format")
+def get_host_from_ip(G, ip):
+    return next((i for i in G.nodes() if G.node[i].get('ip') == str(ip)), None)
 
+
+# https://docs.python.org/2/library/itertools.html#recipes
+def pairwise(iterable):
+    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+    a, b = itertools.tee(iterable)
+    next(b, None)
+    return itertools.izip(a, b)
 
 
 def var2fh(var):
-    var = var[2:]
+    var = var[2:].replace("'","")
     flow, x, hops = var.partition('_')
     hops = hops[1:-1].split(',_')[1:-1]
     flow = tuple(flow.split(','))
     return (flow, hops)
 
 
-def objective(net, flows):
-    print "FLOWS", flows
-    net.refresh_network()
+def var2flow(G, var):
+    #x_h2_41660_h1_5001_6_0
+    var = var[2:]
+    src, p1, dst, p2, proto, num = var.split('_')
+    n1 = G.node[src].get('ip', None)
+    n2 = G.node[dst].get('ip', None)
+    return Flow(nw_src=n1, tp_src=p1, nw_dst=n2, tp_dst=p2, nw_proto=proto)
+
+
+def objective(net, flows, cutoff=None):
+    G = net.graph
+    rules = {}
 
     mcf = LpProblem("routes", LpMaximize)
 
@@ -54,42 +51,61 @@ def objective(net, flows):
 
     # "for all i in P" (per-commodity) constraints
     chosen = {}
+    hosts = {}
+    pair2flow = {}
+    label2path = {}
+
     for flow in flows:
-	src = net.get_host_from_ip(flow.nw_src)
-	dst = net.get_host_from_ip(IPAddr(flow.nw_dst.split('/')[0]))
+	src = get_host_from_ip(G, flow.nw_src)
+	dst = get_host_from_ip(G, flow.nw_dst.split('/')[0])
+
 	if not (src and dst):
 	    continue
 	if not (src in net.graph.nodes() and dst in net.graph.nodes()):
 	    continue
 
-	paths = list(nx.all_simple_paths(net.graph, src, dst))
-	labels = [str(k) for k in paths]
+	hosts[flow.nw_src] = src
+	hosts[flow.nw_dst] = dst
+	pair2flow[(src,dst)] = flow
+	
+	paths = list(nx.all_simple_paths(net.graph, src, dst, cutoff=cutoff))
+	prefix = "_".join([str(i) for i in ["x", src, flow.tp_src, dst, flow.tp_dst, flow.nw_proto]])
+	label2path.update({"_".join([prefix,str(i)]):path[1:] for i,path in enumerate(paths)})
 
-	chosen[(src,dst)] = LpVariable.dicts("x[{0},{1}]".format(src,dst),labels, None, None, 'Binary')
+	labels = [i for i in range(len(paths))]
+	chosen[(src,dst)] = LpVariable.dicts(prefix,labels,None,None,'Binary')
 	x = chosen[(src,dst)]
 	
-	selected = sum([x[str(k)] for k in paths])
+	selected = sum([x[i] for i,k in enumerate(paths)])
 	mcf += selected == 1
 
     # "for all j in E" (per-link) constraints
-    for link,capacity in net.get_links().iteritems():
+    done = []
+    for a,b in G.edges():
+	if (b,a) in done:
+	    continue
+	done.append((a,b))
+
+	capacity = G.edge[a][b]['capacity']
+	link = (a,b)
+
 	traffic = 0
 	result = 0
 
 	for flow,demand in flows.iteritems():
-	    src = net.get_host_from_ip(flow.nw_src)
-	    dst = net.get_host_from_ip(IPAddr(flow.nw_dst.split('/')[0]))
+	    src = hosts.get(flow.nw_src)
+	    dst = hosts.get(flow.nw_dst)
+
 	    if not (src and dst):
-		continue
-	    if not (src in net.graph.nodes() and dst in net.graph.nodes()):
 		continue
 
 	    x = chosen[(src,dst)]
 	    selected = 0
-	    for path in nx.all_simple_paths(net.graph, src, dst):
+	    paths = nx.all_simple_paths(net.graph, src, dst, cutoff=cutoff)
+	    for i,path in enumerate(paths):
 		edges = zip(path[:-1],path[1:])
 		a = 1 if link in edges or (link[1],link[0]) in edges else 0
-		traffic += (a * demand * x[str(path)])
+		traffic += (a * demand * x[i])
 
 	mcf += traffic <= capacity
 	mcf += z <= capacity - traffic
@@ -97,27 +113,14 @@ def objective(net, flows):
     # solve
     mcf.writeLP("mcf.lp")
     mcf.solve()
-    print "Status:", LpStatus[mcf.status]
 
-    # plot evil
-    rules = {}
-    a = net.get_adjacency()
+    # calculate hops
     for v in mcf.variables():
-	print v.name, "=", v.varValue
-	if v.name != 'z':
-	    flow, hops = var2fh(v.name)
-	    s,d = flow
-	    f = (net.get_ip_from_host(s[1:]), net.get_ip_from_host(d[1:]))
-	    real = []
-	    for i,s in enumerate(hops):
-		dpid = int(s[1:]) # hope and pray
-		if i != len(hops)-1:
-		    s2 = hops[i+1]
-		    dpid2 = int(s2[1:])
-		    port = [l.port1 for l in a if l.dpid1==dpid and l.dpid2==dpid2][0]
-		else:
-		    port = 1
-		real.append(net.Hop(dpid=dpid,port=port))
-	    rules[f] = real
-    print "z =", value(mcf.objective)
+	if v.name != 'z' and v.varValue > 0.99:
+	    flow = var2flow(G, v.name)
+	    path = label2path[v.name]
+	    hops = [Hop(dpid=int(a[1:]), port=G.edge[a][b]['port']) 
+					 for a,b in pairwise(path)]
+	    rules[flow] = hops
+
     return rules
