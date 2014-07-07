@@ -8,6 +8,7 @@ from pox.core import core
 from pox.lib.recoco import Timer
 import pox.openflow.libopenflow_01 as of
 from pox.openflow.of_json import *
+from pox.lib.addresses import IPAddr
 
 import pox.thesis.topology as topology
 
@@ -21,7 +22,7 @@ class Multicommodity:
 
     def __init__(self, objective):
 	#Timer(5, self._update_flows, recurring=True)
-	Timer(50, self._solve_mcf)
+	Timer(30, self._solve_mcf)
 	self.flows = {}
 	self.net = core.thesis_topo
 	self.objective = objective
@@ -42,8 +43,9 @@ class Multicommodity:
 	    msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
 	    event.connection.send(msg)
 	    return
-	msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
-	event.connection.send(msg)
+
+	#msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
+	#event.connection.send(msg)
 
 	flow = self.match_to_flow(msg.match)
 	if flow:
@@ -58,23 +60,27 @@ class Multicommodity:
 	print
 
     def _solve_mcf(self):
+	self.net.refresh_network()
 	rules = self.objective(self.net, self.flows)
 	print "RULES", rules
 	for flow,hops in rules.items():
-	    nw_src, nw_dst = flow
 	    msg = of.ofp_flow_mod()
 	    msg.command = of.OFPFC_MODIFY
 	    msg.match.dl_type = 0x800
 	    msg.match.nw_proto = 6
-	    msg.match.nw_src = nw_src
-	    msg.match.nw_dst = nw_dst
-	    print "INSTALLING", nw_src, nw_dst,
-	    #self._install_forward_rule(msg, hops)
+	    msg.match.nw_src = flow.nw_src
+	    msg.match.nw_dst = flow.nw_dst
+	    msg.match.tp_src = int(flow.tp_src)
+	    msg.match.tp_dst = int(flow.tp_dst)
+	    print "INSTALLING", flow.nw_src, flow.nw_dst,
+	    self._install_forward_rule(msg, hops)
 
     def _update_flows(self):
 	#self._get_network()
 	#stats = core.thesis_stats.get_flows()
 	#log.info("stats:" + str(stats))
+	print "FLOWS",self.flows
+	print "STATS",core.thesis_stats.get_flows()
 	self._solve_mcf()
 
     def match_to_flow(self, match):
