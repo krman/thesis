@@ -179,13 +179,17 @@ class Topology:
 	return core.openflow_discovery.adjacency
 
     def refresh_network(self):
-	self.graph.clear()
+	G = nx.DiGraph()
+	G.clear()
+	self.host_count = 0
 
 	# add switches
 	for link in core.openflow_discovery.adjacency:
-	    s1 = self.get_switch(link.dpid1)
-	    s2 = self.get_switch(link.dpid2)
-	    self.add_link(s1, link.port1, s2, link.port2)
+	    s1 = "s{0}".format(link.dpid1)
+	    s2 = "s{0}".format(link.dpid2)
+	    G.add_nodes_from([s1,s2])
+	    G.add_edge(s1, s2, {'capacity':5, 'port':link.port1})
+	    G.add_edge(s2, s1, {'capacity':5, 'port':link.port2})
 
 	# add hosts
 	for src, entry in self.ht.entryByMAC.items():
@@ -193,13 +197,16 @@ class Topology:
 		continue
 	    if not core.openflow_discovery.is_edge_port(entry.dpid, entry.port):
 		continue
-	    h = self.get_host(entry.macaddr, ips=entry.ipAddrs.keys())
-	    log.info("host {0} has ip {1}".format(h, entry.ipAddrs.keys()))
-	    s = self.get_switch(entry.dpid)
-	    self.add_link(h, None, s, entry.port)
 
-	log.info("network nodes: {}".format(self.graph.nodes()))
-	log.info("network edges: {}".format(self.graph.edges()))
+	    self.host_count += 1
+	    h = "h{0}".format(self.host_count)
+	    s = "s{0}".format(entry.dpid)
+	    G.add_nodes_from([h,s])
+	    G.node[h]['ip'] = str(next(iter(entry.ipAddrs.keys())))
+	    G.add_edge(h, s, {'capacity':5})
+	    G.add_edge(s, h, {'capacity':5, 'port':entry.port})
+
+	self.graph = G
 
 
 
