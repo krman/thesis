@@ -11,7 +11,7 @@ from mininet.cli import CLI
 from mininet.log import setLogLevel
 from mininet.node import RemoteController
 
-topology = 'fat_tree'
+topology = 'diamond'
 objective = 'max_spare_capacity'
 results = 'results'
 
@@ -37,13 +37,20 @@ net = topo.create_net(controller=RemoteController)
 c = net.addController('c0')
 
 net.start()
-bw = net.iperf()
 
-f = open(results, "ab")
-f.write("{0},{1},{2},{3}\n".format(topology, objective, bw[0], bw[1]))
-f.close()
+#sleep(15)
+#bw = net.iperf()
 
-sleep(50)
+#f = open(results, "ab")
+#f.write("{0},{1},{2},{3}\n".format(topology, objective, bw[0], bw[1]))
+#f.close()
+
+sleep(15)
+h1 = net.get('h1')
+h2 = net.get('h2')
+h1.cmd('ping -c1 ' + str(h2.IP()))
+
+sleep(20)
 CLI(net)
 net.stop()
 
