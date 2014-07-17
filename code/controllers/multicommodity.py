@@ -11,10 +11,7 @@ from pox.openflow.of_json import *
 
 import pox.thesis.topology as topology
 
-import networkx as nx
 from collections import namedtuple
-from pulp import *
-from pox.lib.addresses import IPAddr
 
 log = core.getLogger()
 
@@ -22,10 +19,12 @@ log = core.getLogger()
 class Multicommodity:
     _core_name = "thesis_mcf"
 
-    def __init__(self):
+    def __init__(self, objective):
 	#Timer(5, self._update_flows, recurring=True)
-	Timer(18, self._solve_mcf)
+	Timer(50, self._solve_mcf)
 	self.flows = {}
+	self.net = core.thesis_topo
+	self.objective = objective
 
 	core.openflow.addListeners(self)
 	core.addListeners(self)
@@ -45,20 +44,6 @@ class Multicommodity:
 	    return
 	msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
 	event.connection.send(msg)
-	"""
-	TODO use output of mcf to do this
-
-	if str(event.parsed.src) == '00:00:00:00:00:01':
-	    hops = self.all["ltr"][self.ltr]
-	    self.ltr = 1 - self.ltr
-	elif str(event.parsed.src) == '00:00:00:00:00:02':
-	    hops = self.all["rtl"][self.rtl]
-	    self.rtl = 1 - self.rtl
-	else:
-	    return
-	log.info("PacketIn on s{0}: src {1}, path {2}".format(event.dpid, event.parsed.src, hops))
-	self._install_forward_rule(msg, hops)
-	"""
 
 	flow = self.match_to_flow(msg.match)
 	if flow:
@@ -68,69 +53,23 @@ class Multicommodity:
 	for switch in hops:
 	    msg.actions = []
 	    msg.actions.append(of.ofp_action_output(port = switch.port))
+	    print "{0}.{1}".format(switch.dpid,switch.port),
 	    core.thesis_base.switches[switch.dpid].connection.send(msg)
+	print
 
     def _solve_mcf(self):
-	core.thesis_topo.get_links()
-	mcf = LpProblem("routes", LpMaximize)
-
-	# objective function
-	z = LpVariable("z")
-	mcf += z
-
-	# "for all i in P" (per-commodity) constraints
-	chosen = {}
-	for flow in self.flows:
-	    print "FLOW", flow
-	    src = core.thesis_topo.get_host(ip=flow.nw_src)
-	    dst = core.thesis_topo.get_host(ip=IPAddr(flow.nw_dst.split('/')[0]))
-	    print "src", src, "dst", dst
-	    if not (src and dst):
-		continue
-	    if not (src in core.thesis_topo.graph.nodes() and dst in core.thesis_topo.graph.nodes()):
-		continue
-
-	    print "still here"
-	    paths = list(nx.all_simple_paths(core.thesis_topo.graph, src, dst))
-	    labels = [str(k) for k in paths]
-
-	    chosen[(src,dst)] = LpVariable.dicts("x[{0},{1}]".format(src,dst),labels, None, None, 'Binary')
-	    x = chosen[(src,dst)]
-	    
-	    selected = sum([x[str(k)] for k in paths])
-	    mcf += selected == 1
-
-	# "for all j in E" (per-link) constraints
-	for link,capacity in core.thesis_topo.get_links().iteritems():
-	    print "LINK", link, capacity
-	    traffic = 0
-	    result = 0
-
-	    for flow,demand in self.flows.iteritems():
-		src = core.thesis_topo.get_host(ip=flow.nw_src)
-		dst = core.thesis_topo.get_host(ip=IPAddr(flow.nw_dst.split('/')[0]))
-		if not (src and dst):
-		    continue
-		if not (src in core.thesis_topo.graph.nodes() and dst in core.thesis_topo.graph.nodes()):
-		    continue
-
-		x = chosen[(src,dst)]
-		selected = 0
-		for path in nx.all_simple_paths(core.thesis_topo.graph, src, dst):
-		    edges = zip(path[:-1],path[1:])
-		    a = 1 if link in edges or (link[1],link[0]) in edges else 0
-		    traffic += (a * demand * x[str(path)])
-
-	    mcf += traffic <= capacity
-	    mcf += z <= capacity - traffic
-
-	# solve
-	mcf.writeLP("mcf.lp")
-	mcf.solve(GLPK())
-	print "Status:", LpStatus[mcf.status]
-	for v in mcf.variables():
-	    print v.name, "=", v.varValue
-	print "z =", value(mcf.objective)
+	rules = self.objective(self.net, self.flows)
+	print "RULES", rules
+	for flow,hops in rules.items():
+	    nw_src, nw_dst = flow
+	    msg = of.ofp_flow_mod()
+	    msg.command = of.OFPFC_MODIFY
+	    msg.match.dl_type = 0x800
+	    msg.match.nw_proto = 6
+	    msg.match.nw_src = nw_src
+	    msg.match.nw_dst = nw_dst
+	    print "INSTALLING", nw_src, nw_dst,
+	    #self._install_forward_rule(msg, hops)
 
     def _update_flows(self):
 	#self._get_network()
@@ -148,5 +87,18 @@ class Multicommodity:
             return None
 
 
-def launch():
-    core.registerNew(Multicommodity)
+def default_objective(net, flows):
+    print "Default objective function, given:"
+    print "net:", net
+    print "flows:", flows
+
+def launch(objective=None):
+    import sys, os
+    sys.path.append(os.path.abspath('../experiments/objectives'))
+    try:
+	obj_module = __import__(objective)
+	f = obj_module.objective
+    except Exception:
+	f = default_objective
+
+    core.registerNew(Multicommodity, objective=f)
