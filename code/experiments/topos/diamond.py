@@ -1,15 +1,6 @@
 #!/usr/bin/python
 
-""" Diamond topology:
-
-         c
-         |
-         s2
-       /    \
-h1 -- s1    s4 -- h2
-       \    /
-         s3
-
+""" Diamond topology
 """
 
 from mininet.topo import Topo
@@ -21,7 +12,10 @@ from mininet.link import TCLink
 
 
 class DiamondTopo(Topo):
+    """ This is the DiamondTopo class """
+
     def __init__(self):
+	""" This creates it """
 	super(DiamondTopo, self).__init__()
 	
 	# add hosts
@@ -42,11 +36,13 @@ class DiamondTopo(Topo):
 	self.addLink(s[3],s[4], **linkopts)
 
     def makeHost(self, i):
+	""" Convenience function to make hosts """
 	label = 'h{}'.format(i)
 	ip = '10.0.0.{}'.format(i)
 	return (label, {'ip':ip})
 
     def makeSwitch(self, i):
+	""" Convenience function to make switches """
 	label = 's{}'.format(i)
 	return (label, {})
 
