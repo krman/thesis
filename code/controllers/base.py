@@ -27,10 +27,10 @@ class Switch:
 
 	# flood arp
 	msg = of.ofp_flow_mod()
-	msg.match.dl_type = pkt.ethernet.ARP_TYPE
+	#msg.match.dl_type = pkt.ethernet.ARP_TYPE
         msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
         msg.actions.append(of.ofp_action_output(port = of.OFPP_CONTROLLER))
-	self.connection.send(msg)
+	#self.connection.send(msg)
 
 
 class Controller:
@@ -51,11 +51,11 @@ class Controller:
 def print_topology():
     log.info(core.openflow_discovery.adjacency)
 
-def launch():
+def launch(objective=None):
     discovery.launch()
     spanning_tree.launch(no_flood=True, hold_down=True)
     statistics.launch()
     topology.launch()
-    multicommodity.launch()
+    multicommodity.launch(objective=objective)
 
     core.registerNew(Controller)

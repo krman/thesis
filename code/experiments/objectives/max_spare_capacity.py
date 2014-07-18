@@ -1,0 +1,127 @@
+#!/usr/bin/python
+
+from pulp import *
+from collections import namedtuple
+import networkx as nx
+import itertools
+
+
+Flow = namedtuple("Flow", "nw_proto nw_src nw_dst tp_src tp_dst")
+Hop = namedtuple("Hop", "dpid port")
+
+
+def get_host_from_ip(G, ip):
+    return next((i for i in G.nodes() if G.node[i].get('ip') == str(ip)), None)
+
+
+# https://docs.python.org/2/library/itertools.html#recipes
+def pairwise(iterable):
+    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+    a, b = itertools.tee(iterable)
+    next(b, None)
+    return itertools.izip(a, b)
+
+
+def var2fh(var):
+    var = var[2:].replace("'","")
+    flow, x, hops = var.partition('_')
+    hops = hops[1:-1].split(',_')[1:-1]
+    flow = tuple(flow.split(','))
+    return (flow, hops)
+
+
+def var2flow(G, var):
+    #x_h2_41660_h1_5001_6_0
+    var = var[2:]
+    src, p1, dst, p2, proto, num = var.split('_')
+    n1 = G.node[src].get('ip', None)
+    n2 = G.node[dst].get('ip', None)
+    return Flow(nw_src=n1, tp_src=p1, nw_dst=n2, tp_dst=p2, nw_proto=proto)
+
+
+def objective(net, flows, cutoff=None):
+    print "FLOWS", flows
+    G = net.graph
+    rules = {}
+
+    mcf = LpProblem("routes", LpMaximize)
+
+    # objective function
+    z = LpVariable("z")
+    mcf += z
+
+    # "for all i in P" (per-commodity) constraints
+    chosen = {}
+    hosts = {}
+    pair2flow = {}
+    label2path = {}
+
+    for flow in flows:
+	src = get_host_from_ip(G, flow.nw_src)
+	dst = get_host_from_ip(G, flow.nw_dst.split('/')[0])
+
+	if not (src and dst):
+	    continue
+	if not (src in net.graph.nodes() and dst in net.graph.nodes()):
+	    continue
+
+	hosts[flow.nw_src] = src
+	hosts[flow.nw_dst] = dst
+	pair2flow[(src,dst)] = flow
+	
+	paths = list(nx.all_simple_paths(net.graph, src, dst, cutoff=cutoff))
+	prefix = "_".join([str(i) for i in ["x", src, flow.tp_src, dst, flow.tp_dst, flow.nw_proto]])
+	label2path.update({"_".join([prefix,str(i)]):path[1:] for i,path in enumerate(paths)})
+
+	labels = [i for i in range(len(paths))]
+	chosen[(src,dst)] = LpVariable.dicts(prefix,labels,None,None,'Binary')
+	x = chosen[(src,dst)]
+	
+	selected = sum([x[i] for i,k in enumerate(paths)])
+	mcf += selected == 1
+
+    # "for all j in E" (per-link) constraints
+    done = []
+    for a,b in G.edges():
+	if (b,a) in done:
+	    continue
+	done.append((a,b))
+
+	capacity = G.edge[a][b]['capacity']
+	link = (a,b)
+
+	traffic = 0
+	result = 0
+
+	for flow,demand in flows.iteritems():
+	    src = hosts.get(flow.nw_src)
+	    dst = hosts.get(flow.nw_dst)
+
+	    if not (src and dst):
+		continue
+
+	    x = chosen[(src,dst)]
+	    selected = 0
+	    paths = nx.all_simple_paths(net.graph, src, dst, cutoff=cutoff)
+	    for i,path in enumerate(paths):
+		edges = zip(path[:-1],path[1:])
+		a = 1 if link in edges or (link[1],link[0]) in edges else 0
+		traffic += (a * demand * x[i])
+
+	mcf += traffic <= capacity
+	mcf += z <= capacity - traffic
+
+    # solve
+    mcf.writeLP("mcf.lp")
+    mcf.solve()
+
+    # calculate hops
+    for v in mcf.variables():
+	if v.name != 'z' and v.varValue > 0.99:
+	    flow = var2flow(G, v.name)
+	    path = label2path[v.name]
+	    hops = [Hop(dpid=int(a[1:]), port=G.edge[a][b]['port']) 
+					 for a,b in pairwise(path)]
+	    rules[flow] = hops
+
+    return rules

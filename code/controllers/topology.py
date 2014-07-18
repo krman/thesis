@@ -26,8 +26,8 @@ Hop = namedtuple("Hop", "dpid port")
 Port = namedtuple("Port", "port_num mac_addr")
 
 
-class Node(Entity):
-    def __init__(self, id, ports=[], ips=[]):
+class Node:
+    def __init__(self, id, type, ports=[], ips=[]):
 	self.id = id
 	self.ports = set(ports)
 	self.ips = set(ips)
@@ -125,22 +125,33 @@ class Network(Topology):
 
     def get_switch(self, dpid):
 	try:
-	    s = self._entities[dpid]
-	except KeyError:
-	    s = Switch(dpid)
-	    self.addEntity(s)
-	return s
+	    #log.info("trying to find ip {0}".format(ip))
+	    host = next(h for h in self.hosts if ip in h.ips)
+	    #log.info("found host {0} from ip {1}".format(host.id, ip))
+	    return host
+	except StopIteration:
+	    return None
+    
+    def get_ip_from_host(self, hid):
+	try:
+	    host = next(next(iter(h.ips)) for h in self.hosts if h.id==int(hid))
+	    print hid, host
+	    return host
+	except StopIteration:
+	    print hid, None
+	    return none
 
-    def add_host(self, dpid, port, mac, ips=[]):
-	self._host_count += 1
-	h = Host(self._host_count, ports=[mac], ips=ips)
-	self._hosts[(dpid,port)] = h
-	print "adding host with ips", ips, h
-	return h
-
-    def get_host(self, ip=None):
-	print "trying to find host with ip", ip
-	print [(h,h.ips) for k,h in self._hosts.items()]
+    def get_host(self, ports=[], ips=[]):
+	""" Returns a Node for the host matching the macs/ips given.
+	either macs or ips can be an empty list but not both
+	ideally this should only match one Node (eg if multiple macs/ips
+	are specified, they'll all be associated with one thing).
+	i guess if they're not, ips will be unassociated with the existing
+	Node/s and reassigned to this one. i can't imagine a world where
+	you'd put in two macs from different nodes but i guess the only
+	logical effect is to combine them into one single node.
+	either way, a message/info thing is printed. """
+	# add to the set of hosts
 	try:
 	    h = next(h for k,h in self._hosts.items() if ip in h.ips)
 	except StopIteration:
@@ -153,8 +164,43 @@ class Network(Topology):
 	self._links[(n1,n2)] = capacity   # hardcode all links at 1 Mbps, except ones directly to hosts
 
     def get_links(self):
-	print self._hosts
-	return self._links
+	return self.links
+
+    def get_adjacency(self):
+	return core.openflow_discovery.adjacency
+
+    def refresh_network(self):
+	G = nx.DiGraph()
+	G.clear()
+	self.host_count = 0
+
+	# add switches
+	for link in core.openflow_discovery.adjacency:
+	    s1 = "s{0}".format(link.dpid1)
+	    s2 = "s{0}".format(link.dpid2)
+	    G.add_nodes_from([s1,s2])
+	    G.add_edge(s1, s2, {'capacity':1e6, 'port':link.port1})
+	    G.add_edge(s2, s1, {'capacity':1e6, 'port':link.port2})
+
+	# add hosts
+	for src, entry in self.ht.entryByMAC.items():
+	    if entry.port == 65534: # controller port
+		continue
+	    if not core.openflow_discovery.is_edge_port(entry.dpid, entry.port):
+		continue
+
+	    self.host_count += 1
+	    h = "h{0}".format(self.host_count)
+	    s = "s{0}".format(entry.dpid)
+	    print "HOST", h, "ON SWITCH", s, "ADDRESS", entry.macaddr
+	    G.add_nodes_from([h,s])
+	    if entry.ipAddrs.keys():
+		G.node[h]['ip'] = str(next(iter(entry.ipAddrs.keys())))
+	    G.add_edge(h, s, {'capacity':1e6})
+	    G.add_edge(s, h, {'capacity':1e6, 'port':entry.port})
+
+	self.graph = G
+
 
 
 def launch():
