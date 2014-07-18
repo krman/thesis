@@ -1,10 +1,34 @@
 \chapter{Introduction}
 
-SDN in WMNs is the best.
+This thesis presents \thesis, a framework designed to ease research into linear programming techniques as applied to centrally-controlled, software-defined networks.
+
+OpenFlow is designed to allow centralised control but is still very low-level, being a network protocol. There now exist a number of projects which are designed to act as extensible SDN controllers, providing a barrier between the user and the implementation of actually sending out network packets, so that the programmer can simply use provided software APIs to construct and interpret OpenFlow messages. However, this still requires a certain level of understanding of OpenFlow and network programming and functions more in the way of a convenience for programmers than a simple interface for end-users to use.
+
+There have been some movements in the SDN world to create a layer above the controller layer for this very reason. This must be true, I swear I've heard of people saying this. Such efforts, examples given, are generally aimed at system and network administrators and designed to not require any programming input. These systems are generally seen as a natural progression of the layer model as applied to network design.
+
+The framework developed in this thesis is aimed somewhere to the middle, and a little to the side. There is an audience of people who work with algorithms, and there is an audience of people who know what OpenFlow is, and there is a skilled subset of people who are skilled at both. This software is not aimed at people who don't know how to code at all, but rather operations researchers who are skilled in linear programming in Python. The goal of the software is to make it easy to test different methods of routing. Probably most of this doesn't belong in the introduction.
 
 \section{Aims}
 
+There are two aims of this thesis:
+
+To create a framework to allow easier research, practical testing and comparison of objective functions for linear programming in multicommodity routing.
+
+To perform some basic analysis using the framework, both to demonstrate its use and to test the ease of use of the API.
+
 \section{Scope}
+
+\subsection{Deliverables}
+
+Produce the framework, a working version as POX modules in Python. Able to be installed easily.
+
+Also implement a series of topologies in Mininet, a selection of objective functions, and some Python experiment scripts.
+
+Use these to perform some basic analysis, demonstrating how to compare objective functions. Deliverable: graphs.
+
+Full test suite including analysis of code coverage.
+
+Full documentation including the many dependencies.
 
 \begin{figure}
     \begin{center}
