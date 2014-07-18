@@ -202,6 +202,5 @@ class Network(Topology):
 	self.graph = G
 
 
-
 def launch():
     core.registerNew(Network)

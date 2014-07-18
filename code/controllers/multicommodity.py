@@ -23,6 +23,7 @@ class Multicommodity:
     def __init__(self, objective):
 	Timer(30, self._update_flows)
 
+	self.flows = {}
 	self.net = core.thesis_topo
 	self.stats = core.thesis_stats
 	self.objective = objective
