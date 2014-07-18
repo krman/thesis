@@ -188,8 +188,8 @@ class Topology:
 	    s1 = "s{0}".format(link.dpid1)
 	    s2 = "s{0}".format(link.dpid2)
 	    G.add_nodes_from([s1,s2])
-	    G.add_edge(s1, s2, {'capacity':5, 'port':link.port1})
-	    G.add_edge(s2, s1, {'capacity':5, 'port':link.port2})
+	    G.add_edge(s1, s2, {'capacity':1e6, 'port':link.port1})
+	    G.add_edge(s2, s1, {'capacity':1e6, 'port':link.port2})
 
 	# add hosts
 	for src, entry in self.ht.entryByMAC.items():
@@ -201,10 +201,12 @@ class Topology:
 	    self.host_count += 1
 	    h = "h{0}".format(self.host_count)
 	    s = "s{0}".format(entry.dpid)
+	    print "HOST", h, "ON SWITCH", s, "ADDRESS", entry.macaddr
 	    G.add_nodes_from([h,s])
-	    G.node[h]['ip'] = str(next(iter(entry.ipAddrs.keys())))
-	    G.add_edge(h, s, {'capacity':5})
-	    G.add_edge(s, h, {'capacity':5, 'port':entry.port})
+	    if entry.ipAddrs.keys():
+		G.node[h]['ip'] = str(next(iter(entry.ipAddrs.keys())))
+	    G.add_edge(h, s, {'capacity':1e6})
+	    G.add_edge(s, h, {'capacity':1e6, 'port':entry.port})
 
 	self.graph = G
 

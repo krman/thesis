@@ -10,6 +10,8 @@ import pox.openflow.libopenflow_01 as of
 from pox.openflow.of_json import *
 from collections import deque
 
+from lib import *
+
 log = core.getLogger()
 
 class Entry:
@@ -66,8 +68,29 @@ class Statistics:
 	    entry.recent = (bc - entry.total) / self.period
 	    entry.total = bc
 
+    def match_to_flow(self, match):
+        d = match if type(match) == dict else match_to_dict(match)
+        try:
+            f = { k:d[k] for k in ["nw_proto", "nw_src", "nw_dst", "tp_src", "tp_dst"]}
+            flow = core.thesis_topo.Flow(**f)
+            return flow
+        except KeyError:
+            return None
+
     def get_flows(self):
 	return self.flows
+
+    def get_fake_flows(self):
+	f = [(6, '10.0.0.1', '10.0.0.2', None, 5001),
+	     (6, '10.0.0.1', '10.0.0.2', None, 5002),
+	     (6, '10.0.0.2', '10.0.0.1', None, 5003),
+	     (6, '10.0.0.2', '10.0.0.1', None, 5004)]
+
+	f = [(None, '10.0.0.1', '10.0.0.2', None, None),
+	     (None, '10.0.0.2', '10.0.0.1', None, None)]
+	d = {Flow(nw_proto=p, nw_src=ns, nw_dst=nd, tp_src=ts, tp_dst=td):2e5
+		for p,ns,nd,ts,td in f}
+	return d
 
 
 def launch(period=5, length=1):

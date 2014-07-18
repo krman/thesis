@@ -40,6 +40,7 @@ def var2flow(G, var):
 
 
 def objective(net, flows, cutoff=None):
+    print "FLOWS", flows
     G = net.graph
     rules = {}
 

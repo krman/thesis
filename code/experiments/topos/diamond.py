@@ -33,7 +33,7 @@ class DiamondTopo(Topo):
 	s = [0] + [self.addSwitch(label, **opts) for label,opts in switches]
 
 	# link them up
-	linkopts = dict(bw=1)
+	linkopts = dict(bw=10)
 	self.addLink(h[1],s[1], **linkopts)
 	self.addLink(h[2],s[4], **linkopts)
 	self.addLink(s[1],s[2], **linkopts)

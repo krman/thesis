@@ -21,35 +21,24 @@ class Multicommodity:
     _core_name = "thesis_mcf"
 
     def __init__(self, objective):
-	#Timer(5, self._update_flows, recurring=True)
-	Timer(30, self._solve_mcf)
-	self.flows = {}
+	Timer(30, self._update_flows)
+
 	self.net = core.thesis_topo
+	self.stats = core.thesis_stats
 	self.objective = objective
 
 	core.openflow.addListeners(self)
 	core.addListeners(self)
 
     def _handle_PacketIn(self, event):
-        msg = of.ofp_flow_mod()
-        msg.match = msg.match.from_packet(event.parsed)
-
-	if event.parsed.find("arp"):
-	    #log.info("arp packet {}".format(event.parsed))
-	    #log.info(vars(event.parsed))
-	    pass
-
-	if not event.parsed.find("ipv4"):
-	    msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
-	    event.connection.send(msg)
-	    return
-
-	#msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
-	#event.connection.send(msg)
-
-	flow = self.match_to_flow(msg.match)
-	if flow:
-	    self.flows[flow] = 500000	# set demand to 0.5 Mbps for shiggles
+	p = event.parsed
+	if p.find("ipv4"):
+	    #log.info("PacketIn on s{0}: src {1}".format(event.dpid, event.parsed.src))
+	    if event.parsed.next.find("udp"):
+		return
+	    print dir(event.parsed)
+	    print event.parsed.next
+	    print dir(event.parsed.next)
 
     def _install_forward_rule(self, msg, hops):
 	for switch in hops:
@@ -60,9 +49,7 @@ class Multicommodity:
 	print
 
     def _solve_mcf(self):
-	self.net.refresh_network()
 	rules = self.objective(self.net, self.flows)
-	print "RULES", rules
 	for flow,hops in rules.items():
 	    msg = of.ofp_flow_mod()
 	    msg.command = of.OFPFC_MODIFY
@@ -70,27 +57,18 @@ class Multicommodity:
 	    msg.match.nw_proto = 6
 	    msg.match.nw_src = flow.nw_src
 	    msg.match.nw_dst = flow.nw_dst
-	    msg.match.tp_src = int(flow.tp_src)
-	    msg.match.tp_dst = int(flow.tp_dst)
+	    ts, td = flow.tp_src, flow.tp_dst
+	    msg.match.tp_src = None if ts == "None" else int(ts)
+	    msg.match.tp_dst = None if td == "None" else int(td)
+	    #msg.match.tp_src = None if ts is None else int(ts)
+	    #msg.match.tp_dst = None if td is None else int(td)
 	    print "INSTALLING", flow.nw_src, flow.nw_dst,
 	    self._install_forward_rule(msg, hops)
 
     def _update_flows(self):
-	#self._get_network()
-	#stats = core.thesis_stats.get_flows()
-	#log.info("stats:" + str(stats))
-	print "FLOWS",self.flows
-	print "STATS",core.thesis_stats.get_flows()
+	self.net.refresh_network()
+	self.flows = self.stats.get_fake_flows()
 	self._solve_mcf()
-
-    def match_to_flow(self, match):
-	d = match if type(match) == dict else match_to_dict(match)
-	try:
-            f = { k:d[k] for k in ["nw_proto", "nw_src", "nw_dst", "tp_src", "tp_dst"]}
-            flow = core.thesis_topo.Flow(**f)
-	    return flow
-        except KeyError:
-            return None
 
 
 def default_objective(net, flows):
