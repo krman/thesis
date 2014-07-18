@@ -46,3 +46,6 @@ code/controllers/pox.py
 *.pyc
 *.lp
 *~
+doc/build/
+doc/images/
+*.swp
