@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# pox-lp-framework documentation build configuration file, created by
+# mcf-pox documentation build configuration file, created by
 # sphinx-quickstart on Fri Jul 18 14:42:59 2014.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -12,6 +12,7 @@
 # serve to show the default.
 
 import sys, os
+import sphinx_bootstrap_theme
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -40,7 +41,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'pox-lp-framework'
+project = u'mcf-pox'
 copyright = u'2014, Kimberley Manning'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -91,15 +92,19 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
+html_theme = 'bootstrap'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+html_theme_options = {
+    'navbar_site_name': "Jump",
+    'navbar_pagenav': False,
+    'globaltoc_depth': 2
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
-#html_theme_path = []
+html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -147,7 +152,7 @@ html_static_path = ['_static']
 #html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-#html_show_sourcelink = True
+html_show_sourcelink = False
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
 #html_show_sphinx = True
@@ -164,7 +169,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'pox-lp-frameworkdoc'
+htmlhelp_basename = 'mcf-poxdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -183,7 +188,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'pox-lp-framework.tex', u'pox-lp-framework Documentation',
+  ('index', 'mcf-pox.tex', u'mcf-pox Documentation',
    u'Kimberley Manning', 'manual'),
 ]
 
@@ -213,7 +218,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'pox-lp-framework', u'pox-lp-framework Documentation',
+    ('index', 'mcf-pox', u'mcf-pox Documentation',
      [u'Kimberley Manning'], 1)
 ]
 
@@ -227,8 +232,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'pox-lp-framework', u'pox-lp-framework Documentation',
-   u'Kimberley Manning', 'pox-lp-framework', 'One line description of project.',
+  ('index', 'mcf-pox', u'mcf-pox Documentation',
+   u'Kimberley Manning', 'mcf-pox', 'One line description of project.',
    'Miscellaneous'),
 ]
 
