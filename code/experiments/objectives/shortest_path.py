@@ -20,8 +20,8 @@ def pairwise(iterable):
     return itertools.izip(a, b)
 
 
-def objective(net, flows):
-    G = net.graph
+def objective(graph, flows):
+    G = graph
     rules = {}
 
     for flow in flows:
