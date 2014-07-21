@@ -49,3 +49,5 @@ code/controllers/pox.py
 doc/build/
 doc/images/
 *.swp
+code/build/
+code/MANIFEST
