@@ -10,7 +10,7 @@ git clone this repository to anywhere. Run ``setup.py``.
 Overview
 ========
 
-::
+.. code::
     mcfpox
     -- controllers
        -- base.py
