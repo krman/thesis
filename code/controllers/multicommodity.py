@@ -50,7 +50,7 @@ class Multicommodity:
 	print
 
     def _solve_mcf(self):
-	rules = self.objective(self.net, self.flows)
+	rules = self.objective(self.net.graph, self.flows)
 	for flow,hops in rules.items():
 	    msg = of.ofp_flow_mod()
 	    msg.command = of.OFPFC_MODIFY

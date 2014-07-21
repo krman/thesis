@@ -93,6 +93,7 @@ class Network(Topology):
 	print self._entities
 
     def _handle_LinkEvent(self, event):
+	"""
 	l = event.link
 	if event.added:
 	    s1 = self.get_switch(l.dpid1)
@@ -110,8 +111,10 @@ class Network(Topology):
 			del self._links[(n1,n2)]
 
 	    self.add_link(s1, l.port1, s2, l.port2)
+	"""
 
     def _handle_HostEvent(self, event):
+	"""
 	e = event.entry
 	if event.join:
 	    if e.port == 65534: # controller port
@@ -119,9 +122,10 @@ class Network(Topology):
 	    if not core.openflow_discovery.is_edge_port(e.dpid, e.port):
 		return
 	    print "host detected with ips", e.ipAddrs.keys(), type(e)
-	    h = self.add_host(e.dpid, e.port, e.macaddr, ips=e.ipAddrs.keys())
+	    h = self.get_host(e.dpid, e.port, e.macaddr, ips=e.ipAddrs.keys())
 	    s = self.get_switch(e.dpid)
 	    self.add_link(h, None, s, e.port)
+	"""
 
     def get_switch(self, dpid):
 	try:

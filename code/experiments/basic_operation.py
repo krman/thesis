@@ -38,13 +38,6 @@ c = net.addController('c0')
 
 net.start()
 
-#sleep(15)
-#bw = net.iperf()
-
-#f = open(results, "ab")
-#f.write("{0},{1},{2},{3}\n".format(topology, objective, bw[0], bw[1]))
-#f.close()
-
 sleep(15)
 h1 = net.get('h1')
 h2 = net.get('h2')
@@ -52,10 +45,6 @@ h1.cmd('ping -c1 ' + str(h2.IP()))
 h2.cmd('ping -c1 ' + str(h1.IP()))
 
 sleep(10)
-#h2.cmd('iperf -s -p 5001&')
-#h1.cmd('iperf -s -p 5003&')
-#print h2.cmd('iperf -c h1 -p 5003 -d -L 5002')
-#print h1.cmd('iperf -c h2 -p 5001 -d -L 5004')
 CLI(net)
 net.stop()
 
