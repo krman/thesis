@@ -5,18 +5,18 @@ Multicommodity flow module: decides where different flows should go
 """
 
 from pox.core import core
+from pox.lib.addresses import IPAddr
 from pox.lib.recoco import Timer
+from pox.lib.revent import *
 import pox.openflow.libopenflow_01 as of
 from pox.openflow.of_json import *
-from pox.topology.topology import Entity, Topology
 
 import pox.openflow.discovery as discovery
 import pox.host_tracker.host_tracker as host_tracker
 
-import networkx as nx
 from collections import namedtuple
+import networkx as nx
 from pulp import *
-from pox.lib.addresses import IPAddr
 
 log = core.getLogger()
 
@@ -70,7 +70,7 @@ class Link:
     pass
 
 
-class Network(Topology):
+class Network(EventMixin):
     _core_name = "thesis_topo"
 
     Flow = Flow
@@ -84,13 +84,6 @@ class Network(Topology):
 	core.openflow_discovery.addListeners(self)
 	self.listenTo(self.ht)
 	core.addListeners(self)
-
-	self._host_count = 0
-	self._hosts = dict()	# (dpid,port):Host
-	self._links = dict()	# (n1,n2):capacity
-	Topology.__init__(self)
-	print "starting entities"
-	print self._entities
 
     def _handle_LinkEvent(self, event):
 	"""
