@@ -13,9 +13,10 @@ from collections import namedtuple
 
 import pox.openflow.discovery as discovery
 import pox.openflow.spanning_tree as spanning_tree
-import pox.thesis.statistics as statistics
-import pox.thesis.topology as topology
-import pox.thesis.multicommodity as multicommodity
+
+import mcfpox.controller.statistics as statistics
+import mcfpox.controller.topology as topology
+import mcfpox.controller.multicommodity as multicommodity
 
 log = core.getLogger()
 
@@ -27,10 +28,10 @@ class Switch:
 
 	# flood arp
 	msg = of.ofp_flow_mod()
-	#msg.match.dl_type = pkt.ethernet.ARP_TYPE
+	msg.match.dl_type = pkt.ethernet.ARP_TYPE
         msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
         msg.actions.append(of.ofp_action_output(port = of.OFPP_CONTROLLER))
-	#self.connection.send(msg)
+	self.connection.send(msg)
 
 
 class Controller:
@@ -51,11 +52,11 @@ class Controller:
 def print_topology():
     log.info(core.openflow_discovery.adjacency)
 
-def launch(objective=None):
+def launch(objective=None, preinstall="{}"):
     discovery.launch()
     spanning_tree.launch(no_flood=True, hold_down=True)
     statistics.launch()
     topology.launch()
-    multicommodity.launch(objective=objective)
+    multicommodity.launch(objective=objective, preinstall=preinstall)
 
     core.registerNew(Controller)
