@@ -4,8 +4,9 @@ Some experiment boilerplate.
 
 import subprocess
 
-def start_pox(cmd='pox.py', log='--CRITICAL', objective=None, rules=None):
-    args = [cmd, 'log.level', log, 'mcfpox.controller.base']
+def start_pox(cmd='pox.py', log='--CRITICAL', module='mcfpox.controller.base',
+	      objective=None, rules=None):
+    args = [cmd, 'log.level', log, module]
     if objective:
 	args.append('--objective='+objective)
     if rules:
