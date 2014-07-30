@@ -2,10 +2,7 @@ from pulp import *
 from collections import namedtuple
 import networkx as nx
 import itertools
-
-
-Flow = namedtuple("Flow", "nw_proto nw_src nw_dst tp_src tp_dst")
-Hop = namedtuple("Hop", "dpid port")
+from mcfpox.controller.lib import Flow, Hop
 
 
 def get_host_from_ip(G, ip):
@@ -21,6 +18,22 @@ def pairwise(iterable):
 
 
 def objective(graph, flows):
+    """ Return a list of paths through the graph for each flow.
+
+    Args:
+	graph: 
+	    A nx.Graph, annotated with network information including
+	    IP addresses for hosts and port numbers for each link.
+	flows: 
+	    A list of mcfpox.controller.lib.Flow objects representing
+	    5-tuples of flows to route through the network
+    
+    Returns:
+	A dict mapping each flow in flows to a valid path through the graph.
+	The path is expressed as a list of mcfpox.controller.lib.Hop objects.
+	If no valid path can be found, the value for that entry is None.
+    """
+
     G = graph
     rules = {}
 
@@ -33,8 +46,9 @@ def objective(graph, flows):
 	if not (src in G.nodes() and dst in G.nodes()):
 	    continue
 
-	path = nx.shortest_path(G, src, dst)
-	hops = [Hop(dpid=a, port=G.edge[a][b]) for a,b in pairwise(path)]
+	path = nx.shortest_path(G, src, dst)[1:]
+	hops = [Hop(dpid=int(a[1:]), port=G.edge[a][b]['port']) 
+		for a,b in pairwise(path)]
 	rules[flow] = hops
 
     return rules
