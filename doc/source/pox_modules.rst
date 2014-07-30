@@ -7,6 +7,15 @@ POX Modules
 - flow statistics
 - routing control
 
+with common functions found in ``mcfpox.controller.lib``, as follows.
+
+Common Library
+--------------
+
+.. automodule:: mcfpox.controller.lib
+   :members:
+   :undoc-members:
+
 Network Discovery
 -----------------
 
@@ -15,8 +24,9 @@ Network discovery (switches, hosts, links) is done using the existing POX module
 The Topology Module
 *******************
 
-.. autoclass:: thesis.controllers.topology.Network
+.. autoclass:: mcfpox.controller.topology.Network
    :members:
+   :undoc-members:
 
 Flow Statistics
 ---------------
@@ -26,8 +36,9 @@ OpenFlow provides a number of message types to query switch statistics, such as 
 The Statistics Module
 *********************
 
-.. autoclass:: thesis.controllers.statistics.Statistics
+.. autoclass:: mcfpox.controller.statistics.Statistics
    :members:
+   :undoc-members:
 
 Routing Control
 ---------------
@@ -40,5 +51,7 @@ Routing is controlled on two levels:
 The Multicommodity Module
 *************************
 
-.. autoclass:: thesis.controllers.multicommodity.Multicommodity
+.. autoclass:: mcfpox.controller.multicommodity.Multicommodity
    :members:
+   :undoc-members:
+   :private-members:
