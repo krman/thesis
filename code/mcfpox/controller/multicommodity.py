@@ -10,7 +10,8 @@ import pox.openflow.libopenflow_01 as of
 from pox.openflow.of_json import *
 from pox.lib.addresses import IPAddr
 
-import pox.thesis.topology as topology
+from mcfpox.controller import topology
+from mcfpox.controller.lib import Flow, Hop
 
 from collections import namedtuple
 
@@ -20,27 +21,23 @@ log = core.getLogger()
 class Multicommodity:
     _core_name = "thesis_mcf"
 
-    def __init__(self, objective):
-	Timer(30, self._update_flows)
+    def __init__(self, objective, preinstall):
+	#Timer(30, self._update_flows)
+	Timer(15, self._preinstall_rules)
 
 	self.flows = {}
 	self.net = core.thesis_topo
 	self.stats = core.thesis_stats
 	self.objective = objective
 
+	self.preinstall = preinstall
+
 	core.openflow.addListeners(self)
 	core.addListeners(self)
 
     def _handle_PacketIn(self, event):
-	p = event.parsed
-	if p.find("ipv4"):
-	    #log.info("PacketIn on s{0}: src {1}".format(event.dpid, event.parsed.src))
-	    if event.parsed.next.find("udp"):
-		return
-	    print dir(event.parsed)
-	    print event.parsed.next
-	    print dir(event.parsed.next)
-
+	pass
+	
     def _install_forward_rule(self, msg, hops):
 	for switch in hops:
 	    msg.actions = []
@@ -49,8 +46,7 @@ class Multicommodity:
 	    core.thesis_base.switches[switch.dpid].connection.send(msg)
 	print
 
-    def _solve_mcf(self):
-	rules = self.objective(self.net.graph, self.flows)
+    def _install_rule_list(self, rules):
 	for flow,hops in rules.items():
 	    msg = of.ofp_flow_mod()
 	    msg.command = of.OFPFC_MODIFY
@@ -59,12 +55,18 @@ class Multicommodity:
 	    msg.match.nw_src = flow.nw_src
 	    msg.match.nw_dst = flow.nw_dst
 	    ts, td = flow.tp_src, flow.tp_dst
-	    msg.match.tp_src = None if ts == "None" else int(ts)
-	    msg.match.tp_dst = None if td == "None" else int(td)
-	    #msg.match.tp_src = None if ts is None else int(ts)
-	    #msg.match.tp_dst = None if td is None else int(td)
+	    msg.match.tp_src = None if ts is None else int(ts)
+	    msg.match.tp_dst = None if td is None else int(td)
 	    print "INSTALLING", flow.nw_src, flow.nw_dst,
 	    self._install_forward_rule(msg, hops)
+	
+    def _preinstall_rules(self):
+	print "PREINSTALLING RULES"
+	self._install_rule_list(self.preinstall)
+
+    def _solve_mcf(self):
+	rules = self.objective(self.net.graph, self.flows)
+	self._install_rule_list(rules)
 
     def _update_flows(self):
 	self.net.refresh_network()
@@ -77,13 +79,18 @@ def default_objective(net, flows):
     print "net:", net
     print "flows:", flows
 
-def launch(objective=None):
-    import sys, os
-    sys.path.append(os.path.abspath('../experiments/objectives'))
+def launch(objective=None, preinstall="{}"):
+    import importlib
     try:
-	obj_module = __import__(objective)
+	obj_module = importlib.import_module(objective)
 	f = obj_module.objective
-    except Exception:
+    except ImportError:
+	print "Objective {} not found, using default instead".format(objective)
 	f = default_objective
 
-    core.registerNew(Multicommodity, objective=f)
+    try:
+	p = eval(preinstall) # HORRIBLE HORRIBLE
+    except TypeError:
+	pass
+
+    core.registerNew(Multicommodity, objective=f, preinstall=p)
