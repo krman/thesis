@@ -21,61 +21,8 @@ from pulp import *
 log = core.getLogger()
 
 
-Flow = namedtuple("Flow", "nw_proto nw_src nw_dst tp_src tp_dst")
-Hop = namedtuple("Hop", "dpid port")
-Port = namedtuple("Port", "port_num mac_addr")
-
-
-class Node:
-    def __init__(self, id, type, ports=[], ips=[]):
-	self.id = id
-	self.ports = set(ports)
-	self.ips = set(ips)
-	Entity.__init__(self, id)
-
-    def ports_overlap(self, ports):
-	return self.ports & set([ports])
-
-    def ips_overlap(self, ips):
-	return self.ips & set([ips])
-
-    def combine(self, other):
-	self.ports.update(other.ports)
-	self.ips.update(other.ips)
-	return self
-
-    def update(self, ports=[], ips=[]):
-	self.ports.update(ports)
-	self.ips.update(ips)
-
-
-class Host(Node):
-    def __init__(self, id, ports=[], ips=[]):
-	Node.__init__(self, -id, ports, ips)
-
-    def __repr__(self):
-	return "h{0}".format(-self.id)
-	
-
-class Switch(Node):
-    def __init__(self, id, ports=[], ips=[]):
-	Node.__init__(self, id, ports, ips)
-
-    def __repr__(self):
-	return "s{0}".format(self.id)
-
-
-class Link:
-    """ capacity. """
-    pass
-
-
 class Network(EventMixin):
     _core_name = "thesis_topo"
-
-    Flow = Flow
-    Hop = Hop
-    Port = Port
 
     def __init__(self):
 	self.graph = nx.Graph()
@@ -119,52 +66,6 @@ class Network(EventMixin):
 	    s = self.get_switch(e.dpid)
 	    self.add_link(h, None, s, e.port)
 	"""
-
-    def get_switch(self, dpid):
-	try:
-	    #log.info("trying to find ip {0}".format(ip))
-	    host = next(h for h in self.hosts if ip in h.ips)
-	    #log.info("found host {0} from ip {1}".format(host.id, ip))
-	    return host
-	except StopIteration:
-	    return None
-    
-    def get_ip_from_host(self, hid):
-	try:
-	    host = next(next(iter(h.ips)) for h in self.hosts if h.id==int(hid))
-	    print hid, host
-	    return host
-	except StopIteration:
-	    print hid, None
-	    return none
-
-    def get_host(self, ports=[], ips=[]):
-	""" Returns a Node for the host matching the macs/ips given.
-	either macs or ips can be an empty list but not both
-	ideally this should only match one Node (eg if multiple macs/ips
-	are specified, they'll all be associated with one thing).
-	i guess if they're not, ips will be unassociated with the existing
-	Node/s and reassigned to this one. i can't imagine a world where
-	you'd put in two macs from different nodes but i guess the only
-	logical effect is to combine them into one single node.
-	either way, a message/info thing is printed. """
-	# add to the set of hosts
-	try:
-	    h = next(h for k,h in self._hosts.items() if ip in h.ips)
-	except StopIteration:
-	    h = None
-	return h
-
-    def add_link(self, n1, p1, n2, p2):
-	self.graph.add_edge(n1, n2)
-	capacity = 5e6 if type(n1) == Host or type(n2) == Host else 1e6
-	self._links[(n1,n2)] = capacity   # hardcode all links at 1 Mbps, except ones directly to hosts
-
-    def get_links(self):
-	return self.links
-
-    def get_adjacency(self):
-	return core.openflow_discovery.adjacency
 
     def refresh_network(self):
 	G = nx.DiGraph()
