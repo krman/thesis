@@ -3,15 +3,25 @@ Some experiment boilerplate.
 """
 
 import subprocess
+from pox.boot import boot
+from mcfpox.objectives.shortest_path import objective as obj
 
-def start_pox(cmd='pox.py', log='--CRITICAL', module='mcfpox.controller.base',
+
+def start_pox(cmd='pox.py', log='--packet=WARN', module='mcfpox.controller.base',
 	      objective=None, rules=None):
-    args = [cmd, 'log.level', log, module]
+    argv = [cmd, 'log.level', log, module]
     if objective:
-	args.append('--objective='+objective)
+	argv.append('--objective='+objective)
     if rules:
-	args.append('--preinstall='+str(rules))
-    return subprocess.Popen(args)
+	argv.append('--preinstall='+str(rules))
+    #boot(argv[1:])
+    #args = {module:[{
+		#'objective': obj,
+		#'rules': rules
+	    #}], 
+	    #'log.level':[{log: True}]}
+    #boot(args)
+    return subprocess.Popen(argv)
 
 
 def run_mnc():
@@ -28,3 +38,7 @@ def run_experiment(function):
 	finally:
 	    print "End of experiment"
     return handle_cleanup
+
+
+if __name__ == '__main__':
+    start_pox(objective='mcfpox.objectives.shortest_path')
