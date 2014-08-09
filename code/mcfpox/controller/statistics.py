@@ -35,7 +35,8 @@ class Statistics:
 	
 	for flow in stats:
 	    if flow['match']['dl_type'] == 'IP':
-		log.info("switch {0}, src {1}, output on port {2}".format(event.dpid, flow['match']['nw_src'], flow['actions'][0]['port']))
+		#log.info("switch {0}, src {1}, output on port {2}".format(event.dpid, flow['match']['nw_src'], flow['actions'][0]['port']))
+		pass
 	    id = lib.match_to_flow(flow['match'])
 	    if not id: continue
 

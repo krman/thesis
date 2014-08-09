@@ -10,7 +10,7 @@ Hop = namedtuple("Hop", "dpid port")
 Entry = namedtuple("Entry", "switch id recent total")
 
 
-def match_to_flow(self, match):
+def match_to_flow(match):
     d = match if type(match) == dict else match_to_dict(match)
     try:
 	f = { k:d[k] for k in ["nw_proto", "nw_src", "nw_dst", "tp_src", "tp_dst"]}

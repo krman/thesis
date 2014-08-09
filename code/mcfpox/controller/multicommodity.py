@@ -80,6 +80,7 @@ def default_objective(net, flows):
     print "flows:", flows
 
 def launch(objective=None, preinstall="{}"):
+    log.info(objective)
     import importlib
     try:
 	obj_module = importlib.import_module(objective)

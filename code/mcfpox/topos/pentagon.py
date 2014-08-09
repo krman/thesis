@@ -29,8 +29,8 @@ class PentagonTopo(Topo):
 
 	# link them up
 	linkopts = dict(bw=20)
-	self.addLink(h[1],s[1], bw=50)
-	self.addLink(h[2],s[5], bw=50)
+	self.addLink(h[1],s[1], bw=20)
+	self.addLink(h[2],s[5], bw=20)
 	self.addLink(s[1],s[2], **linkopts)
 	self.addLink(s[1],s[3], **linkopts)
 	self.addLink(s[2],s[5], **linkopts)
