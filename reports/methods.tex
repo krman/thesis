@@ -12,3 +12,20 @@ The project can be divided into a number of steps:
 \item Explicitly define the performance objectives and benchmarking metrics; design a set of topologies to capture performance differences between approaches; outline a range of network events to simulate in Mininet 
 \item Conduct benchmarking of existing approaches and new controller; note relative performance on various metrics, and improve controller based on benchmarking results
 \end{enumerate}
+
+This chapter outlines in more detail the process of conducting these benchmarks and gathering data and stuff.
+
+\section{Simulation API}
+In order to properly measure certain parts of the system individually and guarantee that results are due to one specific section you need to inject mock data at certain parts of the system.
+
+The system lets you specify callbacks to be used in the following places.
+
+\begin{itemize}
+\item fake flows
+\item forwarding rules
+\item objective function
+\item fake topology
+\end{itemize}
+
+\section{Experiment Scripts}
+This should actually be content taken roughly from the "writing experiment scripts" chapters of the documentation, and the section which talks about individual things, what's the word, injecting mock data.

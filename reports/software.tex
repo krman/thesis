@@ -1,4 +1,6 @@
-\chapter{Software Dependencies}
+\chapter{Software Design}
+
+
 
 SDN is mature enough technology that there are a number of different software packages and frameworks that are available to support development. Specifically we are interested in the choice of controller framework, software for the switch, and a way of running reproducible network experiments on large-enough-to-be-interesting topologies.
 
@@ -16,3 +18,6 @@ Mininet is a network emulator which uses container-based emulation \cite{handigo
 glpk is a solver written in C for solving mixed integer programs among other things. extensible so i can implement new algorithms.
 
 pulp is a way of writing python programs which call glpk solvers. have been using python everywhere else so might as well be consistent, and python is great.
+
+\section{NetworkX}
+NetworkX is a graph library which is stable and well-maintained and has a flexible, easy-to-read annotation system for nodes and edges, which is used to store information such as IP addresses and link capacities.
