@@ -1,6 +1,6 @@
 \chapter{Introduction}
 
-This thesis presents \thesis, a framework designed to ease research into linear programming techniques as applied to centrally-controlled, software-defined networks.
+This thesis presents \thesis{}, a framework designed to ease research into linear programming techniques as applied to centrally-controlled, software-defined networks.
 
 OpenFlow is designed to allow centralised control but is still very low-level, being a network protocol. There now exist a number of projects which are designed to act as extensible SDN controllers, providing a barrier between the user and the implementation of actually sending out network packets, so that the programmer can simply use provided software APIs to construct and interpret OpenFlow messages. However, this still requires a certain level of understanding of OpenFlow and network programming and functions more in the way of a convenience for programmers than a simple interface for end-users to use.
 
@@ -18,7 +18,13 @@ To perform some basic analysis using the framework, both to demonstrate its use 
 
 \section{Scope}
 
-\subsection{Deliverables}
+Only care about TCP over IP traffic. hmmm and UDP
+
+Only care about autonomous systems in the routing sense.
+
+Only virtualised networks, not physical.
+
+\section{Deliverables}
 
 Produce the framework, a working version as POX modules in Python. Able to be installed easily.
 

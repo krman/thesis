@@ -13,6 +13,16 @@ The project can be divided into a number of steps:
 \item Conduct benchmarking of existing approaches and new controller; note relative performance on various metrics, and improve controller based on benchmarking results
 \end{enumerate}
 
+\section{Experiment Design}
+A suitable control still needs to be used. Depending on the specific experiment (ie at what level you want to compare) a different one could be chosen. For these purposes the following are available:
+
+\begin{itemize}
+\item Plain mininet with switches running traditional routing algorithms (whatever these are)
+\item POX's \texttt{forwarding.l2\_learning} controller
+\item Shortest-path routing objective function (not PuLP/LP, but still uses rest of framework)
+\end{itemize}
+
+
 This chapter outlines in more detail the process of conducting these benchmarks and gathering data and stuff.
 
 \section{Simulation API}

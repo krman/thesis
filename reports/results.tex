@@ -2,35 +2,67 @@
 
 This chapter presents the results of the analysis performed using the framework. Keep in mind that POX isn't designed to compete with the very best (cite POX's own graphs showing it's worse than NOX), but is designed for academia. Given that, none of this will be compared with existing industry-standard controllers such as Beacon or OpenDaylight (what is with all the light metaphors?).
 
-However, a suitable control still needs to be used. Depending on the specific experiment (ie at what level you want to compare) a different one could be chosen. For these purposes the following are available:
-
-\begin{itemize}
-\item Plain mininet with switches running traditional routing algorithms (whatever these are)
-\item POX's \texttt{forwarding.l2\_learning} controller
-\item Shortest-path routing objective function (not PuLP/LP, but still uses rest of framework)
-\end{itemize}
+Also all testing will be done entirely in software, no real switches will be used.
 
 \section{Analysis}
 Analysis goes here.
 
-\subsection{Comparison with traditional routing}
-Good I hope.
+\subsection{Comparison of objective functions}
+More stuff.
 
 \subsection{Comparison with existing POX controllers}
 Blah.
 
-\subsection{Comparison of objective functions}
-More stuff.
+\subsection{Comparison with traditional routing}
+As explained in the relevant intro subsection, only consider interior gateway protocols, designed to route packets within autonomous systems. For this thesis we will compare IS-IS and OSPF. There are two goals of this section. 
+
+One is to get an idea of the overhead created by the SDN framework as a whole. For this we will compare IS-IS and OSPF, which both use Dijkstra'a algorithm to calculate the shortest path, to \thesis{} running the shortest-path objective function.
+
+The second is to compare their performance against a more efficient objective function. The best objective function discussed in the previous section was the X objective function so we will use that.
+
+
+\begin{table}[H]
+  \begin{center}
+    \begin{tabular}{@{}rllr@{}}
+      \toprule
+      & Task & Duration & Completion\\
+      \midrule
+      & Establish project definition and scope & 1 week & 6 March \\
+      & Set up environment (Mininet,  POX) & 1 week & 14 March \\
+      \emph{Assessment} & Project proposal & 2 weeks & 27 March \\
+      & Set up test suite (topologies, network events) & 1 week & 4 April \\
+      & Implement selection of existing designs & 1 week & 11 April \\
+      & Model proposed design & 1 week & 18 April \\
+      & Begin implementing proposed design & 2 weeks & 2 May \\
+      & Benchmark new controller against existing & 1 week & 9 May \\
+      \emph{Assessment} & Progress seminar & 2 weeks & 19-23 May \\
+      \addlinespace
+      & \emph{Coursework examinations/semester break} \\
+      \addlinespace
+      & Write up current progress in thesis report & 2 weeks & 8 Aug\\
+      & Revise test suite as necessary & 2 weeks & 22 Aug\\
+      & Iteratively develop/test new controller & 5 weeks & 26 Sept\\
+      & Gather final benchmarking results & 2 weeks & 10 Oct \\
+      \emph{Assessment} & Project demonstration & 2 weeks & 20-24 Oct \\
+      & Respond to demonstration feedback & 1 week & 31 Oct \\
+      \emph{Assessment} & Thesis report & 3 weeks & 10 Nov \\
+      \bottomrule
+    \end{tabular}
+    \caption{Proposed schedule outlining estimated duration and completion dates}
+    \label{table:schedule}
+  \end{center}
+\end{table}
 
 \begin{table}
 \caption{Summary of incredible achievements}
 \end{table}
 
-\section{Performance and Test Coverage}
+\section{Performance and Scalability}
 Hopefully this is good too.
 
 Chart goes here.
 
+\section{Test Coverage}
 100\% test coverage, guaranteed or your money back.
 
-Oh yeah and all the test pass.
+Oh yeah and all the tests pass.

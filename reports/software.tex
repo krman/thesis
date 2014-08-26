@@ -1,23 +1,37 @@
 \chapter{Software Design}
 
-
-
 SDN is mature enough technology that there are a number of different software packages and frameworks that are available to support development. Specifically we are interested in the choice of controller framework, software for the switch, and a way of running reproducible network experiments on large-enough-to-be-interesting topologies.
 
-\section{POX}
+\section{Dependencies}
+\subsection{POX}
 There are a number of controller frameworks today which allow programmers to send OpenFlow messages to switches in the network; selection in the first case is based on familiarity with the development language used. One such framework, based on Python, is POX \cite{onl:pox}, developed at Stanford primarily for ease of research over speed and performance. This is acceptable if performance of the network is not bound by the controller, at least for initial development; this can be verified if necessary.
 
 POX only supports OpenFlow 1.0 although hopefully I was pro and decided to fix that situation.
 
-\section{OpenVSwitch}
+\subsection{OpenVSwitch}
 
-\section{Mininet}
+\subsection{Mininet}
 Mininet is a network emulator which uses container-based emulation \cite{handigol:mininet} to create a virtual network of hosts and switches. Mininet makes it simple to run reproducible network experiments under realistic conditions, with topologies and behaviour programmable in Python. The resources allocated to each host can be controlled and monitored, and benchmarking \cite{handigol:benchmarks} has generally shown that the performance and timing characteristics are accurate. OpenFlow-enabled switches such as OpenVSwitch can be used in the simulations so the system is ideal for SDN research.
 
-\section{GLPK/PuLP}
+\subsection{GLPK/PuLP}
 glpk is a solver written in C for solving mixed integer programs among other things. extensible so i can implement new algorithms.
 
 pulp is a way of writing python programs which call glpk solvers. have been using python everywhere else so might as well be consistent, and python is great.
 
-\section{NetworkX}
+\subsection{NetworkX}
 NetworkX is a graph library which is stable and well-maintained and has a flexible, easy-to-read annotation system for nodes and edges, which is used to store information such as IP addresses and link capacities.
+
+\section{Contributions to POX}
+I wrote some stuff to join them together and this was accepted into the main branch.
+
+\section{POX Modules}
+Stuff.
+
+\subsection{Network Discovery}
+Things.
+
+\subsection{Flow Statistics}
+Foo.
+
+\subsection{Routing Control}
+Bar.
