@@ -1,0 +1,97 @@
+\documentclass[12pt,openany,a4paper]{book}
+
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{bigstrut}
+\usepackage{xr}
+\usepackage{geometry}
+\usepackage{adjustbox}
+\usepackage[section]{placeins}
+
+% Front/end matter
+\usepackage{appendix}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\usepackage{url}
+
+% Page setup
+\usepackage{fancyhdr}
+\usepackage{lscape}
+\setlength{\topmargin}						{-0.5cm}
+\setlength{\oddsidemargin}				{1cm}
+\setlength{\evensidemargin}				{0cm}
+\setlength{\textwidth}						{15cm}
+\setlength{\textheight}						{24cm}
+
+% Line spacing
+\usepackage{parskip}
+\usepackage{setspace}
+\doublespacing
+
+% Float control (figures, tables)
+% http://mintaka.sdsu.edu/GF/bibliog/latex/floats.html
+\renewcommand{\textfraction}			{0.25}
+\renewcommand{\topfraction}				{0.75}
+\renewcommand{\bottomfraction}		{0.75}
+\renewcommand{\floatpagefraction}	{0.75}
+
+% Tables (from the 'Small Guide to Making Nice Tables')
+% http://www.inf.ethz.ch/personal/markusp/teaching/guides/guide-tables.pdf
+\usepackage{booktabs}
+\usepackage{tabularx}
+\renewcommand{\arraystretch}			{1.5}
+
+% Special characters and math symbols
+% http://detexify.kirelabs.org/classify.html
+\usepackage{textgreek}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+
+% References to other parts (avoids awkward newlines)
+\newcommand{\eref}[1] {(\ref{#1})}              % (...)
+\newcommand{\eq}[1]   {Eq.\,(\ref{#1})}         % Eq.~(...)
+\newcommand{\eqs}[2]  {Eqs.~(\ref{#1}) and~(\ref{#2})}
+\newcommand{\dfn}[1]  {Definition~\ref{#1}}     % Definition~...
+\newcommand{\thrm}[1] {Theorem~\ref{#1}}        % Theorem~...
+\newcommand{\lem}[1]  {Lemma~\ref{#1}}          % Lemma~...
+\newcommand{\fig}[1]  {Fig.\,\ref{#1}}          % Fig.~...
+\newcommand{\tab}[1]  {Table~\ref{#1}}          % Table~...
+\newcommand{\chap}[1] {Chapter~\ref{#1}}        % Chapter~...
+\newcommand{\secn}[1] {Section~\ref{#1}}        % Section~...
+\newcommand{\ssec}[1] {Subsection~\ref{#1}}     % Subsection~...
+
+% Colours (see 'The 68 standard colors known to dvips')
+% http://en.wikibooks.org/wiki/LaTeX/Colors
+\usepackage[usenames,dvipsnames]{color}
+\definecolor{sky}{rgb}{0,0.4,1}
+
+% Graphics and images
+% Must come after color package declared
+\usepackage{graphics}
+\usepackage{graphicx}
+
+% Code listings
+\usepackage{upquote}
+\usepackage[T1]{fontenc}
+\usepackage[scaled=0.8]{DejaVuSansMono}
+\usepackage{listings}
+\lstset{
+  basicstyle=\small\ttfamily\singlespacing,
+  breakatwhitespace=true
+  breaklines=true,
+  commentstyle=\slshape\color{Gray},
+	frame=tb,
+	keepspaces=true,
+  keywordstyle=\bfseries\color{Black},
+  language=Python,
+  numbers=left,
+	numbersep=10pt,
+  numberstyle=\tiny\color{Gray},
+  showstringspaces=false,
+	stepnumber=1,
+  stringstyle=\color{Black},
+  tabsize=8
+}
+
+% Custom commands
+\newcommand{\thesis}[0]	{\texttt{mcfpox}}
