@@ -42,7 +42,7 @@ class Multicommodity:
 	for switch in hops:
 	    msg.actions = []
 	    msg.actions.append(of.ofp_action_output(port = switch.port))
-	    print "{0}.{1}".format(switch.dpid,switch.port),
+	    #print "{0}.{1}".format(switch.dpid,switch.port),
 	    core.thesis_base.switches[switch.dpid].connection.send(msg)
 	print
 
@@ -57,11 +57,11 @@ class Multicommodity:
 	    ts, td = flow.tp_src, flow.tp_dst
 	    msg.match.tp_src = None if ts is None else int(ts)
 	    msg.match.tp_dst = None if td is None else int(td)
-	    print "INSTALLING", flow.nw_src, flow.nw_dst,
+	    #print "INSTALLING", flow.nw_src, flow.nw_dst,
 	    self._install_forward_rule(msg, hops)
 	
     def _preinstall_rules(self):
-	print "PREINSTALLING RULES"
+	#print "PREINSTALLING RULES"
 	self._install_rule_list(self.preinstall)
 
     def _solve_mcf(self):
@@ -79,19 +79,10 @@ def default_objective(net, flows):
     print "net:", net
     print "flows:", flows
 
-def launch(objective=None, preinstall="{}"):
-    log.info(objective)
-    import importlib
-    try:
-	obj_module = importlib.import_module(objective)
-	f = obj_module.objective
-    except ImportError:
-	print "Objective {} not found, using default instead".format(objective)
-	f = default_objective
-
+def launch(objective=default_objective, preinstall="{}"):
     try:
 	p = eval(preinstall) # HORRIBLE HORRIBLE
     except TypeError:
 	pass
 
-    core.registerNew(Multicommodity, objective=f, preinstall=p)
+    core.registerNew(Multicommodity, objective=objective, preinstall=p)

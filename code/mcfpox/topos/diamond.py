@@ -27,9 +27,9 @@ class DiamondTopo(Topo):
 	s = [0] + [self.addSwitch(label, **opts) for label,opts in switches]
 
 	# link them up
-	linkopts = dict(bw=10)
-	self.addLink(h[1],s[1], **linkopts)
-	self.addLink(h[2],s[4], **linkopts)
+	linkopts = dict(bw=20)
+	self.addLink(h[1],s[1], bw=40)
+	self.addLink(h[2],s[4], bw=40)
 	self.addLink(s[1],s[2], **linkopts)
 	self.addLink(s[1],s[3], **linkopts)
 	self.addLink(s[2],s[4], **linkopts)
@@ -47,7 +47,7 @@ class DiamondTopo(Topo):
 	return (label, {})
 
 
-def create_net(**kwargs):
+def create_net(controller=RemoteController, **kwargs):
     topo = DiamondTopo()
     kwargs['link'] = TCLink
     return Mininet(topo, **kwargs)
@@ -55,7 +55,7 @@ def create_net(**kwargs):
 
 if __name__ == "__main__":
     setLogLevel('output')
-    net = create_net(controller=RemoteController)
+    net = create_net()
     net.start()
     CLI(net)
     net.stop()
