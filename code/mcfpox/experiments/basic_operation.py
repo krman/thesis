@@ -4,8 +4,9 @@ from mcfpox.topos import diamond
 from mcfpox.objectives import shortest_path
 from boilerplate import start
 
-import matplotlib.pyplot as plt
+import os
 import json
+import matplotlib.pyplot as plt
 
 
 def experiment():
@@ -30,7 +31,21 @@ def experiment():
 	'objective': shortest_path.objective
     }
 
-    start(scenario, controller)
+    logs = start(scenario, controller)
+    results(logs)
+
+
+def results(logs):
+    log_dir = logs['log_dir']
+    for slog, clog in logs['flows']:
+	server_log = os.path.join(log_dir, slog)
+	client_log = os.path.join(log_dir, clog)
+	
+	print "Client log:", client_log
+	with open(client_log, 'r') as f:
+	    for line in f:
+		print line,
+	print
 
 
 if __name__ == '__main__':
