@@ -24,19 +24,13 @@ def start_log(log_dir):
     
 
 def start_net(net, logs):
-    print "\nCleaning up mininet"
-    with open('/dev/null', 'w') as DEVNULL:
-	subprocess.call(['sudo', 'mn', '-c'], stdout=DEVNULL, stderr=DEVNULL)
+    #print "\nCleaning up mininet"
+    #with open('/dev/null', 'w') as DEVNULL:
+	#subprocess.call(['sudo', 'mn', '-c'], stdout=DEVNULL, stderr=DEVNULL)
 
-    logs['mininet'] = 'mininet.log'
-    print "Starting mininet: output in {0}".format(logs['mininet'])
+    print "Starting mininet: no logs"
+    net.start()
 
-    def start_with_log(net, log_file):
-	sys.stdout = open(log_file, 'w')
-	net.start()
-
-    log_file = os.path.join([logs['log_dir'], logs['mininet']])
-    process = Process(target=start_with_log, args=(net,log_file,))
     return net
 
 
@@ -48,20 +42,24 @@ def start_pox(logs, level={}, module='mcfpox.controller.base',
     }
     log_level.update(level)
     
-    logs['pox'] = 'pox.log'
-    print "\nStarting POX: output in {0}".format(logs['pox'])
-
     args = {module: [{
             'objective': objective
         }], 
-	'log': [{
-	    'no_default': True,
-	    'file': os.path.join(logs['log_dir'], logs['pox'])
-	}],
         'log.level': [ log_level ]
     }   
     
-    process = Process(target=boot, args=(args,))
+    logs['pox'] = {'out':'pox.out', 'err':'pox.err'}
+    print "Starting POX: stdout in {out}, stderr in {err}".format(
+	    **logs['pox'])
+
+    def start_with_log(components, out_log, err_log):
+	sys.stdout = open(out_log, 'w')
+	sys.stderr = open(err_log, 'w')
+	boot(components)
+    
+    out_log = os.path.join(logs['log_dir'], logs['pox']['out'])
+    err_log = os.path.join(logs['log_dir'], logs['pox']['err'])
+    process = Process(target=start_with_log, args=(args,out_log,err_log,))
     process.start()
     return process
     
@@ -122,8 +120,9 @@ def start(scenario, config, log_dir=None):
 	net.stop()
 	controller.terminate()
 
-    except (KeyboardInterrupt, EOFError):
+    except KeyboardInterrupt as e:
 	print "Exiting on user command"
+	raise
     finally:
 	print "End of experiment"
 
