@@ -8,18 +8,20 @@ Requirements
 .. note::
    mcfpox, in its entirety, has a number of dependencies. It is possible to get some use out of individual components of mcfpox without others, so none of the below-listed 'requirements' are *absolutely* necessary - but they are highly recommended so that the software can run as intended.
 
-POX
----
+POX (dart onwards)
+------------------
 `POX <http://www.noxrepo.org/pox/about-pox/>`_ is a framework, written in Python, to help you write an OpenFlow controller. It's aimed at research and education and consists of reusable components (for topology discovery, host tracking and so on) as well as the core libraries for communicating with switches using OpenFlow. Installation instructions are available `on the wiki <https://openflow.stanford.edu/display/ONL/POX+Wiki#POXWiki-InstallingPOX>`_, including links to various tutorials to get started with SDN, but basically:
 
 .. code:: bash
 
    $ git clone http://github.com/noxrepo/pox
    $ cd pox
+   $ git checkout dart
+   $ sudo python setup.py install
 
 **Why?** POX uses a component-based structure. At startup, components selected by the user are registered in order, and afterwards run in parallel and can communicate with each other. **The core of mcfpox is three POX components** - one each for network discovery, flow statistics gathering and routing control. Obviously, these components sit on top of POX and are unable to be run without it.
 
-Some experiment scripts in mcfpox assume that ``pox.py`` is available on the $PATH. This won't be the case unless you add it. Alternatively, just change those scripts...
+The ``dart`` branch (or later) is highly recommended so that experiment scripts can integrate properly with pox. Before this branch it was awkward to launch pox directly from python. It's possible, by launching subprocesses through the shell, but this requires a lot of fairly ugly fiddling with $PYTHONPATH and/or $PATH, unless you run the controller in the ``ext`` directory in pox. The experiment scripts distributed with mcfpox assume that ``dart`` or higher is in use.
 
 NetworkX
 --------
