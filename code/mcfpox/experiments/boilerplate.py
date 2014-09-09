@@ -36,9 +36,8 @@ def start_pox(logs, level={}, module='mcfpox.controller.base',
               objective=None, rules=None):
     
     log_level = {
-	'WARN': True,
+	'INFO': True,
 	'packet': 'WARN',
-	'mcfpox.controller': 'INFO'
     }
     log_level.update(level)
     
@@ -56,8 +55,8 @@ def start_pox(logs, level={}, module='mcfpox.controller.base',
 	from pox.boot import boot
 	out_log = os.path.join(logs['log_dir'], 'pox.out')
 	err_log = os.path.join(logs['log_dir'], 'pox.err')
-	#sys.stdout = open(out_log, 'w')
-	#sys.stderr = open(err_log, 'w')
+	sys.stdout = open(out_log, 'w')
+	sys.stderr = open(err_log, 'w')
 	boot({'components':components})
     
     process = Process(target=start, args=(args,))
@@ -85,6 +84,7 @@ def start_flows(flow_schedule, net, logs):
     flow_logs = []
     log_dir = logs['log_dir']
 
+    longest_delay = 0
     for delay, flows in flow_schedule.iteritems():
         for flow in flows:
             src = net.get(flow[0])
@@ -99,13 +99,14 @@ def start_flows(flow_schedule, net, logs):
 		    os.path.join(log_dir, server_log), 
 		    os.path.join(log_dir, client_log),))
             port += 1
+	longest_delay = max(longest_delay, delay)
 
     logs['flows'] = flow_logs
     time.sleep(1)
     print "\nStarting scheduled flows: iperf output in server/client logs"
     s.run()
     print
-    time.sleep(15)
+    time.sleep(longest_delay+10)
                   
                   
 def start(scenario, config, log_dir=None):

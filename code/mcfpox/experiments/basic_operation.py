@@ -40,8 +40,9 @@ def results(logs):
 	
 	print "Client log:", client_log
 	with open(client_log, 'r') as f:
-	    for line in f:
-		print line,
+	    j = json.load(f)
+	    print "Sent: ", j['end']['sum_sent']['bits_per_second']
+	    print "Recv: ", j['end']['sum_received']['bits_per_second']
 	print
 
 
