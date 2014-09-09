@@ -13,9 +13,6 @@ def experiment():
     net = diamond.create_net()
 
     flows = {
-	3: [
-	    ('h2', 'h1', '3m')
-	],
 	15: [
 	    ('h1', 'h2', '4m'),
 	    ('h2', 'h1', '4m')
