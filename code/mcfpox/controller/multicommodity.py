@@ -12,6 +12,7 @@ from pox.lib.addresses import IPAddr
 
 from mcfpox.controller import topology
 from mcfpox.controller.lib import Flow, Hop
+from mcfpox.objectives import shortest_path
 
 from collections import namedtuple
 
@@ -36,7 +37,17 @@ class Multicommodity:
 	core.addListeners(self)
 
     def _handle_PacketIn(self, event):
-	pass
+	self.net.refresh_network()
+	packet = event.parsed
+	if packet.find('tcp'):
+	    ip = packet.next
+	    tcp = ip.next
+	    if str(ip.srcip) != '0.0.0.0':
+		flow = Flow(6, str(ip.srcip), str(ip.dstip), 
+			    tcp.srcport, tcp.dstport)
+		rules = shortest_path.objective(self.net.graph, [flow])
+		self._install_rule_list(rules)
+
 	
     def _install_forward_rule(self, msg, hops):
 	for switch in hops:
