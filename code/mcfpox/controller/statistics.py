@@ -34,24 +34,25 @@ class Statistics:
 	local = [e for e in self.flows if e.switch == switch]
 	
 	for flow in stats:
-	    if flow['match']['dl_type'] == 'IP':
+	    #log.info(flow['match'])
+	    #if flow['match']['dl_type'] == 'IP':
 		#log.info("switch {0}, src {1}, output on port {2}".format(event.dpid, flow['match']['nw_src'], flow['actions'][0]['port']))
-		pass
+		#pass
 	    id = lib.match_to_flow(flow['match'])
 	    if not id: continue
 
 	    try:
 		entry = next(e for e in local if e.id == id)
 	    except StopIteration:
-		entry = lib.Entry(switch, id, 0, 0)
+		entry = lib.Entry(switch, id)
 		self.flows.append(entry)
-	    bc = int(flow['byte_count'])
 
+	    bc = int(flow['byte_count'])
 	    entry.recent = (bc - entry.total) / self.period
 	    entry.total = bc
 
-    def get_flows(self):
-	return self.flows
+	def get_flows(self):
+	    return self.flows
 
 
 def launch(period=5, length=1):
