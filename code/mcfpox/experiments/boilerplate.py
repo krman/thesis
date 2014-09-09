@@ -45,20 +45,20 @@ def start_pox(logs, level={}, module='mcfpox.controller.base',
     logs['pox'] = 'pox.log'
     print "Starting POX: log files in {0}".format(logs['pox'])
 
-	args = {
-		module: [{
-			'objective': objective
-		}],
-		'log.level': [log_level],
-	}   
+    args = {
+	module: [{
+	    'objective': objective
+	}],
+	'log.level': [log_level],
+    }   
     
     def start(components):
-		from pox.boot import boot
-		out_log = os.path.join(logs['log_dir'], 'pox.out')
-		err_log = os.path.join(logs['log_dir'], 'pox.err')
-		#sys.stdout = open(out_log, 'w')
-		#sys.stderr = open(err_log, 'w')
-		boot({'components':components})
+	from pox.boot import boot
+	out_log = os.path.join(logs['log_dir'], 'pox.out')
+	err_log = os.path.join(logs['log_dir'], 'pox.err')
+	#sys.stdout = open(out_log, 'w')
+	#sys.stderr = open(err_log, 'w')
+	boot({'components':components})
     
     process = Process(target=start, args=(args,))
     process.start()
