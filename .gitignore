@@ -51,3 +51,4 @@ doc/images/
 *.swp
 code/build/
 code/MANIFEST
+*.png
