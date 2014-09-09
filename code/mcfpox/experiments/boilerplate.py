@@ -9,8 +9,6 @@ import sched
 import subprocess
 from multiprocessing import Process
 
-from pox.boot import boot
-
 from mininet.cli import CLI
 from mininet.log import setLogLevel
 from mininet.node import RemoteController
@@ -18,7 +16,7 @@ from mininet.node import RemoteController
 
 def start_log(log_dir):
     if not log_dir:
-	log_dir = 'log.{0}'.format(int(time.time()))
+		  log_dir = 'log.{0}'.format(int(time.time()))
     subprocess.call(['mkdir', '-p', log_dir])
     return {'log_dir': log_dir}
     
@@ -38,28 +36,31 @@ def start_pox(logs, level={}, module='mcfpox.controller.base',
               objective=None, rules=None):
     
     log_level = {
-	'packet': 'WARN'
+	'WARN': True,
+	'packet': 'WARN',
+	'mcfpox.controller': 'INFO'
     }
     log_level.update(level)
     
-    args = {module: [{
-            'objective': objective
-        }], 
-        'log.level': [ log_level ]
-    }   
-    
-    logs['pox'] = {'out':'pox.out', 'err':'pox.err'}
-    print "Starting POX: stdout in {out}, stderr in {err}".format(
-	    **logs['pox'])
+    logs['pox'] = 'pox.log'
+    print "Starting POX: log files in {0}".format(logs['pox'])
 
-    def start_with_log(components, out_log, err_log):
-	sys.stdout = open(out_log, 'w')
-	sys.stderr = open(err_log, 'w')
-	boot(components)
+	args = {
+		module: [{
+			'objective': objective
+		}],
+		'log.level': [log_level],
+	}   
     
-    out_log = os.path.join(logs['log_dir'], logs['pox']['out'])
-    err_log = os.path.join(logs['log_dir'], logs['pox']['err'])
-    process = Process(target=start_with_log, args=(args,out_log,err_log,))
+    def start(components):
+		from pox.boot import boot
+		out_log = os.path.join(logs['log_dir'], 'pox.out')
+		err_log = os.path.join(logs['log_dir'], 'pox.err')
+		#sys.stdout = open(out_log, 'w')
+		#sys.stderr = open(err_log, 'w')
+		boot({'components':components})
+    
+    process = Process(target=start, args=(args,))
     process.start()
     return process
     
