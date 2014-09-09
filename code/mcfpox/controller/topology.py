@@ -90,7 +90,7 @@ class Network(EventMixin):
 	    self.host_count += 1
 	    h = "h{0}".format(self.host_count)
 	    s = "s{0}".format(entry.dpid)
-	    print "HOST", h, "ON SWITCH", s, "ADDRESS", entry.macaddr
+	    #print "HOST", h, "ON SWITCH", s, "ADDRESS", entry.macaddr
 	    G.add_nodes_from([h,s])
 	    if entry.ipAddrs.keys():
 		G.node[h]['ip'] = str(next(iter(entry.ipAddrs.keys())))
