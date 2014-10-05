@@ -32,6 +32,7 @@ class Network(EventMixin):
 	self.listenTo(self.ht)
 	core.addListeners(self)
 
+
     def _handle_LinkEvent(self, event):
 	"""
 	l = event.link
@@ -53,6 +54,7 @@ class Network(EventMixin):
 	    self.add_link(s1, l.port1, s2, l.port2)
 	"""
 
+
     def _handle_HostEvent(self, event):
 	"""
 	e = event.entry
@@ -66,6 +68,7 @@ class Network(EventMixin):
 	    s = self.get_switch(e.dpid)
 	    self.add_link(h, None, s, e.port)
 	"""
+
 
     def refresh_network(self):
 	G = nx.DiGraph()
@@ -98,6 +101,7 @@ class Network(EventMixin):
 	    G.add_edge(s, h, {'capacity':1e6, 'port':entry.port})
 
 	self.graph = G
+
 
 
 def launch():
