@@ -6,7 +6,7 @@ aggregation of flows is important
 
 some smart dudes \cite{bonsma:ufp}, \cite{anag:mazing} and \cite{chakrabarti:ufp}
 
-\section{Considerations}
+\section{The Unsplittable Flow Problem}
 tcp imposes two significant restrictions:
 
 \begin{enumerate}
@@ -14,10 +14,8 @@ tcp imposes two significant restrictions:
 	\item tcp slows down its sending rate if you lose packets, so demand changes
 \end{enumerate}
 
-\section{Formulation}
-The following formulation of the problem attempts to maximise the minimum spare capacity over all links, and is adapted from a formulation by Walkowiak \cite{walkowiak:residual}.
+The following is a formulation of the unsplittable flow problem as adapted from Walkowiak \cite{walkowiak:residual}. This thesis will compare several different formulations and objective functions, originally presented by different authors, but they will be described using the notation defined in \cite{walkowiak:residual} for clarity and ease of comparison.
 
-%\newpage
 Begin with a network $G$ with vertices $V$ and edges $E$, with edge capacities $c : E \rightarrow \mathbb{R}^+$. The set $P$ comprises $p$ commodities to be routed through $G$, where the $i$th commodity corresponds to a flow with a source $s_i \in V$, destination $t_i \in V$ and demand $d_i \in \mathbb{R}^+$. For each $i \in P$, there are $l_i$ possible routes between $s_i$ and $t_i$, so define the set $\Pi_i = \{\pi_i^k : k = 1, ..., l_i\}$ to represent these.
 
 In the unsplittable flow problem, each commodity must be routed entirely along one path. Each potential path $\pi_i^k$ is therefore associated with a corresponding variable $x_i^k \in \{0,1\}$, indicating whether that path was chosen for commodity $i$. The total traffic across edge $j \in E$ must be less than the capacity of the link. The constant $a_{ij}^k \in \{0,1\}$ indicates whether path $\pi_i^k$ uses edge $j \in E$.
