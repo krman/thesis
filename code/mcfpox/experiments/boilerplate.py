@@ -22,13 +22,8 @@ def start_log(log_dir):
     
 
 def start_net(net, logs):
-    #print "\nCleaning up mininet"
-    #with open('/dev/null', 'w') as DEVNULL:
-	#subprocess.call(['sudo', 'mn', '-c'], stdout=DEVNULL, stderr=DEVNULL)
-
     print "Starting mininet: no logs"
     net.start()
-
     return net
 
 
@@ -68,7 +63,7 @@ def start_iperf(src, dst, port, bw, server_log, client_log):
     server_cmd = "iperf3 -s -p {0} &> {1} &".format(
 	    port, server_log)
 
-    client_cmd = "iperf3 -c {0} -p {1} -b {2} -t 10 -J &> {3} &".format(
+    client_cmd = "iperf3 -c {0} -p {1} -b {2} -t 10 -J -l 1K &> {3} &".format(
 	    dst.IP(), port, bw, client_log)
 
     print "Flow: {0} from {1} ({2}) to {3} ({4})".format(
@@ -106,7 +101,7 @@ def start_flows(flow_schedule, net, logs):
     print "\nStarting scheduled flows: iperf output in server/client logs"
     s.run()
     print
-    time.sleep(longest_delay+10)
+    time.sleep(longest_delay+15)
                   
                   
 def start(scenario, config, log_dir=None):

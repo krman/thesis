@@ -10,12 +10,12 @@ import matplotlib.pyplot as plt
 
 
 def experiment():
-    net = diamond.create_net()
+    net = diamond.create_net(cleanup=True)
 
     flows = {
 	15: [
 	    ('h1', 'h2', '4m'),
-	    ('h2', 'h1', '4m')
+	    #('h2', 'h1', '4m')
 	]
     }
 
