@@ -27,26 +27,26 @@ class FatTreeTopo(Topo):
 	    s.append(self.addSwitch(label, **opts))
        
         # Connect hosts to switches 
-	self.addLink(h[1], s[4])
-	self.addLink(h[2], s[4])
-	self.addLink(h[3], s[5])
-	self.addLink(h[4], s[5])
-	self.addLink(h[5], s[6])
-	self.addLink(h[6], s[6])
-	self.addLink(h[7], s[7])
-	self.addLink(h[8], s[7])
+	self.addLink(h[1], s[4], bw=2)
+	self.addLink(h[2], s[4], bw=2)
+	self.addLink(h[3], s[5], bw=2)
+	self.addLink(h[4], s[5], bw=2)
+	self.addLink(h[5], s[6], bw=2)
+	self.addLink(h[6], s[6], bw=2)
+	self.addLink(h[7], s[7], bw=2)
+	self.addLink(h[8], s[7], bw=2)
 
         # Connect switches to switches
-	self.addLink(s[1], s[2])
-	self.addLink(s[1], s[3])
-	self.addLink(s[2], s[4])
-	self.addLink(s[2], s[5])
-	self.addLink(s[2], s[6])
-	self.addLink(s[2], s[7])
-	self.addLink(s[3], s[4])
-	self.addLink(s[3], s[5])
-	self.addLink(s[3], s[6])
-	self.addLink(s[3], s[7])
+	self.addLink(s[1], s[2], bw=1)
+	self.addLink(s[1], s[3], bw=1)
+	self.addLink(s[2], s[4], bw=1)
+	self.addLink(s[2], s[5], bw=1)
+	self.addLink(s[2], s[6], bw=1)
+	self.addLink(s[2], s[7], bw=1)
+	self.addLink(s[3], s[4], bw=1)
+	self.addLink(s[3], s[5], bw=1)
+	self.addLink(s[3], s[6], bw=1)
+	self.addLink(s[3], s[7], bw=1)
 
     def addSwitch(self, label, **opts):
         print "dpid {0}: {1}".format(self.dpid_count, label)
@@ -68,7 +68,6 @@ class FatTreeTopo(Topo):
         ip = '10.0.0.{0}'.format(i)
         mac = 'ff:00:00:00:00:{0:02d}'.format(i)
         return (label, {'ip':ip, 'mac':mac})
-
 
 
 
