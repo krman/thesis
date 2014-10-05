@@ -36,6 +36,7 @@ class Switch:
         msg.actions.append(of.ofp_action_output(port = of.OFPP_CONTROLLER))
 	self.connection.send(msg)
 
+
     def _handle_PacketIn(self, event):
 	packet = event.parsed
         if packet.find('tcp'):
@@ -56,15 +57,20 @@ class Controller:
 	core.openflow.addListeners(self)
 	core.addListeners(self)
 
+
     def _handle_ConnectionUp(self, event):
 	self.switches[event.dpid] = Switch(event.dpid, event.connection)
+
 
     def _handle_PortStatus(self, event):
 	log.info("port %s on switch %s has been modified" % (event.port, event.dpid))
 
 
+
 def print_topology():
     log.info(core.openflow_discovery.adjacency)
+
+
 
 def launch(objective=None, preinstall="{}"):
     discovery.launch()

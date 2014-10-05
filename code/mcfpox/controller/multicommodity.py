@@ -22,6 +22,7 @@ log = core.getLogger()
 class Multicommodity:
     _core_name = "thesis_mcf"
 
+
     def __init__(self, objective, preinstall):
 	Timer(30, self._update_flows)
 	#Timer(15, self._preinstall_rules)
@@ -36,6 +37,7 @@ class Multicommodity:
 	core.openflow.addListeners(self)
 	core.addListeners(self)
 
+
     def _handle_PacketIn(self, event):
 	self.net.refresh_network()
 	packet = event.parsed
@@ -48,7 +50,7 @@ class Multicommodity:
 		rules = shortest_path.objective(self.net.graph, [(flow,1e6)])
 		self._install_rule_list(rules)
 
-	
+
     def _install_forward_rule(self, msg, hops):
 	string = ""
 	for switch in hops:
@@ -73,17 +75,20 @@ class Multicommodity:
 	    #log.info("Installing rule: {0}".format(flow))
 	    self._install_forward_rule(msg, hops)
 	
+
     def _preinstall_rules(self):
 	log.info("Preinstalling rules...")
 	log.info("Rules are:")
 	log.info(self.preinstall)
 	self._install_rule_list(self.preinstall)
 
+
     def _solve_mcf(self):
 	rules = self.objective(self.net.graph, self.flows)
 	log.info("Rules are:")
 	log.info(rules)
 	self._install_rule_list(rules)
+
 
     def _update_flows(self):
 	log.info("Updating flows...")
@@ -94,10 +99,13 @@ class Multicommodity:
 	self._solve_mcf()
 
 
+
 def default_objective(net, flows):
     print "Default objective function, given:"
     print "net:", net
     print "flows:", flows
+
+
 
 def launch(objective=default_objective, preinstall="{}"):
     try:
