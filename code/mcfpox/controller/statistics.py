@@ -24,35 +24,46 @@ class Statistics:
 	self.period = float(period)
 	core.openflow.addListeners(self)
 
+
     def _request_stats(self):
 	for connection in core.openflow._connections.values():
 	    connection.send(of.ofp_stats_request(body=of.ofp_flow_stats_request()))
 
+
     def _handle_FlowStatsReceived(self, event):
 	stats = flow_stats_to_list(event.stats)
 	switch = event.dpid
-	local = [e for e in self.flows if e.switch == switch]
+	local = [e for e in self.flows if e.switch == switch and e.recent]
 	
 	for flow in stats:
-	    #log.info(flow['match'])
-	    #if flow['match']['dl_type'] == 'IP':
-		#log.info("switch {0}, src {1}, output on port {2}".format(event.dpid, flow['match']['nw_src'], flow['actions'][0]['port']))
-		#pass
-	    id = lib.match_to_flow(flow['match'])
-	    if not id: continue
+	    f = lib.match_to_flow(flow['match'])
+	    if not f: continue
 
 	    try:
-		entry = next(e for e in local if e.id == id)
+		entry = next(e for e in local if e.flow == f)
 	    except StopIteration:
-		entry = lib.Entry(switch, id)
+		entry = lib.Entry(switch, f)
 		self.flows.append(entry)
 
 	    bc = int(flow['byte_count'])
 	    entry.recent = (bc - entry.total) / self.period
 	    entry.total = bc
+	    if entry.recent < 1000:
+		self.flows.remove(entry)
 
-	def get_flows(self):
-	    return self.flows
+
+    def get_flows(self):
+	flows = [e.flow for e in self.flows if e.recent]
+	overall = []
+	seen = []
+	for f in flows:
+	    if f in seen: continue
+	    s = [e.recent for e in self.flows if e.flow == f]
+	    overall.append((f,max(s)))
+	    seen.append(f)
+	log.info(overall)
+	return overall
+
 
 
 def launch(period=5, length=1):

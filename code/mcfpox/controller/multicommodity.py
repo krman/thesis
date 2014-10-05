@@ -11,7 +11,7 @@ from pox.openflow.of_json import *
 from pox.lib.addresses import IPAddr
 
 from mcfpox.controller import topology
-from mcfpox.controller.lib import Flow, Hop
+from mcfpox.controller.lib import Flow, Hop, Entry
 from mcfpox.objectives import shortest_path
 
 from collections import namedtuple
@@ -23,8 +23,8 @@ class Multicommodity:
     _core_name = "thesis_mcf"
 
     def __init__(self, objective, preinstall):
-	#Timer(30, self._update_flows)
-	Timer(15, self._preinstall_rules)
+	Timer(30, self._update_flows)
+	#Timer(15, self._preinstall_rules)
 
 	self.flows = {}
 	self.net = core.thesis_topo
@@ -45,17 +45,19 @@ class Multicommodity:
 	    if str(ip.srcip) != '0.0.0.0':
 		flow = Flow(6, str(ip.srcip), str(ip.dstip), 
 			    tcp.srcport, tcp.dstport)
-		rules = shortest_path.objective(self.net.graph, [flow])
+		rules = shortest_path.objective(self.net.graph, [(flow,1e6)])
 		self._install_rule_list(rules)
 
 	
     def _install_forward_rule(self, msg, hops):
+	string = ""
 	for switch in hops:
 	    msg.actions = []
 	    msg.actions.append(of.ofp_action_output(port = switch.port))
-	    #print "{0}.{1}".format(switch.dpid,switch.port),
+	    string += "{0}.{1} ".format(switch.dpid,switch.port)
 	    core.thesis_base.switches[switch.dpid].connection.send(msg)
-	print
+	#log.info(string)
+
 
     def _install_rule_list(self, rules):
 	for flow,hops in rules.items():
@@ -68,20 +70,27 @@ class Multicommodity:
 	    ts, td = flow.tp_src, flow.tp_dst
 	    msg.match.tp_src = None if ts is None else int(ts)
 	    msg.match.tp_dst = None if td is None else int(td)
-	    #print "INSTALLING", flow.nw_src, flow.nw_dst,
+	    #log.info("Installing rule: {0}".format(flow))
 	    self._install_forward_rule(msg, hops)
 	
     def _preinstall_rules(self):
-	#print "PREINSTALLING RULES"
+	log.info("Preinstalling rules...")
+	log.info("Rules are:")
+	log.info(self.preinstall)
 	self._install_rule_list(self.preinstall)
 
     def _solve_mcf(self):
 	rules = self.objective(self.net.graph, self.flows)
+	log.info("Rules are:")
+	log.info(rules)
 	self._install_rule_list(rules)
 
     def _update_flows(self):
+	log.info("Updating flows...")
 	self.net.refresh_network()
-	self.flows = self.stats.get_fake_flows()
+	self.flows = self.stats.get_flows()
+	log.info("Flows are:")
+	log.info(self.flows)
 	self._solve_mcf()
 
 

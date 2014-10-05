@@ -18,11 +18,14 @@ import mcfpox.controller.statistics as statistics
 import mcfpox.controller.topology as topology
 import mcfpox.controller.multicommodity as multicommodity
 
+from mcfpox.controller.lib import Flow
+
 log = core.getLogger()
 
 
 class Switch:
-    def __init__(self, connection):
+    def __init__(self, dpid, connection):
+	self.dpid = dpid
 	self.connection = connection
 	connection.addListeners(self)
 
@@ -32,6 +35,17 @@ class Switch:
         msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
         msg.actions.append(of.ofp_action_output(port = of.OFPP_CONTROLLER))
 	self.connection.send(msg)
+
+    def _handle_PacketIn(self, event):
+	packet = event.parsed
+        if packet.find('tcp'):
+            ip = packet.next
+            tcp = ip.next
+            if str(ip.srcip) != '0.0.0.0':
+                flow = Flow(6, str(ip.srcip), str(ip.dstip),
+                            tcp.srcport, tcp.dstport)
+		log.info("flow {0} on switch {1}".format(flow, self.dpid))
+
 
 
 class Controller:
@@ -43,7 +57,7 @@ class Controller:
 	core.addListeners(self)
 
     def _handle_ConnectionUp(self, event):
-	self.switches[event.dpid] = Switch(event.connection)
+	self.switches[event.dpid] = Switch(event.dpid, event.connection)
 
     def _handle_PortStatus(self, event):
 	log.info("port %s on switch %s has been modified" % (event.port, event.dpid))
