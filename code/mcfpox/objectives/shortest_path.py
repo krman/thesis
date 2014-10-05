@@ -37,7 +37,7 @@ def objective(graph, flows):
     G = graph
     rules = {}
 
-    for flow in flows:
+    for flow,demand in flows:
 	src = get_host_from_ip(G, flow.nw_src)
 	dst = get_host_from_ip(G, flow.nw_dst)
 

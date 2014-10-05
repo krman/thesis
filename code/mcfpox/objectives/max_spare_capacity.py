@@ -5,9 +5,7 @@ from collections import namedtuple
 import networkx as nx
 import itertools
 
-
-Flow = namedtuple("Flow", "nw_proto nw_src nw_dst tp_src tp_dst")
-Hop = namedtuple("Hop", "dpid port")
+from mcfpox.controller.lib import Flow, Hop
 
 
 def get_host_from_ip(G, ip):
@@ -39,9 +37,9 @@ def var2flow(G, var):
     return Flow(nw_src=n1, tp_src=p1, nw_dst=n2, tp_dst=p2, nw_proto=proto)
 
 
-def objective(net, flows, cutoff=None):
+def objective(graph, flows, cutoff=None):
     print "FLOWS", flows
-    G = net.graph
+    G = graph
     rules = {}
 
     mcf = LpProblem("routes", LpMaximize)
@@ -56,20 +54,20 @@ def objective(net, flows, cutoff=None):
     pair2flow = {}
     label2path = {}
 
-    for flow in flows:
+    for flow,demand in flows:
 	src = get_host_from_ip(G, flow.nw_src)
 	dst = get_host_from_ip(G, flow.nw_dst.split('/')[0])
 
 	if not (src and dst):
 	    continue
-	if not (src in net.graph.nodes() and dst in net.graph.nodes()):
+	if not (src in G.nodes() and dst in G.nodes()):
 	    continue
 
 	hosts[flow.nw_src] = src
 	hosts[flow.nw_dst] = dst
 	pair2flow[(src,dst)] = flow
 	
-	paths = list(nx.all_simple_paths(net.graph, src, dst, cutoff=cutoff))
+	paths = list(nx.all_simple_paths(G, src, dst, cutoff=cutoff))
 	prefix = "_".join([str(i) for i in ["x", src, flow.tp_src, dst, flow.tp_dst, flow.nw_proto]])
 	label2path.update({"_".join([prefix,str(i)]):path[1:] for i,path in enumerate(paths)})
 
@@ -93,7 +91,7 @@ def objective(net, flows, cutoff=None):
 	traffic = 0
 	result = 0
 
-	for flow,demand in flows.iteritems():
+	for flow,demand in flows:
 	    src = hosts.get(flow.nw_src)
 	    dst = hosts.get(flow.nw_dst)
 
@@ -102,7 +100,7 @@ def objective(net, flows, cutoff=None):
 
 	    x = chosen[(src,dst)]
 	    selected = 0
-	    paths = nx.all_simple_paths(net.graph, src, dst, cutoff=cutoff)
+	    paths = nx.all_simple_paths(G, src, dst, cutoff=cutoff)
 	    for i,path in enumerate(paths):
 		edges = zip(path[:-1],path[1:])
 		a = 1 if link in edges or (link[1],link[0]) in edges else 0
