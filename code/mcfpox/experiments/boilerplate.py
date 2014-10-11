@@ -4,6 +4,7 @@ Some experiment boilerplate.
 
 import os
 import sys
+import json
 import time
 import sched
 import subprocess
@@ -28,7 +29,7 @@ def start_net(net, logs):
 
 
 def start_pox(logs, level={}, module='mcfpox.controller.base',
-              objective=None, rules=None):
+	      objective=None, rules=None):
     
     log_level = {
 	'INFO': True,
@@ -44,13 +45,15 @@ def start_pox(logs, level={}, module='mcfpox.controller.base',
 	    'objective': objective
 	}],
 	'log.level': [log_level],
-    }   
+    }	
     
     def start(components):
 	from pox.boot import boot
 	out_log = os.path.join(logs['log_dir'], 'pox.out')
 	err_log = os.path.join(logs['log_dir'], 'pox.err')
-	sys.stdout = open(out_log, 'w')
+	print "starting pox"
+	#sys.stdout = open(out_log, 'w')
+	print "fucking work"
 	sys.stderr = open(err_log, 'w')
 	boot({'components':components})
     
@@ -81,19 +84,19 @@ def start_flows(flow_schedule, net, logs):
 
     longest_delay = 0
     for delay, flows in flow_schedule.iteritems():
-        for flow in flows:
-            src = net.get(flow[0])
-            dst = net.get(flow[1])
-            bw = flow[2]
+	for flow in flows:
+	    src = net.get(flow[0])
+	    dst = net.get(flow[1])
+	    bw = flow[2]
 	    
 	    server_log = 'server.{0}.{1}'.format(dst, port)
 	    client_log = 'client.{0}.server.{1}.{2}'.format(src, dst, port)
 	    flow_logs.append((server_log, client_log))
-            
-            s.enter(delay, 1, start_iperf, (src, dst, port, bw, 
+	    
+	    s.enter(delay, 1, start_iperf, (src, dst, port, bw, 
 		    os.path.join(log_dir, server_log), 
 		    os.path.join(log_dir, client_log),))
-            port += 1
+	    port += 1
 	longest_delay = max(longest_delay, delay)
 
     logs['flows'] = flow_logs
@@ -102,14 +105,14 @@ def start_flows(flow_schedule, net, logs):
     s.run()
     print
     time.sleep(longest_delay+15)
-                  
-                  
+		  
+		  
 def start(scenario, config, log_dir=None):
     logs = start_log(log_dir)
     print "Starting experiment: log files in {0}".format(logs['log_dir'])
 
     try:
-	net = start_net(scenario['net'], logs)
+	net = start_net(scenario['net'].create_net(), logs)
 	controller = start_pox(logs, **config)
 	
 	start_flows(scenario['flows'], net, logs)
@@ -123,4 +126,47 @@ def start(scenario, config, log_dir=None):
     finally:
 	print "End of experiment"
 
-    return logs
+    return results(scenario, config, logs)
+
+
+def results(scenario, config, logs):
+    log_dir = logs['log_dir']
+    recv = []
+    
+    for slog, clog in logs['flows']:
+	server_log = os.path.join(log_dir, slog)
+	client_log = os.path.join(log_dir, clog)
+    
+	with open(client_log, 'r') as f:
+	    try:
+		j = json.load(f)
+		r = j['end']['sum_received']['bits_per_second']
+		recv.append(r)
+	    except ValueError:
+		recv.append(0)
+	
+    pox_log = os.path.join(log_dir, "pox.err")
+    process = subprocess.Popen(["grep", "Rules", pox_log],
+		    stdout=subprocess.PIPE)
+    output, err = process.communicate()
+    process.wait()
+    rules = output.split("Rules are ")[-1]
+
+    scenario["net"] = scenario["net"].__name__
+    config["objective"] = config["objective"].__module__
+
+    summary = {
+	"scenario": scenario,
+	"config": config,
+	"results": r,
+	"rules": rules,
+	"logs": log_dir
+    }
+    print summary
+
+    with open("results.json", 'a') as f:
+	f.write(json.dumps(summary, sort_keys=True, 
+		indent=4, separators=(',', ': ')))
+	f.write("\n")
+    
+    return recv
