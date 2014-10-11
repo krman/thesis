@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Manhattan-style m x n grid, 2 hosts connected to opposite corners
+Manhattan-style m x n grid, 1 host per switch
 """
 
 from mininet.topo import Topo
@@ -23,15 +23,22 @@ class GridTopo(Topo):
         switchNum = 1
 
         # Add switches
-	switches = []
-	for j in range(m):
-	    these = []
-	    for i in range(n):
-		label, opts = self.makeSwitch(i,j)
-		these.append(self.addSwitch(label, **opts))
-	    switches.append(these)
+        switches = []
+        for j in range(m):
+            these = []
+            for i in range(n):
+                label, opts = self.makeSwitch(i,j)
+                switch = self.addSwitch(label, **opts)
+                these.append(switch)
 
-	# Link switches
+                # Add and link host
+                label, opts = self.makeHost(i,j)
+                host = self.addHost(label, **opts)
+                self.addLink(host, switch)
+
+            switches.append(these)
+
+        # Link switches
         for i,row in enumerate(switches):
             for j,s in enumerate(row):
                 r,c = i+1,j+1
@@ -40,21 +47,14 @@ class GridTopo(Topo):
                 if c < n:
                     self.addLink(switches[i][j], switches[i][j+1])
 
-        # Add and link hosts
-        hosts = [self.addHost('h{}'.format(i+1)) for i in range(2)]
-        self.addLink(hosts[0], switches[0][0])
-        self.addLink(hosts[1], switches[m-1][n-1])
-
-    def makeHost(self, i):
-	""" Convenience function to make hosts """
-	label = 'h{}'.format(i)
-	ip = '10.0.0.{}'.format(i)
-	return (label, {'ip':ip})
+    def makeHost(self, r, c):
+        label = 'hr{0}c{1}'.format(r, c)
+        ip = '10.0.{0}.{1}'.format(r, c)
+        return (label, {'ip':ip})
 
     def makeSwitch(self, r, c):
-	""" Convenience function to make switches """
-	label = 'sr{0}c{1}'.format(r, c)
-	return (label, {})
+        label = 'sr{0}c{1}'.format(r, c)
+        return (label, {})
 
 
 def create_net(**kwargs):
@@ -69,11 +69,11 @@ def create_net(**kwargs):
 
 if __name__ == "__main__":
     try:
-	m = int(sys.argv[1])
-	n = int(sys.argv[2])
+        m = int(sys.argv[1])
+        n = int(sys.argv[2])
     except Exception as e:
-	print "usage: grid.py n m"
-	exit()
+        print "usage: grid.py m n"
+        exit()
 
     setLogLevel('output')
     net = create_net(controller=RemoteController, m=m, n=n)
