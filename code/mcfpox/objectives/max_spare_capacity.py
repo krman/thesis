@@ -38,7 +38,11 @@ def var2flow(G, var):
 
 
 def objective(graph, flows, cutoff=None):
-    print "FLOWS", flows
+    print "max spare capacity"
+    print "graph:"
+    for a,b in graph.edges():
+        print a,b, graph[a][b]
+    print "flows:", flows
     G = graph
     rules = {}
 
@@ -55,59 +59,65 @@ def objective(graph, flows, cutoff=None):
     label2path = {}
 
     for flow,demand in flows:
-	src = get_host_from_ip(G, flow.nw_src)
-	dst = get_host_from_ip(G, flow.nw_dst.split('/')[0])
+        print "i in P finding", flow, "with demand", demand
+        src = get_host_from_ip(G, flow.nw_src)
+        dst = get_host_from_ip(G, flow.nw_dst.split('/')[0])
 
-	if not (src and dst):
-	    continue
-	if not (src in G.nodes() and dst in G.nodes()):
-	    continue
+        if not (src and dst):
+            print "not src and dst"
+            continue
+        if not (src in G.nodes() and dst in G.nodes()):
+            print "not in G.nodes"
+            continue
 
-	hosts[flow.nw_src] = src
-	hosts[flow.nw_dst] = dst
-	pair2flow[(src,dst)] = flow
-	
-	paths = list(nx.all_simple_paths(G, src, dst, cutoff=cutoff))
-	prefix = "_".join([str(i) for i in ["x", src, flow.tp_src, dst, flow.tp_dst, flow.nw_proto]])
-	label2path.update({"_".join([prefix,str(i)]):path[1:] for i,path in enumerate(paths)})
+        hosts[flow.nw_src] = src
+        hosts[flow.nw_dst] = dst
+        pair2flow[(src,dst)] = flow
 
-	labels = [i for i in range(len(paths))]
-	chosen[(src,dst)] = LpVariable.dicts(prefix,labels,None,None,'Binary')
-	x = chosen[(src,dst)]
-	
-	selected = sum([x[i] for i,k in enumerate(paths)])
-	mcf += selected == 1
+        paths = list(nx.all_simple_paths(G, src, dst, cutoff=cutoff))
+        prefix = "_".join([str(i) for i in ["x", src, flow.tp_src, dst, flow.tp_dst, flow.nw_proto]])
+        label2path.update({"_".join([prefix,str(i)]):path[1:] for i,path in enumerate(paths)})
+
+        labels = [i for i in range(len(paths))]
+        chosen[(src,dst)] = LpVariable.dicts(prefix,labels,None,None,'Binary')
+        x = chosen[(src,dst)]
+
+        selected = sum([x[i] for i,k in enumerate(paths)])
+        mcf += selected == 1
 
     # "for all j in E" (per-link) constraints
     done = []
     for a,b in G.edges():
-	if (b,a) in done:
-	    continue
-	done.append((a,b))
+        if (b,a) in done:
+            print "(b,a) in done"
+            continue
+        done.append((a,b))
 
-	capacity = G.edge[a][b]['capacity']
-	link = (a,b)
+        capacity = G.edge[a][b]['capacity']
+        link = (a,b)
 
-	traffic = 0
-	result = 0
+        traffic = 0
+        result = 0
 
-	for flow,demand in flows:
-	    src = hosts.get(flow.nw_src)
-	    dst = hosts.get(flow.nw_dst)
+        for flow,demand in flows:
+            print "j in E finding", flow, "with demand", demand
+            src = hosts.get(flow.nw_src)
+            dst = hosts.get(flow.nw_dst)
 
-	    if not (src and dst):
-		continue
+            if not (src and dst):
+                print "later not src and dst"
+                continue
 
-	    x = chosen[(src,dst)]
-	    selected = 0
-	    paths = nx.all_simple_paths(G, src, dst, cutoff=cutoff)
-	    for i,path in enumerate(paths):
-		edges = zip(path[:-1],path[1:])
-		a = 1 if link in edges or (link[1],link[0]) in edges else 0
-		traffic += (a * demand * x[i])
+            x = chosen[(src,dst)]
+            selected = 0
+            paths = nx.all_simple_paths(G, src, dst, cutoff=cutoff)
+            for i,path in enumerate(paths):
+                edges = zip(path[:-1],path[1:])
+                a = 1 if link in edges or (link[1],link[0]) in edges else 0
+                traffic += (a * demand * x[i])
 
-	mcf += traffic <= capacity
-	mcf += z <= capacity - traffic
+        mcf += traffic <= capacity
+        mcf += z <= capacity - traffic
 
     # solve
     mcf.writeLP("mcf.lp")
@@ -115,11 +125,11 @@ def objective(graph, flows, cutoff=None):
 
     # calculate hops
     for v in mcf.variables():
-	if v.name != 'z' and v.varValue > 0.99:
-	    flow = var2flow(G, v.name)
-	    path = label2path[v.name]
-	    hops = [Hop(dpid=int(a[1:]), port=G.edge[a][b]['port']) 
-					 for a,b in pairwise(path)]
-	    rules[flow] = hops
+        if v.name != 'z' and v.varValue > 0.99:
+            flow = var2flow(G, v.name)
+            path = label2path[v.name]
+            hops = [Hop(dpid=int(a[1:]), port=G.edge[a][b]['port']) 
+                                         for a,b in pairwise(path)]
+            rules[flow] = hops
 
     return rules
