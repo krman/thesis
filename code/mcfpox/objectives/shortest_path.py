@@ -33,7 +33,6 @@ def objective(graph, flows):
         The path is expressed as a list of mcfpox.controller.lib.Hop objects.
         If no valid path can be found, the value for that entry is None.
     """
-    print "shortest path"
     G = graph
     rules = {}
 
