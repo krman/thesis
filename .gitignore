@@ -52,3 +52,5 @@ doc/images/
 code/build/
 code/MANIFEST
 *.png
+*.ods
+.~lock*
