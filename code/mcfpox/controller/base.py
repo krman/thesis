@@ -25,27 +25,26 @@ log = core.getLogger()
 
 class Switch:
     def __init__(self, dpid, connection):
-	self.dpid = dpid
-	self.connection = connection
-	connection.addListeners(self)
+        self.dpid = dpid
+        self.connection = connection
+        connection.addListeners(self)
 
-	# flood arp
-	msg = of.ofp_flow_mod()
-	msg.match.dl_type = pkt.ethernet.ARP_TYPE
+        # flood arp
+        msg = of.ofp_flow_mod()
+        msg.match.dl_type = pkt.ethernet.ARP_TYPE
         msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
         msg.actions.append(of.ofp_action_output(port = of.OFPP_CONTROLLER))
-	self.connection.send(msg)
+        self.connection.send(msg)
 
 
     def _handle_PacketIn(self, event):
-	packet = event.parsed
+        packet = event.parsed
         if packet.find('tcp'):
             ip = packet.next
             tcp = ip.next
             if str(ip.srcip) != '0.0.0.0':
                 flow = Flow(6, str(ip.srcip), str(ip.dstip),
                             tcp.srcport, tcp.dstport)
-		log.info("flow {0} on switch {1}".format(flow, self.dpid))
 
 
 
@@ -53,17 +52,17 @@ class Controller:
     _core_name = "thesis_base"
 
     def __init__(self):
-	self.switches = {}
-	core.openflow.addListeners(self)
-	core.addListeners(self)
+        self.switches = {}
+        core.openflow.addListeners(self)
+        core.addListeners(self)
 
 
     def _handle_ConnectionUp(self, event):
-	self.switches[event.dpid] = Switch(event.dpid, event.connection)
+        self.switches[event.dpid] = Switch(event.dpid, event.connection)
 
 
     def _handle_PortStatus(self, event):
-	log.info("port %s on switch %s has been modified" % (event.port, event.dpid))
+        log.info("port %s on switch %s has been modified" % (event.port, event.dpid))
 
 
 

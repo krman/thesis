@@ -18,85 +18,83 @@ from collections import namedtuple
 
 log = core.getLogger()
 
-	
+        
 class Multicommodity:
     _core_name = "thesis_mcf"
 
 
     def __init__(self, objective, preinstall):
-	Timer(30, self._update_flows)
-	#Timer(15, self._preinstall_rules)
+        Timer(30, self._update_flows)
+        #Timer(15, self._preinstall_rules)
 
-	self.flows = {}
-	self.net = core.thesis_topo
-	self.stats = core.thesis_stats
-	self.objective = objective
+        self.flows = {}
+        self.net = core.thesis_topo
+        self.stats = core.thesis_stats
+        self.objective = objective
 
-	self.preinstall = preinstall
+        self.preinstall = preinstall
 
-	core.openflow.addListeners(self)
-	core.addListeners(self)
+        core.openflow.addListeners(self)
+        core.addListeners(self)
 
 
     def _handle_PacketIn(self, event):
-	self.net.refresh_network()
-	packet = event.parsed
-	if packet.find('tcp'):
-	    ip = packet.next
-	    tcp = ip.next
-	    if str(ip.srcip) != '0.0.0.0':
-		flow = Flow(6, str(ip.srcip), str(ip.dstip), 
-			    tcp.srcport, tcp.dstport)
-		rules = shortest_path.objective(self.net.graph, [(flow,1e6)])
-		self._install_rule_list(rules)
+        self.net.refresh_network()
+        packet = event.parsed
+        if packet.find('tcp'):
+            ip = packet.next
+            tcp = ip.next
+            if str(ip.srcip) != '0.0.0.0':
+                flow = Flow(6, str(ip.srcip), str(ip.dstip), 
+                            tcp.srcport, tcp.dstport)
+                rules = shortest_path.objective(self.net.graph, [(flow,1e6)])
+                self._install_rule_list(rules)
 
 
     def _install_forward_rule(self, msg, hops):
-	string = ""
-	for switch in hops:
-	    msg.actions = []
-	    msg.actions.append(of.ofp_action_output(port = switch.port))
-	    string += "{0}.{1} ".format(switch.dpid,switch.port)
-	    core.thesis_base.switches[switch.dpid].connection.send(msg)
-	#log.info(string)
+        #string = ""
+        for switch in hops:
+            msg.actions = []
+            msg.actions.append(of.ofp_action_output(port = switch.port))
+            #string += "{0}.{1} ".format(switch.dpid,switch.port)
+            core.thesis_base.switches[switch.dpid].connection.send(msg)
+        #log.info(string)
 
 
     def _install_rule_list(self, rules):
-	for flow,hops in rules.items():
-	    msg = of.ofp_flow_mod()
-	    msg.command = of.OFPFC_MODIFY
-	    msg.match.dl_type = 0x800
-	    msg.match.nw_proto = 6
-	    msg.match.nw_src = flow.nw_src
-	    msg.match.nw_dst = flow.nw_dst
-	    ts, td = flow.tp_src, flow.tp_dst
-	    msg.match.tp_src = None if ts is None else int(ts)
-	    msg.match.tp_dst = None if td is None else int(td)
-	    #log.info("Installing rule: {0}".format(flow))
-	    self._install_forward_rule(msg, hops)
-	
+        for flow,hops in rules.items():
+            msg = of.ofp_flow_mod()
+            msg.command = of.OFPFC_MODIFY
+            msg.match.dl_type = 0x800
+            msg.match.nw_proto = 6
+            msg.match.nw_src = flow.nw_src
+            msg.match.nw_dst = flow.nw_dst
+            ts, td = flow.tp_src, flow.tp_dst
+            msg.match.tp_src = None if ts is None else int(ts)
+            msg.match.tp_dst = None if td is None else int(td)
+            #log.info("Installing rule: {0}".format(flow))
+            self._install_forward_rule(msg, hops)
+        
 
     def _preinstall_rules(self):
-	log.info("Preinstalling rules...")
-	log.info("Rules are:")
-	log.info(self.preinstall)
-	self._install_rule_list(self.preinstall)
+        log.info("Preinstalling rules...")
+        log.info("Rules are:")
+        log.info(self.preinstall)
+        self._install_rule_list(self.preinstall)
 
 
     def _solve_mcf(self):
-	rules = self.objective(self.net.graph, self.flows)
-	log.info("Rules are:")
-	log.info(rules)
-	self._install_rule_list(rules)
+        log.info("Flows are " + str(self.flows))
+        print "testing? ROBOTS"
+        rules = self.objective(self.net.graph, self.flows)
+        log.info("Rules are " + str(rules))
+        self._install_rule_list(rules)
 
 
     def _update_flows(self):
-	log.info("Updating flows...")
-	self.net.refresh_network()
-	self.flows = self.stats.get_flows()
-	log.info("Flows are:")
-	log.info(self.flows)
-	self._solve_mcf()
+        self.net.refresh_network()
+        self.flows = self.stats.get_flows()
+        self._solve_mcf()
 
 
 
@@ -109,8 +107,8 @@ def default_objective(net, flows):
 
 def launch(objective=default_objective, preinstall="{}"):
     try:
-	p = eval(preinstall) # HORRIBLE HORRIBLE
+        p = eval(preinstall) # HORRIBLE HORRIBLE
     except TypeError:
-	pass
+        pass
 
     core.registerNew(Multicommodity, objective=objective, preinstall=p)
