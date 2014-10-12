@@ -9,6 +9,9 @@ from mcfpox.controller.lib import Flow, Hop
 
 
 def get_host_from_ip(G, ip):
+    for i in G.nodes():
+        #print type(G.node[i].get('ip')), type(str(ip)), G.node[i].get('ip') == str(ip)
+        pass
     return next((i for i in G.nodes() if G.node[i].get('ip') == str(ip)), None)
 
 
@@ -38,11 +41,6 @@ def var2flow(G, var):
 
 
 def objective(graph, flows, cutoff=None):
-    print "max spare capacity"
-    print "graph:"
-    for a,b in graph.edges():
-        print a,b, graph[a][b]
-    print "flows:", flows
     G = graph
     rules = {}
 
@@ -57,17 +55,18 @@ def objective(graph, flows, cutoff=None):
     hosts = {}
     pair2flow = {}
     label2path = {}
+    pair2paths = {}
+    path2edges = {}
 
+    #print "for all i in P"
     for flow,demand in flows:
-        print "i in P finding", flow, "with demand", demand
+        #print flow.nw_src, flow.nw_dst, demand
         src = get_host_from_ip(G, flow.nw_src)
         dst = get_host_from_ip(G, flow.nw_dst.split('/')[0])
 
         if not (src and dst):
-            print "not src and dst"
             continue
         if not (src in G.nodes() and dst in G.nodes()):
-            print "not in G.nodes"
             continue
 
         hosts[flow.nw_src] = src
@@ -75,6 +74,9 @@ def objective(graph, flows, cutoff=None):
         pair2flow[(src,dst)] = flow
 
         paths = list(nx.all_simple_paths(G, src, dst, cutoff=cutoff))
+        pair2paths[(src,dst)] = paths
+        for i,path in enumerate(paths):
+            path2edges[(src,dst,i)] = zip(path[:-1],path[1:])
         prefix = "_".join([str(i) for i in ["x", src, flow.tp_src, dst, flow.tp_dst, flow.nw_proto]])
         label2path.update({"_".join([prefix,str(i)]):path[1:] for i,path in enumerate(paths)})
 
@@ -87,32 +89,37 @@ def objective(graph, flows, cutoff=None):
 
     # "for all j in E" (per-link) constraints
     done = []
+    #print "for all j in E"
     for a,b in G.edges():
         if (b,a) in done:
-            print "(b,a) in done"
             continue
         done.append((a,b))
 
         capacity = G.edge[a][b]['capacity']
         link = (a,b)
+        #print "link",link,capacity
 
         traffic = 0
         result = 0
 
+        #print "(for all j in E) for all i in P"
         for flow,demand in flows:
-            print "j in E finding", flow, "with demand", demand
+            #print flow.nw_src, flow.nw_dst, demand
             src = hosts.get(flow.nw_src)
             dst = hosts.get(flow.nw_dst)
 
             if not (src and dst):
-                print "later not src and dst"
                 continue
 
             x = chosen[(src,dst)]
             selected = 0
-            paths = nx.all_simple_paths(G, src, dst, cutoff=cutoff)
+            #paths = nx.all_simple_paths(G, src, dst, cutoff=cutoff)
+            paths = pair2paths[(src,dst)]
             for i,path in enumerate(paths):
-                edges = zip(path[:-1],path[1:])
+                #print path
+                #edges = zip(path[:-1],path[1:])
+                edges = path2edges[(src,dst,i)]
+                #print edges
                 a = 1 if link in edges or (link[1],link[0]) in edges else 0
                 traffic += (a * demand * x[i])
 
