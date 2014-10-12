@@ -29,7 +29,7 @@ class TestShortestWidestPath:
         f1 = Flow(6, '10.0.0.1', '10.0.0.2', 5001, 5002)
         f2 = Flow(6, '10.0.0.2', '10.0.0.1', 5003, 5004)
         expected = {
-            f1: [Hop(1,2), Hop(2,2), Hop(4,1)], 
+            f1: [Hop(1,3), Hop(3,2), Hop(4,1)], 
             f2: [Hop(4,2), Hop(2,1), Hop(1,1)]
         }
-        assert objective(G, [(f1,1e6), (f2,1e6)]) == expected
+        assert objective(G, [(f1,0.5e6), (f2,0.75e6)]) == expected

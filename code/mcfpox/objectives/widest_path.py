@@ -30,7 +30,7 @@ def widest_path(G, src, dst):
             if k == n:
                 continue
             try:
-                b[k] = G.edge[n][k]["capacity"]
+                b[k] = G.edge[n][k]['capacity']
             except KeyError:
                 b[k] = 0
         B[n] = b
@@ -45,7 +45,7 @@ def widest_path(G, src, dst):
             for m in G[n]:
                 if m in S:
                     continue
-                B[src][m] = G.edge[n][m]["capacity"]
+                B[src][m] = G.edge[n][m]['capacity']
                 if B[src][m] > highest:
                     k = m
                     highest = B[src][m]
@@ -82,8 +82,10 @@ def objective(graph, flows):
         The path is expressed as a list of mcfpox.controller.lib.Hop objects.
         If no valid path can be found, the value for that entry is None.
     """
-    G = graph
+
+    G = graph.copy()
     rules = {}
+    flows.sort(key=lambda a: a[1], reverse=True)
 
     for flow,demand in flows:
         src = get_host_from_ip(G, flow.nw_src)
@@ -95,8 +97,13 @@ def objective(graph, flows):
             continue
 
         path = widest_path(G, src, dst)
-        hops = [Hop(dpid=int(a[1:]), port=G.edge[a][b]['port']) 
-                for a,b in pairwise(path)]
+
+        hops = []
+        for a,b in pairwise(path):
+            hops.append(Hop(dpid=int(a[1:]), port=G.edge[a][b]['port']))
+            G.edge[a][b]['capacity'] -= demand
+            G.edge[b][a]['capacity'] -= demand
+
         rules[flow] = hops
 
     return rules
