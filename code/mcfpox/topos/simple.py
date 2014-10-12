@@ -17,16 +17,16 @@ from mininet.link import Link
 
 class SimpleTopo(Topo):
     def __init__(self):
-	Topo.__init__(self)
+        Topo.__init__(self)
 
-	# add hosts and switches
-	h1 = self.addHost('h1')
-	h2 = self.addHost('h2')
-	s1 = self.addSwitch('s1')
+        # add hosts and switches
+        h1 = self.addHost('h1')
+        h2 = self.addHost('h2')
+        s1 = self.addSwitch('s1')
 
-	# link them up
-	self.addLink(h1,s1)
-	self.addLink(h2,s1)
+        # link them up
+        self.addLink(h1,s1)
+        self.addLink(h2,s1)
 
 def startNetwork(network, switch, ip, routes):
     root = Node('root', inNamespace=False)

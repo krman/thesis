@@ -11,42 +11,42 @@ from mininet.link import TCLink
 class FatTreeTopo(Topo):
     def __init__(self):
         super(FatTreeTopo, self).__init__()
-	self.dpid_count = 1
-	print "dpid: label"
+        self.dpid_count = 1
+        print "dpid: label"
 
         # Create hosts
-	h = [0]
-	for i in range(1,9):
-	    label, opts = self.makeHost(i)
-	    h.append(self.addHost(label, **opts))
+        h = [0]
+        for i in range(1,9):
+            label, opts = self.makeHost(i)
+            h.append(self.addHost(label, **opts))
 
         # Create switches
-	s = [0]
-	for i in range(1,8):
-	    label, opts = self.makeSwitch(i)
-	    s.append(self.addSwitch(label, **opts))
-       
+        s = [0]
+        for i in range(1,8):
+            label, opts = self.makeSwitch(i)
+            s.append(self.addSwitch(label, **opts))
+
         # Connect hosts to switches 
-	self.addLink(h[1], s[4], bw=2)
-	self.addLink(h[2], s[4], bw=2)
-	self.addLink(h[3], s[5], bw=2)
-	self.addLink(h[4], s[5], bw=2)
-	self.addLink(h[5], s[6], bw=2)
-	self.addLink(h[6], s[6], bw=2)
-	self.addLink(h[7], s[7], bw=2)
-	self.addLink(h[8], s[7], bw=2)
+        self.addLink(h[1], s[4], bw=2)
+        self.addLink(h[2], s[4], bw=2)
+        self.addLink(h[3], s[5], bw=2)
+        self.addLink(h[4], s[5], bw=2)
+        self.addLink(h[5], s[6], bw=2)
+        self.addLink(h[6], s[6], bw=2)
+        self.addLink(h[7], s[7], bw=2)
+        self.addLink(h[8], s[7], bw=2)
 
         # Connect switches to switches
-	self.addLink(s[1], s[2], bw=1)
-	self.addLink(s[1], s[3], bw=1)
-	self.addLink(s[2], s[4], bw=1)
-	self.addLink(s[2], s[5], bw=1)
-	self.addLink(s[2], s[6], bw=1)
-	self.addLink(s[2], s[7], bw=1)
-	self.addLink(s[3], s[4], bw=1)
-	self.addLink(s[3], s[5], bw=1)
-	self.addLink(s[3], s[6], bw=1)
-	self.addLink(s[3], s[7], bw=1)
+        self.addLink(s[1], s[2], bw=1)
+        self.addLink(s[1], s[3], bw=1)
+        self.addLink(s[2], s[4], bw=1)
+        self.addLink(s[2], s[5], bw=1)
+        self.addLink(s[2], s[6], bw=1)
+        self.addLink(s[2], s[7], bw=1)
+        self.addLink(s[3], s[4], bw=1)
+        self.addLink(s[3], s[5], bw=1)
+        self.addLink(s[3], s[6], bw=1)
+        self.addLink(s[3], s[7], bw=1)
 
     def addSwitch(self, label, **opts):
         print "dpid {0}: {1}".format(self.dpid_count, label)
