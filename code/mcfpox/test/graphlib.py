@@ -106,6 +106,6 @@ def alfares_graph(k=4):
     base_ip = ipaddr.IPAddress('10.0.0.0')
     for h in range(1, hcount+1):
         label = "h{0}".format(h)
-        G.node[label]["ip"] = base_ip + h
+        G.node[label]["ip"] = str(base_ip + h)
 
     return G
