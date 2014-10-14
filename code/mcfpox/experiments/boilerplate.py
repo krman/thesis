@@ -29,7 +29,7 @@ def start_net(net, logs):
 
 
 def start_pox(logs, level={}, module='mcfpox.controller.base',
-              objective=None, rules=None):
+              objective=None, rules=None, poxdesk=False):
     
     log_level = {
         'INFO': True,
@@ -44,21 +44,32 @@ def start_pox(logs, level={}, module='mcfpox.controller.base',
         module: [{
             'objective': objective
         }],
-        'log.level': [log_level],
+        'log.level': [log_level]
     }   
+
+    if poxdesk:
+        args.update({
+            #'samples.pretty_log': [{}],
+            'web': [{}],
+            'messenger': [{}],
+            'messenger.log_service': [{}],
+            'messenger.ajax_transport': [{}],
+            'openflow.of_service': [{}],
+            'poxdesk': [{}],
+            'poxdesk.tinytopo': [{}],
+        })
     
     def start(components):
         from pox.boot import boot
         out_log = os.path.join(logs['log_dir'], 'pox.out')
         err_log = os.path.join(logs['log_dir'], 'pox.err')
-        print "starting pox"
         #sys.stdout = open(out_log, 'w')
-        print "fucking work"
         sys.stderr = open(err_log, 'w')
         boot({'components':components})
     
     process = Process(target=start, args=(args,))
     process.start()
+
     return process
     
 
@@ -162,7 +173,6 @@ def results(scenario, config, logs):
         "rules": rules,
         "logs": log_dir
     }
-    print summary
 
     with open("results.json", 'a') as f:
         f.write(json.dumps(summary, sort_keys=True, 

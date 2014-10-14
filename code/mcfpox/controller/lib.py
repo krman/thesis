@@ -43,8 +43,8 @@ class Entry(EqualityMixin):
         self.total = 0
 
     def __repr__(self):
-        return "flow {0} on switch {1}: {2} bytes recently".format(
-                self.flow, self.switch, self.recent)
+        return "flow {0} on switch {1}: {2} bytes recently, {3} total".format(
+                self.flow, self.switch, self.recent, self.total)
 
 
 def match_to_flow(match):

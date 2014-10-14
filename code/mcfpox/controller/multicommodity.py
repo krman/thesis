@@ -15,6 +15,7 @@ from mcfpox.controller.lib import Flow, Hop, Entry
 from mcfpox.objectives import shortest_path
 
 from collections import namedtuple
+import time
 
 log = core.getLogger()
 
@@ -45,19 +46,28 @@ class Multicommodity:
             ip = packet.next
             tcp = ip.next
             if str(ip.srcip) != '0.0.0.0':
-                flow = Flow(6, str(ip.srcip), str(ip.dstip), 
-                            tcp.srcport, tcp.dstport)
-                rules = shortest_path.objective(self.net.graph, [(flow,1e6)])
+                log.info("legit packetin {1}:{3} to {2}:{4} at {0}".format(
+                        time.clock(), str(ip.srcip), str(ip.dstip),
+                        tcp.srcport, tcp.dstport))
+                there = Flow(6, str(ip.srcip), str(ip.dstip), 
+                        tcp.srcport, tcp.dstport)
+                back = Flow(6, str(ip.dstip), str(ip.srcip), 
+                        tcp.dstport, tcp.srcport)
+                rules = shortest_path.objective(self.net.graph,
+                        [(back,0), (there,0)])
+                #log.info("got rules {0}".format(rules))
                 self._install_rule_list(rules)
 
 
     def _install_forward_rule(self, msg, hops):
-        #string = ""
+       # string = ""
         for switch in hops:
             msg.actions = []
             msg.actions.append(of.ofp_action_output(port = switch.port))
             #string += "{0}.{1} ".format(switch.dpid,switch.port)
+            print "{0}.{1}".format(switch.dpid, switch.port),
             core.thesis_base.switches[switch.dpid].connection.send(msg)
+        print
         #log.info(string)
 
 
@@ -72,7 +82,7 @@ class Multicommodity:
             ts, td = flow.tp_src, flow.tp_dst
             msg.match.tp_src = None if ts is None else int(ts)
             msg.match.tp_dst = None if td is None else int(td)
-            #log.info("Installing rule: {0}".format(flow))
+            print "Installing rule for {0}:".format(flow, time.clock()),
             self._install_forward_rule(msg, hops)
         
 
@@ -85,9 +95,12 @@ class Multicommodity:
 
     def _solve_mcf(self):
         log.info("Flows are " + str(self.flows))
-        print "testing? ROBOTS"
+        print "\nStarting objective with flows:"
+        for flow, demand in self.flows:
+            print "{0}: {1} bps".format(flow, demand)
         rules = self.objective(self.net.graph, self.flows)
         log.info("Rules are " + str(rules))
+        print
         self._install_rule_list(rules)
 
 
