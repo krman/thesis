@@ -54,3 +54,4 @@ code/MANIFEST
 *.png
 *.ods
 .~lock*
+code/mcfpox/experiments/log*
