@@ -87,17 +87,29 @@ def start_iperf(src, dst, port, bw, server_log, client_log):
     src.cmd(client_cmd)
 
 
+def discover_hosts(all_hosts):
+    print "\nARPing"
+    h1 = next(iter(all_hosts))
+    for h in all_hosts:
+        cmd = "ping -c1 {0} &".format(h.IP())
+        print cmd
+        h1.cmd(cmd)
+
+
 def start_flows(flow_schedule, net, logs):
     s = sched.scheduler(time.time, time.sleep)
     port = 5001
     flow_logs = []
     log_dir = logs['log_dir']
 
+    all_hosts = set([])
+
     longest_delay = 0
     for delay, flows in flow_schedule.iteritems():
         for flow in flows:
             src = net.get(flow[0])
             dst = net.get(flow[1])
+            all_hosts |= set([src,dst])
             bw = flow[2]
             
             server_log = 'server.{0}.{1}'.format(dst, port)
@@ -112,9 +124,12 @@ def start_flows(flow_schedule, net, logs):
 
     logs['flows'] = flow_logs
     time.sleep(1)
+
     print "\nStarting scheduled flows: iperf output in server/client logs"
+    s.enter(10, 1, discover_hosts, (all_hosts,))
     s.run()
     print
+
     time.sleep(longest_delay+15)
                   
                   
