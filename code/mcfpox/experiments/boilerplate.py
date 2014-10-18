@@ -2,6 +2,7 @@
 Some experiment boilerplate.
 """
 
+import re
 import os
 import sys
 import json
@@ -9,6 +10,7 @@ import time
 import sched
 import subprocess
 from multiprocessing import Process
+from termcolor import colored
 
 from mininet.cli import CLI
 from mininet.log import setLogLevel
@@ -77,7 +79,7 @@ def start_iperf(src, dst, port, bw, server_log, client_log):
     server_cmd = "iperf3 -s -p {0} &> {1} &".format(
             port, server_log)
 
-    client_cmd = "iperf3 -c {0} -p {1} -b {2} -t 10 -J -l 1K &> {3} &".format(
+    client_cmd = "iperf3 -c {0} -p {1} -b {2} -t 10 -l 1K -O 10 -J &> {3}&".format(
             dst.IP(), port, bw, client_log)
 
     print "Flow: {0} from {1} ({2}) to {3} ({4})".format(
@@ -87,29 +89,17 @@ def start_iperf(src, dst, port, bw, server_log, client_log):
     src.cmd(client_cmd)
 
 
-def discover_hosts(all_hosts):
-    print "\nARPing"
-    h1 = next(iter(all_hosts))
-    for h in all_hosts:
-        cmd = "ping -c1 {0} &".format(h.IP())
-        print cmd
-        h1.cmd(cmd)
-
-
 def start_flows(flow_schedule, net, logs):
     s = sched.scheduler(time.time, time.sleep)
-    port = 5001
+    port = 5101
     flow_logs = []
     log_dir = logs['log_dir']
-
-    all_hosts = set([])
 
     longest_delay = 0
     for delay, flows in flow_schedule.iteritems():
         for flow in flows:
             src = net.get(flow[0])
             dst = net.get(flow[1])
-            all_hosts |= set([src,dst])
             bw = flow[2]
             
             server_log = 'server.{0}.{1}'.format(dst, port)
@@ -126,7 +116,6 @@ def start_flows(flow_schedule, net, logs):
     time.sleep(1)
 
     print "\nStarting scheduled flows: iperf output in server/client logs"
-    s.enter(10, 1, discover_hosts, (all_hosts,))
     s.run()
     print
 
@@ -150,7 +139,8 @@ def start(scenario, config, log_dir=None):
         print "Exiting on user command"
         raise
     finally:
-        print "End of experiment"
+        print
+        print colored("End of experiment:", "green", attrs=['bold']),
 
     return results(scenario, config, logs)
 
@@ -158,19 +148,29 @@ def start(scenario, config, log_dir=None):
 def results(scenario, config, logs):
     log_dir = logs['log_dir']
     recv = []
+
+    src_pattern = re.compile("client.(h[0-9]+).server.(h[0-9]+).([0-9]+)")
+
+    print
     
     for slog, clog in logs['flows']:
         server_log = os.path.join(log_dir, slog)
         client_log = os.path.join(log_dir, clog)
-    
+
+        src_host, dst_host, dst_port = src_pattern.match(clog).groups()
+        
         with open(client_log, 'r') as f:
             try:
                 j = json.load(f)
                 r = j['end']['sum_received']['bits_per_second']
                 recv.append(r)
             except ValueError:
+                r = 0.0
                 recv.append(0)
         
+        string = "{0} - {1}:{2}: {3}".format(src_host, dst_host, dst_port, r)
+        print colored(string, "green")
+    
     pox_log = os.path.join(log_dir, "pox.err")
     process = subprocess.Popen(["grep", "Rules", pox_log],
                     stdout=subprocess.PIPE)
@@ -184,10 +184,13 @@ def results(scenario, config, logs):
     summary = {
         "scenario": scenario,
         "config": config,
-        "results": r,
+        "results": recv,
         "rules": rules,
         "logs": log_dir
     }
+
+    string = "Total throughput {0} Mbps".format(sum(recv)/1e6)
+    print colored(string, "green", attrs=['bold'])
 
     with open("results.json", 'a') as f:
         f.write(json.dumps(summary, sort_keys=True, 
