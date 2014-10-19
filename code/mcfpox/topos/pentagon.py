@@ -28,7 +28,7 @@ class PentagonTopo(Topo):
         s = [0] + [self.addSwitch(label, **opts) for label,opts in switches]
 
         # link them up
-        linkopts = dict(bw=20)
+        linkopts = dict(bw=10)
         self.addLink(h[1],s[1], bw=20)
         self.addLink(h[2],s[5], bw=20)
         self.addLink(s[1],s[2], **linkopts)

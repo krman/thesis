@@ -37,21 +37,21 @@ class AlFaresTopo(Topo):
                 label = "s{0}".format(dpid)
                 switch = self.addSwitch(label)
                 aggregation.append(switch)
-                [self.addLink(switch,c) for c in core[s:(k/2)**2:k/2]]
+                [self.addLink(switch,c,bw=10) for c in core[s:(k/2)**2:k/2]]
 
             # Add edge switches: k^2/2
             for s in range(k/2, k):
                 dpid += 1
                 label = "s{0}".format(dpid)
                 switch = self.addSwitch(label)
-                [self.addLink(switch,a) for a in aggregation]
+                [self.addLink(switch,a,bw=10) for a in aggregation]
 
                 # Add hosts: k/2 per edge switch
                 for i in range(k/2):
                     hcount += 1
                     label = "h{0}".format(hcount)
                     host = self.addHost(label)
-                    self.addLink(switch, host)
+                    self.addLink(switch,host,bw=20)
 
 
 
@@ -63,7 +63,7 @@ def create_net(k=4, **kwargs):
 
 if __name__ == "__main__":
     setLogLevel('output')
-    net = create_net(controller=RemoteController, k=4)
+    net = create_net(controller=RemoteController, k=2)
     net.start()
     CLI(net)
     net.stop()
