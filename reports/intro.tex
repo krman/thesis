@@ -6,7 +6,9 @@ OpenFlow is designed to allow centralised control but is still very low-level, b
 
 There have been some movements in the SDN world to create a layer above the controller layer for this very reason. This must be true, I swear I've heard of people saying this. Such efforts, examples given, are generally aimed at system and network administrators and designed to not require any programming input. These systems are generally seen as a natural progression of the layer model as applied to network design.
 
-The framework developed in this thesis is aimed somewhere to the middle, and a little to the side. There is an audience of people who work with algorithms, and there is an audience of people who know what OpenFlow is, and there is a skilled subset of people who are skilled at both. This software is not aimed at people who don't know how to code at all, but rather operations researchers who are skilled in linear programming in Python. The goal of the software is to make it easy to test different methods of routing. Probably most of this doesn't belong in the introduction.
+The framework developed in this thesis is aimed somewhere to the middle, and a little to the side. There is an audience of people who work with algorithms, and there is an audience of people who know what OpenFlow is, and there is a skilled subset of people who are skilled at both. This software is not aimed at people who don't know how to code at all, but rather operations researchers who are skilled in linear programming in Python, actually probably just people in general who are have ideas about different metrics that could be used without going to all the effort of writing a controller and stuff. The goal of the software is to make it easy to test different methods of routing. 
+
+designed as the beginning of a larger project run by my supervisor marius portmann. this thesis focuses on the routing aspects. basic modules for statistics gathering and topology discovery were implemented to the extent required to make the system functional, but others in the sdn group are working on them. eventually the system will be used for routing in wireless mesh networks which will produce extra challenges in gathering prereq information etc but i've just written it assuming i have good data. or something.
 
 \section{Aims}
 
@@ -18,7 +20,7 @@ To perform some basic analysis using the framework, both to demonstrate its use 
 
 \section{Scope}
 
-Only care about TCP over IP traffic. hmmm and UDP
+Only care about TCP over IP traffic.
 
 Only care about autonomous systems in the routing sense.
 
@@ -32,13 +34,4 @@ Also implement a series of topologies in Mininet, a selection of objective funct
 
 Use these to perform some basic analysis, demonstrating how to compare objective functions. Deliverable: graphs.
 
-Full test suite including analysis of code coverage.
-
 Full documentation including the many dependencies.
-
-\begin{figure}
-    \begin{center}
-        \includegraphics{figures/openflow-fig2.pdf}
-        \caption{The diamond topology used as a baseline for benchmarking.} This topology is insanely great.
-    \end{center}
-\end{figure}

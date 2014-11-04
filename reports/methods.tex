@@ -1,35 +1,28 @@
 \chapter{Methodology}
 
-The goal of this thesis is to implement a controller to do optimal routing in a mesh network, with comparable or better performance than existing solutions available, assuming that the controller has topology and link capacity information and a route to each switch in the network. The problem can be initially modelled as a multi-commodity flow problem and solved using standard optimisation techniques.
+The goal of this thesis is to implement a configurable controller which can be used in network experiments to compare the performance of different routing algorithms. For the purposes of this thesis, performance is measured exclusively in terms of overall throughput in the network. In order to measure throughput for different routing metrics, a series of network experiments are devised. Chapter CHAPTER outlines the basic layout of the controller. Chapter CHAPTER outlines the three routing metrics which will be compared; the shortest-path metric, given its simplicity and the number of traditional routing metrics which are based on it, can be considered a control or benchmark by which the other two metrics can be compared.
 
-In order to assess the performance of the controller, a set of meaningful network tests will be devised and the controller's performance benchmarked against that of a selection of existing techniques for software-defined networking in wireless mesh networks.
+All network experiments follow a defined pattern. Figure FIGURE shows the timing of each experiment trial. Firstly, POX and Mininet are started. There is a non-trivial setup time for Mininet topologies to be created, followed by a non-trivial time for POX's discovery module to discover the network. After waiting for this to occur (20 seconds is enough time for the largest topology considered for this thesis), a series of iperf flows are started, limited to a specified bandwidth. For the first 10 seconds, iperf simply sends data at a maximum of this specified bandwidth, but ignores the number of bytes sent for this period. This is because the throughput for the flow will be lower than expected, for several reasons: the TCP slow-start period, the time taken for ARP requests and replies to be exchanged, and for the controller to be notified of the hosts involved and set an initial path. After 10 seconds, the controller's multicommodity module recalculates all routes in the network according to the objective function used, and replaces the initial flow rules with updated forwarding rules based on these routes. The iperf clients continue to send data at the same rates for this period, but begin to record the number of bytes sent and received, and do so for 10 seconds. A few seconds after this, to give iperf time to write this data to log files, the experiment concludes and the controller and Mininet are shut down, including all iperf servers and clients still running.
 
-The project can be divided into a number of steps:
-
-\begin{enumerate}
-\item Compile an overview of common approaches, and select a representative sample which can be experimentally reproduced; implement a working version of each selected approach
-\item Mathematically model the proposed new controller; implement it in POX
-\item Explicitly define the performance objectives and benchmarking metrics; design a set of topologies to capture performance differences between approaches; outline a range of network events to simulate in Mininet 
-\item Conduct benchmarking of existing approaches and new controller; note relative performance on various metrics, and improve controller based on benchmarking results
-\end{enumerate}
+The topology, flow pattern and routing metric considered can all be configured via a simple launch script, such as the sample shown in Figure FIGURE. The following sections explain how to firstly select these parameters so that useful information can be obtained, and secondly to write experiment scripts to run the desired experiment. 
 
 \section{Experiment Design}
-A suitable control still needs to be used. Depending on the specific experiment (ie at what level you want to compare) a different one could be chosen. For these purposes the following are available:
+While it is possible to use mcfpox to run experiments using many combinations of topologies and flow patterns, not all of these combinations will yield useful data. For example, if all flows in a pattern are much larger or smaller than the link capacities in the topology, either all flows will be constrained or none will be. A carefully-selected combination, however, will yield a situation where flows will only be constrained if an inefficient routing metric is used, but not otherwise. In such a situation it is possible to measure the variation in performance for the two routing metrics.
 
-\begin{itemize}
-\item Plain mininet with switches running traditional routing algorithms (whatever these are)
-\item POX's \texttt{forwarding.l2\_learning} controller
-\item Shortest-path routing objective function (not PuLP/LP, but still uses rest of framework)
-\end{itemize}
+As noted in ANOTHER SECTION, due to constraints on link discovery all implemented topologies have 10 Mbps links between switches. The experiments in this thesis therefore examine flows with sizes ranging from 1 - 9 Mbps. The exact flow patterns used depend on the topology:
 
+- pentagon: two flows between h1 and h2 of the same size, in the range [1,9] Mbps.
+- manhattan, alfares: each host connected to one random other, flows of the same size in the range [1-9] Mbps
 
-This chapter outlines in more detail the process of conducting these benchmarks and gathering data and stuff.
+The pentagon topology is used as a test of the whole system; i.e., inefficient routing such as shortest path will always lead to both flows being routed along the same path, whereas other metrics may load-balance the flows across the two paths.
+
+a table about different objectives/flow patterns/topology combinations or something.
 
 \section{Experiment Scripts}
-This section talks about the APIs and conventions etc.
+This section talks about the APIs and conventions etc. basic idea is you can specify topology elsewhere and import that module, same with the routing metric you want to use, then for a given experiment trial just pull in the specific stuff you want. so this section is like 'once you've decided what trials you want to run, how do you write code to make that happen'.
 
 \subsection{Scenarios}
-Have a set topology, flows and so on.
+Have a set topology, flows and so on. hedera paper went to some effort to test different flow patterns, like 'random', 'strides' etc. i guess i just went with random and that aggregation/pod thing. 
 
 \subsection{Controllers}
 In order to properly measure certain parts of the system individually and guarantee that results are due to one specific section you need to inject mock data at certain parts of the system.
@@ -37,14 +30,12 @@ In order to properly measure certain parts of the system individually and guaran
 The system lets you specify callbacks to be used in the following places.
 
 \begin{itemize}
-\item fake flows
 \item forwarding rules
 \item objective function
-\item fake topology
 \end{itemize}
 
 This should actually be content taken roughly from the "writing experiment scripts" chapters of the documentation, and the section which talks about individual things, what's the word, injecting mock data.
 
 \section{Emulation Hardware}
 
-Mininet's scalability is dependent on the specfications of the host machine running the virtual network. The network experiments in this thesis were run on a quad-core i5-4670K (3.4 GHz) desktop with 4 GB RAM.
+Mininet's scalability is dependent on the specfications of the host machine running the virtual network. the network experiments in this thesis were run on a quad-core i5-4670K (3.4 GHz) desktop with 4 GB RAM. how do you write things about computers

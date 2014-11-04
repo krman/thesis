@@ -1,22 +1,31 @@
-\chapter{Algorithm Design}
+\chapter{Algorithm Selection}
 
-end to end flow is important
+not sure what this chapter should be called. Routing Metrics? something
 
-aggregation of flows is important
+some smart dudes \cite{bonsma:ufp}, \cite{anag:mazing} and \cite{chakrabarti:ufp} did some maths. hedera used some options something.
 
-some smart dudes \cite{bonsma:ufp}, \cite{anag:mazing} and \cite{chakrabarti:ufp}
-
-\section{The Unsplittable Flow Problem}
-tcp imposes two significant restrictions:
+need to pick a few routing metrics to test out the whole system and stuff. selected these three to compare based on the idea that it's a transition from naive/fixed to globally-optimal routing. copypaste from poster. can then see if it's actually worthwhile to do all this global stuff.
 
 \begin{enumerate}
-	\item everything goes to shit if you send things down multiple paths
-	\item tcp slows down its sending rate if you lose packets, so demand changes
+  \item shortest path
+  \item widest path
+  \item maximum residual capacity
 \end{enumerate}
 
-The following is a formulation of the unsplittable flow problem as adapted from Walkowiak \cite{walkowiak:residual}. This thesis will compare several different formulations and objective functions, originally presented by different authors, but they will be described using the notation defined in \cite{walkowiak:residual} for clarity and ease of comparison.
+\section{Shortest Path}
+this is the easiest thing in the world, minimise hops, don't consider other flows at all or even anything about capacities. can just use dijkstra or whatever.
 
-Begin with a network $G$ with vertices $V$ and edges $E$, with edge capacities $c : E \rightarrow \mathbb{R}^+$. The set $P$ comprises $p$ commodities to be routed through $G$, where the $i$th commodity corresponds to a flow with a source $s_i \in V$, destination $t_i \in V$ and demand $d_i \in \mathbb{R}^+$. For each $i \in P$, there are $l_i$ possible routes between $s_i$ and $t_i$, so define the set $\Pi_i = \{\pi_i^k : k = 1, ..., l_i\}$ to represent these.
+\section{Widest Path}
+uh... i actually wrote some stuff for this... ugh... no... i was going to look at that code... ugh... no...
+
+but basically you can do this by modifying dijkstra a bit. i'll find that piece of paper that described the algorithm i used i guess and write it up here all mathsy-like
+
+anyway, idea with this one is that you still route flows one by one, but for each flow you intelligently consider where to place it, considering the capacities of links in the network (including subtracting flows already placed).
+
+\section{Maximum Residual Capacity}
+The following is a formulation of the unsplittable flow problem as adapted from Walkowiak \cite{walkowiak:residual}. This thesis will compare several different formulations and objective functions, originally presented by different authors, but they will be described using the notation defined in \cite{walkowiak:residual} for clarity and ease of comparison. haha this is a lie.
+
+Begin with a network $G$ with vertices $V$ and edges $E$, with edge capacities $c : E \rightarrow \mathbb{R}^+$. The set $P$ comprises $p$ commodities to be routed through $G$, where the $i$th commodity corresponds to a flow with a source $s_i \in V$, destination $t_i \in V$ and demand $d_i \in \mathbb{R}^+$. For each $i \in P$, there are $l_i$ possible routes between $s_i$ and $t_i$, so define the set $\Pi_i = \{\pi_i^k : k = 0, ..., l_i\}$ to represent these.
 
 In the unsplittable flow problem, each commodity must be routed entirely along one path. Each potential path $\pi_i^k$ is therefore associated with a corresponding variable $x_i^k \in \{0,1\}$, indicating whether that path was chosen for commodity $i$. The total traffic across edge $j \in E$ must be less than the capacity of the link. The constant $a_{ij}^k \in \{0,1\}$ indicates whether path $\pi_i^k$ uses edge $j \in E$.
 
@@ -34,6 +43,3 @@ The problem can be expressed as a linear program as follows.
 \end{align}
 
 In short: the goal is to maximise $z$. Constraint (3.5) defines $z$ so that for every edge (or link), the spare capacity on that link is at least $z$. The total traffic routed through each link, defined in (3.3), must be less than its capacity, by (3.4). Each possible route for a given commodity is either selected or not, and only one route per commodity is selected, by (3.2) and (3.1) respectively.
-
-\newpage
-when i get home, write out how to formulate this in the standard form expected by algorithms and pulp and stuff. eg there was that stackoverflow question saying how to change (3.3) from the weird 3 variable thing into a standard linear equation constraint, coz 2 of the variables are binary, so you can fix it. yeah. 2 variables are binary and 1 is constant defined at the start (well, as constant as demand can be).

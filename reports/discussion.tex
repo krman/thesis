@@ -2,3 +2,15 @@
 \label{ch:discussion}
 
 The results sure were great.
+
+well. they were pretty much as expected. discuss them i guess.
+
+stats-gathering is really hard and it is sensitive to it. i think some people thought about it but it's worth a whole thesis on its own really.
+
+somewhat limited by not being able to discover link capacities (whatshisname is doing his thesis on it so it's a separate/big problem). meant had to use topos with constant capacities and in practical terms identical capacities. considered writing a thing to let you fake the topo too but w/ever.
+
+scalability is bleeping terrible. even the state-of-the-art solving things for the linear programming way are "large" polynomial time, dunno how you say that, high order polynomials, and those are approximations. i think it's stupid to be solving it from scratch every time. i think there are going to be flows that are fairly constant. especially if you aggregate flows so you don't get heaps of 2-second requests or whatever. if you have flows hanging around, you can use your results from the last time you solved it and just modify it. it's just linear algebra, saving matrices can't be that hard, well, it is otherwise i would have done it, but yeah, that's my opinion on how we should solve the scalability problem. i think lots of optimisation is based around the idea that if you already have a pretty good guess your life is a lot easier. but this is a bit sensicaldsafldskfjlsdjfls lsdkfjsdlf sleepy
+
+also only considering shortish paths helped  a lot but now we're in the territory of considering different things, but yeah, solving something globally usually means considering a LOT of paths, and doing lots of maths for each, that's hard.
+
+as far as the software is concerned i think it worked well. lets me do experiments i guess.
