@@ -7,38 +7,104 @@ Also all testing will be done entirely in software, no real switches will be use
 \section{Comparison of Routing Metrics}
 Analysis goes here. dunno what to call this, routing performance or whatever. something title-capsy.
 
+\begin{figure}
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    xlabel = Aggregate offered load (Mbps),
+    ylabel = Mean aggregate throughput (Mbps),
+    xmin=0, xmax=120, ymin=0, ymax=70,
+    scale only axis
+  ]
 
-\begin{table}[H]
-  \begin{center}
-    \begin{tabular}{@{}rllr@{}}
-      \toprule
-      & Task & Duration & Completion\\
-      \midrule
-      & Establish project definition and scope & 1 week & 6 March \\
-      & Set up environment (Mininet,  POX) & 1 week & 14 March \\
-      \emph{Assessment} & Project proposal & 2 weeks & 27 March \\
-      & Set up test suite (topologies, network events) & 1 week & 4 April \\
-      & Implement selection of existing designs & 1 week & 11 April \\
-      & Model proposed design & 1 week & 18 April \\
-      & Begin implementing proposed design & 2 weeks & 2 May \\
-      & Benchmark new controller against existing & 1 week & 9 May \\
-      \emph{Assessment} & Progress seminar & 2 weeks & 19-23 May \\
-      \addlinespace
-      & \emph{Coursework examinations/semester break} \\
-      \addlinespace
-      & Write up current progress in thesis report & 2 weeks & 8 Aug\\
-      & Revise test suite as necessary & 2 weeks & 22 Aug\\
-      & Iteratively develop/test new controller & 5 weeks & 26 Sept\\
-      & Gather final benchmarking results & 2 weeks & 10 Oct \\
-      \emph{Assessment} & Project demonstration & 2 weeks & 20-24 Oct \\
-      & Respond to demonstration feedback & 1 week & 31 Oct \\
-      \emph{Assessment} & Thesis report & 3 weeks & 10 Nov \\
-      \bottomrule
-    \end{tabular}
-    \caption{Make tables that look as attractive as this one}
-    \label{table:schedule}
-  \end{center}
-\end{table}
+  \addplot[scatter, scatter src=\thisrow{class},
+      error bars/.cd, y dir=both, x dir=both, y explicit, x explicit, error bar style={draw=none}]
+      table[x=x,y=y,x error=xerr,y error=yerr] {
+    x       xerr    y        yerr       class
+    0 0 0 0 0
+    1 0 0.5233626 0 0
+    3 0 2.4087152 0 0
+    5 0 3.5592573 0 0
+    7 0 5.762373  0 0
+    9 0 8.3855359 0 0
+    11  0 10.0891018  0 0
+    13  0 10.3842113  0 0
+    15  0 10.9418756  0 0
+    21  0 11.196595 0 0
+    25  0 14.220054 0 0
+    35  0 20.597453 0 0
+    45  0 28.4402179  0 0
+    49  0 28.8025593  0 0
+    55  0 30.2096573  0 0
+    63  0 30.2932245  0 0
+    65  0 32.0205427  0 0
+    75  0 34.8129119  0 0
+    77  0 30.8807939  0 0
+    91  0 30.8843334  0 0
+    105 0 28.1190057  0 0
+  };
+
+
+  \addplot[scatter, scatter src=\thisrow{class},
+      error bars/.cd, y dir=both, x dir=both, y explicit, x explicit, error bar style={draw=none}]
+      table[x=x,y=y,x error=xerr,y error=yerr] {
+    x       xerr    y        yerr       class
+    0 0 0 0 0
+    1 0 0.911334  0 0
+    3 0 2.968354  0 0
+    5 0 4.13075065  0 0
+    7 0 5.1164835 0 0
+    9 0 10.7210935  0 0
+    11  0 10.6638835  0 0
+    13  0 10.108582 0 0
+    15  0 10.0703918  0 0
+    21  0 11.6003224  0 0
+    25  0 20.527074 0 0
+    35  0 20.793514 0 0
+    45  0 39.074855 0 0
+    49  0 33.1735586  0 0
+    55  0 40.50877  0 0
+    63  0 37.815874 0 0
+    65  0 42.2256273  0 0
+    75  0 42.691425 0 0
+    77  0 45.0346897  0 0
+    91  0 43.6423792  0 0
+    105 0 61.2153794  0 0
+  };
+
+
+  \addplot[scatter, scatter src=\thisrow{class},
+      error bars/.cd, y dir=both, x dir=both, y explicit, x explicit, error bar style={draw=none}]
+      table[x=x,y=y,x error=xerr,y error=yerr] {
+    x       xerr    y        yerr       class
+    0 0 0 0 0
+    1 0 3.34752325  0 0
+    3 0 4.14193875  0 0
+    5 0 4.504648  0 0
+    7 0 8.68050385  0 0
+    9 0 17.1164394  0 0
+    11  0 16.555942725  0 0
+    13  0 14.88846265 0 0
+    15  0 15.6809798  0 0
+    21  0 20.1572935  0 0
+    25  0 28.3662994  0 0
+    35  0 25.3032905  0 0
+    45  0 35.652433425  0 0
+    49  0 35.651522775  0 0
+    55  0 41.6621008  0 0
+    63  0 38.4004853  0 0
+    65  0 40.1076881  0 0
+    75  0 40.547581725  0 0
+    77  0 28.262232875  0 0
+    91  0 20.482859125  0 0
+    105 0 11.444907875  0 0
+  };
+
+  \end{axis}
+\end{tikzpicture}
+\caption{A great graph}
+\label{fig:graph}
+\end{figure}
 
 \begin{table}
 \caption{Summary of incredible achievements}

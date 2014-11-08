@@ -25,4 +25,4 @@ proposal: proposal.tex
 	pdflatex -jobname=Proposal $@
 
 clean:
-	rm -f *.aux *.log *.bbl *.blg *.glo *.ist *.lof *.lot *.toc *.lol
+	rm -f *.aux *.log *.bbl *.blg *.glo *.ist *.lof *.lot *.toc *.lol *.out

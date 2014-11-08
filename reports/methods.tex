@@ -9,6 +9,13 @@ The topology, flow pattern and routing metric considered can all be configured v
 \section{Experiment Design}
 While it is possible to use mcfpox to run experiments using many combinations of topologies and flow patterns, not all of these combinations will yield useful data. For example, if all flows in a pattern are much larger or smaller than the link capacities in the topology, either all flows will be constrained or none will be. A carefully-selected combination, however, will yield a situation where flows will only be constrained if an inefficient routing metric is used, but not otherwise. In such a situation it is possible to measure the variation in performance for the two routing metrics.
 
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.8]{../images/timing.pdf}
+  \caption{Timing of events in each trial}
+  \label{fig:timing}
+\end{figure}
+
 As noted in ANOTHER SECTION, due to constraints on link discovery all implemented topologies have 10 Mbps links between switches. The experiments in this thesis therefore examine flows with sizes ranging from 1 - 9 Mbps. The exact flow patterns used depend on the topology:
 
 - pentagon: two flows between h1 and h2 of the same size, in the range [1,9] Mbps.
@@ -16,7 +23,42 @@ As noted in ANOTHER SECTION, due to constraints on link discovery all implemente
 
 The pentagon topology is used as a test of the whole system; i.e., inefficient routing such as shortest path will always lead to both flows being routed along the same path, whereas other metrics may load-balance the flows across the two paths.
 
-a table about different objectives/flow patterns/topology combinations or something.
+a table about different objectives/flow patterns/topology combinations or something is Table \ref{tab:patterns}. the pentagon topo is in \ref{fig:pentagon} and the alfares one in \ref{fig:alfares}.
+
+\begin{figure}
+%\begin{figure}
+  \centering
+  \includegraphics[scale=0.8]{../images/pentagon.pdf}
+  \caption{Pentagon topology (`pentagon')}
+  \label{fig:pentagon}
+%\end{figure}
+
+  \vspace{2cm}
+
+
+%\begin{figure}
+  %\centering
+  \includegraphics[scale=0.6]{../images/alfares.pdf}
+  \caption{Al-Fares fat-tree topology (`alfares')}
+  \label{fig:alfares}
+%\end{figure}
+\end{figure}
+
+\begin{table}
+  \centering
+  \begin{tabular}{p{3cm}p{4cm}p{5cm}}
+    \toprule
+    Topology & Pattern & Description \\
+    \midrule
+    pentagon & \parbox[t]{4cm}{bidirectional($b$) \\ 2 flows \strut} & \parbox[t]{5cm}{h1 - h2, $b$ Mbps \\ h2 - h1, $b$ Mbps \\ $b = 1,2,..,10$\strut} \\
+    \midrule
+    \multirow{2}{*}{\vspace{0.65cm}alfares} & \parbox[t]{4cm}{pairs($b$) \\ 8 flows\strut} & \parbox[t]{5cm}{8 random pairs from h1-h16 such that each host is part of exactly one $b$ Mbps flow \\ $b = 1,2,..,10$\strut} \\
+    & \parbox[t]{4cm}{random($n$,$b$) \\ $n$ flows\strut} & \parbox[t]{5cm}{$n$ random pairs from h1-h16 Hosts may appear in more than one pair or none but no pair is repeated \\ $b$ = 1,5,7} \\
+    \bottomrule
+  \end{tabular}
+  \caption{Traffic patterns studied for each topology}
+  \label{tab:patterns}
+\end{table}
 
 \subsection{Mininet}
 Mininet is a network emulator which uses container-based emulation \cite{handigol:mininet} to create a virtual network of hosts and switches. Mininet makes it simple to run reproducible network experiments under realistic conditions, with topologies and behaviour programmable in Python. The resources allocated to each host can be controlled and monitored, and benchmarking \cite{handigol:benchmarks} has generally shown that the performance and timing characteristics are accurate. OpenFlow-enabled switches such as OpenVSwitch can be used in the simulations so the system is ideal for SDN research.
@@ -25,6 +67,32 @@ Mininet is a network emulator which uses container-based emulation \cite{handigo
 
 \section{Experiment Scripts}
 This section talks about the APIs and conventions etc. basic idea is you can specify topology elsewhere and import that module, same with the routing metric you want to use, then for a given experiment trial just pull in the specific stuff you want. so this section is like 'once you've decided what trials you want to run, how do you write code to make that happen'.
+
+\begin{figure}
+\begin{lstlisting}
+from mcfpox.topos import alfares
+from mcfpox.objectives import shortest_path
+from mcfpox.experiments.boilerplate import start
+
+pairs = [('h1','h8'), ('h8','h1')]
+flows = {
+    19: [(i,j,bw) for i,j in pairs]
+}
+
+scenario = {
+    'net': alfares,
+    'flows': flows
+}
+
+controller = {
+    'objective': shortest_path.objective,
+}
+
+results = start(scenario, controller)
+\end{lstlisting}
+\caption{Sample experiment script}
+\label{fig:script}
+\end{figure}
 
 \subsection{Scenarios}
 Have a set topology, flows and so on. hedera paper went to some effort to test different flow patterns, like 'random', 'strides' etc. i guess i just went with random and that aggregation/pod thing. 
