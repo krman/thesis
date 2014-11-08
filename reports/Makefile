@@ -13,10 +13,10 @@ figures:
 	make -C figures
 
 main: main.tex $(FILES)
-	pdflatex -jobname=Thesis $@
+	pdflatex -jobname=Thesis main.tex
 	bibtex Thesis.aux
-	pdflatex -jobname=Thesis $@
-	pdflatex -jobname=Thesis $@
+	pdflatex -jobname=Thesis main.tex
+	pdflatex -jobname=Thesis main.tex
 
 proposal: proposal.tex
 	pdflatex -jobname=Proposal $@

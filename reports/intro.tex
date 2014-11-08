@@ -1,14 +1,26 @@
 \chapter{Introduction}
+\label{ch:intro}
 
-This thesis presents \thesis{}, a framework designed to ease research into linear programming techniques as applied to centrally-controlled, software-defined networks.
+Software-defined networking (SDN) is a set of philosophies and concepts on how networks should be designed. The core idea is separation of the control and data planes; specifically, separation in a way that is standards-compliant and vendor-independent. Although the movement is not intrinsically tied to any specific technologies, the OpenFlow protocol is quite strongly linked to it. In a software-defined network, a central controller makes global decisions on routing and network policy (the `control' plane) and sends OpenFlow control messages to instruct switches to update their individual forwarding tables where necessary (the `data' plane).
 
-OpenFlow is designed to allow centralised control but is still very low-level, being a network protocol. There now exist a number of projects which are designed to act as extensible SDN controllers, providing a barrier between the user and the implementation of actually sending out network packets, so that the programmer can simply use provided software APIs to construct and interpret OpenFlow messages. However, this still requires a certain level of understanding of OpenFlow and network programming and functions more in the way of a convenience for programmers than a simple interface for end-users to use.
+OpenFlow is fundamentally a low-level network protocol. There now exist a number of projects which are designed to act as extensible SDN controllers, so that a programmer can simply use provided software APIs to construct and interpret OpenFlow messages instead of directly sending network packets. However, this still requires understanding of OpenFlow and network programming and functions as a convenience for programmers rather than a simple interface for end users.  Most descriptions of SDN architectures include a layer above the control layer, often called the `application' layer, for this reason. These systems are generally seen as a natural progression of the layer model as applied to network design.
 
-There have been some movements in the SDN world to create a layer above the controller layer for this very reason. This must be true, I swear I've heard of people saying this. Such efforts, examples given, are generally aimed at system and network administrators and designed to not require any programming input. These systems are generally seen as a natural progression of the layer model as applied to network design.
+This thesis presents \thesis{}, a framework designed to ease research into optimisation techniques as applied to centrally-controlled, software-defined networks. 
+
+
+
+
+
+
+
+
+
+
 
 The framework developed in this thesis is aimed somewhere to the middle, and a little to the side. There is an audience of people who work with algorithms, and there is an audience of people who know what OpenFlow is, and there is a skilled subset of people who are skilled at both. This software is not aimed at people who don't know how to code at all, but rather operations researchers who are skilled in linear programming in Python, actually probably just people in general who are have ideas about different metrics that could be used without going to all the effort of writing a controller and stuff. The goal of the software is to make it easy to test different methods of routing. 
 
-designed as the beginning of a larger project run by my supervisor marius portmann. this thesis focuses on the routing aspects. basic modules for statistics gathering and topology discovery were implemented to the extent required to make the system functional, but others in the sdn group are working on them. eventually the system will be used for routing in wireless mesh networks which will produce extra challenges in gathering prereq information etc but i've just written it assuming i have good data. or something.
+
+\thesis{} is designed as the beginning of a larger project developed by Marius Portmann's SDN group for network research. This thesis focuses on the routing aspects of the system. Basic modules for statistics gathering and topology discovery were implemented to the extent required to make the system functional. The limitations of these modules are outlined in later chapters, but as others in the SDN group are working on them addressing them is considered out of scope of this project. Eventually, the system will be used for research into routing in software-defined wireless mesh networks, which will produce extra challenges in gathering prereq information etc but i've just written it assuming i have good data. or something.
 
 \section{Aims}
 
