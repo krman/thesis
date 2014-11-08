@@ -1,4 +1,4 @@
-\chapter{Literature Review}
+\chapter{Background}
 
 \section{Software-Defined Networking}
 Software-defined networking is a set of philosophies and concepts on how networking should be done. Crucially, networking should be programmable. The core idea is separation of the control and data planes; specifically, separation in a way that is standards-compliant and vendor-independent \cite{onf:sdn}. Although the movement is not intrinsically tied to any specific technologies, the OpenFlow protocol \cite{onf:switch140}, which is used to communicate between the control and data planes, is quite strongly linked to it.
@@ -7,7 +7,6 @@ McKeown describes the networking industry as vertically integrated and proprieta
 
 OpenFlow was originally conceived \cite{mckeown:openflow} as a research tool to enable academics to test new protocols easily and receive rapid feedback, while allowing vendors to continue to protect the inner workings of their switches. More recently \cite{onf:sdn} the focus has shifted to large datacenters and commercial networks with complex routing requirements. In \cite{mckeown:sdn}, McKeown refers to the  ``ossified network'': due to the black-box nature of modern network components such as switches and routers, experimentation is not encouraged and researchers and network administrators must stick to standard protocols until new ones are supported by vendors. This process can take a long time and the feedback cycle is slow. In contrast, SDN offers the ability to easily implement new protocols on real networks, and programmatically and automatically test and monitor many more aspects of the system.
 
-\section{Routing Algorithms}
 Software-defined networks rely on two concepts: flow-based routing and the existence of a central controller. Flow-based routing means routing based on flows (linked series of related packets such as all TCP traffic, all traffic from one MAC address or to a particular IP subnet). This concept was reasonably well-developed \cite{wellons:oblivious,wang:routing} before SDN.
 
 The other element of SDN is the existence of a central network OS which can communicate with all nodes. This raises the obvious objection that in a mesh network centralisation is not ideal; however, this is not centralised routing where all packets must pass through the controller. \cite{handigol:asterix} makes the distinction between ``logically centralised'' and ``distributed through the network''. Once rules are installed packet forwarding happens at individual switches as usual. The controller can push an initial set of rules as soon as a switch connects to it if desired. Later, when the first packet of a new kind of flow arrives at a switch, it encapsulates the packet and sends it to the controller. The controller then installs the appropriate rules on the appropriate switches \cite{mckeown:sdn}. Depending on configuration (fail standalone mode or fail secure mode) these rules can remain in place if the controller connection is lost, or the switch can drop all packets \cite{onf:switch140}.
@@ -32,3 +31,7 @@ need to talk about maths here. haven't put any of those papers into my stupid bi
 hedera was amazing and is better than this in every conceivable way \cite{alfares:hedera}. they didn't use linear programming, they used a couple of different approaches, simulated annealing i think was the most efficient iirc. still, solving the same fundamental problem.
 
 should probably talk about fat-trees too, well clos networks or something \cite{alfares:fattree}. or something about why i'm using methods something something
+
+\section{Linear Programming}
+
+is a good thing i should mention.

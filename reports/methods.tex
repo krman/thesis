@@ -1,4 +1,4 @@
-\chapter{Methodology}
+\chapter{Experimental Methods}
 
 The goal of this thesis is to implement a configurable controller which can be used in network experiments to compare the performance of different routing algorithms. For the purposes of this thesis, performance is measured exclusively in terms of overall throughput in the network. In order to measure throughput for different routing metrics, a series of network experiments are devised. Chapter CHAPTER outlines the basic layout of the controller. Chapter CHAPTER outlines the three routing metrics which will be compared; the shortest-path metric, given its simplicity and the number of traditional routing metrics which are based on it, can be considered a control or benchmark by which the other two metrics can be compared.
 
@@ -17,6 +17,11 @@ As noted in ANOTHER SECTION, due to constraints on link discovery all implemente
 The pentagon topology is used as a test of the whole system; i.e., inefficient routing such as shortest path will always lead to both flows being routed along the same path, whereas other metrics may load-balance the flows across the two paths.
 
 a table about different objectives/flow patterns/topology combinations or something.
+
+\subsection{Mininet}
+Mininet is a network emulator which uses container-based emulation \cite{handigol:mininet} to create a virtual network of hosts and switches. Mininet makes it simple to run reproducible network experiments under realistic conditions, with topologies and behaviour programmable in Python. The resources allocated to each host can be controlled and monitored, and benchmarking \cite{handigol:benchmarks} has generally shown that the performance and timing characteristics are accurate. OpenFlow-enabled switches such as OpenVSwitch can be used in the simulations so the system is ideal for SDN research.
+
+
 
 \section{Experiment Scripts}
 This section talks about the APIs and conventions etc. basic idea is you can specify topology elsewhere and import that module, same with the routing metric you want to use, then for a given experiment trial just pull in the specific stuff you want. so this section is like 'once you've decided what trials you want to run, how do you write code to make that happen'.

@@ -1,4 +1,4 @@
-\chapter{Algorithm Selection}
+\chapter{Routing Algorithms}
 
 not sure what this chapter should be called. Routing Metrics? something
 
@@ -9,11 +9,68 @@ need to pick a few routing metrics to test out the whole system and stuff. selec
 \begin{enumerate}
   \item shortest path
   \item widest path
-  \item maximum residual capacity
+  \item residual capacity
 \end{enumerate}
 
 \section{Shortest Path}
-this is the easiest thing in the world, minimise hops, don't consider other flows at all or even anything about capacities. can just use dijkstra or whatever.
+this is the easiest thing in the world, minimise hops, don't consider other flows at all or even anything about capacities. can just use dijkstra or whatever. example in Figure \ref{tab:sp}: even if alternative paths exist.
+
+%\begin{figure}
+%\begin{center}
+%\begin{tabular}{ccc}
+  %\toprule
+  %source & destination & demand \\
+  %\midrule
+  %h1 & h2 & 1 Mbps \\
+  %h2 & h1 & 2 Mbps \\
+  %\bottomrule
+%\end{tabular}
+%
+%\centering
+%\begin{tabular*}{0.8\textwidth}{@{\extracolsep{\fill}}lc}
+  %& \vspace{0.5cm} \\
+  %\pbox{3.5cm}{1. Route flow 1 \\ (blue)} \vspace{2.2cm}
+  %&
+  %\includegraphics[scale=0.4,trim=90mm 160mm 80mm 40mm]{../images/sp1.pdf}
+  %\\
+  %\midrule
+%
+  %\pbox{3.5cm}{2. Route flow 2 \\ (orange)}
+  %&
+  %\includegraphics[scale=0.4,trim=90mm 80mm 80mm 100mm]{../images/sp2.pdf}
+  %\\
+  %& \vspace{2cm} \\
+%\end{tabular*}
+%\end{center}
+%\caption{Shortest path always uses lowest number of hops}
+%\label{tab:sp}
+%\end{figure}
+
+\begin{figure}
+  \centering
+  \begin{tabular}{cccc}
+    \toprule
+    Flow & Source & Destination & Demand \\
+    \midrule
+    \tikz\draw[white,fill=mcfblue] (0,0) circle (.5ex); 1 & h1 & h2 & 1 Mbps \\
+    \tikz\draw[white,fill=mcforange] (0,0) circle (.5ex); 2 & h2 & h1 & 2 Mbps \\
+    \bottomrule
+    \vspace{0.1cm}
+  \end{tabular}
+  \begin{tabular}{c|c}
+    {1. Route flow 1 (blue)} & {2. Route flow 2 (orange)} \\
+    \includegraphics[scale=0.4]{../images/sp1.pdf}
+    &
+    \includegraphics[scale=0.4]{../images/sp2.pdf}
+    \\
+    \vspace{0.1cm}
+  \end{tabular}
+  \caption{Shortest path route allocation}
+  The path with the fewest hops is always chosen for each flow.
+  \label{fig:sp}
+\end{figure}
+
+For each flow, a path with the lowest number of hops from source to destination is selected, regardless of link capacity or the presence of other flows.
 
 \section{Widest Path}
 uh... i actually wrote some stuff for this... ugh... no... i was going to look at that code... ugh... no...
@@ -22,7 +79,32 @@ but basically you can do this by modifying dijkstra a bit. i'll find that piece 
 
 anyway, idea with this one is that you still route flows one by one, but for each flow you intelligently consider where to place it, considering the capacities of links in the network (including subtracting flows already placed).
 
-\section{Maximum Residual Capacity}
+\begin{figure}
+  \centering
+  \begin{tabular}{cccc}
+    \toprule
+    Flow & Source & Destination & Demand \\
+    \midrule
+    \tikz\draw[white,fill=mcfblue] (0,0) circle (.5ex); 1 & h1 & h2 & 1 Mbps \\
+    \tikz\draw[white,fill=mcforange] (0,0) circle (.5ex); 2 & h2 & h1 & 2 Mbps \\
+    \bottomrule
+    \vspace{0.1cm}
+  \end{tabular}
+  \begin{tabular}{c|c}
+    {1. Route flow 2 (orange)} & {2. Route flow 1 (blue)} \\
+    \includegraphics[scale=0.4]{../images/wp1.pdf}
+    &
+    \includegraphics[scale=0.4]{../images/wp2.pdf}
+    \\
+    \vspace{0.1cm}
+  \end{tabular}
+  \caption{Widest path route allocation}
+  Numbers show remaining capacity (Mbps) per link. Each flow is allocated to the path with the highest remaining capacity, starting from the largest flow.
+  \label{fig:wp}
+\end{figure}
+
+
+\section{Residual Capacity}
 The following is a formulation of the unsplittable flow problem as adapted from Walkowiak \cite{walkowiak:residual}. This thesis will compare several different formulations and objective functions, originally presented by different authors, but they will be described using the notation defined in \cite{walkowiak:residual} for clarity and ease of comparison. haha this is a lie.
 
 Begin with a network $G$ with vertices $V$ and edges $E$, with edge capacities $c : E \rightarrow \mathbb{R}^+$. The set $P$ comprises $p$ commodities to be routed through $G$, where the $i$th commodity corresponds to a flow with a source $s_i \in V$, destination $t_i \in V$ and demand $d_i \in \mathbb{R}^+$. For each $i \in P$, there are $l_i$ possible routes between $s_i$ and $t_i$, so define the set $\Pi_i = \{\pi_i^k : k = 0, ..., l_i\}$ to represent these.
@@ -43,3 +125,59 @@ The problem can be expressed as a linear program as follows.
 \end{align}
 
 In short: the goal is to maximise $z$. Constraint (3.5) defines $z$ so that for every edge (or link), the spare capacity on that link is at least $z$. The total traffic routed through each link, defined in (3.3), must be less than its capacity, by (3.4). Each possible route for a given commodity is either selected or not, and only one route per commodity is selected, by (3.2) and (3.1) respectively.
+
+\begin{figure}
+  \centering
+  \begin{tabular}{cccc}
+    \toprule
+    Flow & Source & Destination & Demand \\
+    \midrule
+    \tikz\draw[white,fill=mcfblue] (0,0) circle (.5ex); 1 & h1 & h2 & 2 Mbps \\
+    \tikz\draw[white,fill=mcforange] (0,0) circle (.5ex); 2 & h1 & h2 & 3 Mbps \\
+    \tikz\draw[white,fill=mcfgreen] (0,0) circle (.5ex); 3 & h2 & h1 & 6 Mbps \\
+    \bottomrule
+    \vspace{0.1cm}
+  \end{tabular}
+  \begin{tabular}{m{7.5cm}|m{7cm}}
+    {1. Consider possible routes} & {Original network} \\
+    \vspace{-2cm}
+    \multirow{3}{*}{
+      \begin{tabular}{cccccc}
+        \multicolumn{3}{c}{Path} & \multicolumn{3}{c}{Residual Capacity} \\
+        \tikz\draw[white,fill=mcfblue] (0,0) circle (.5ex); 1 &
+        \tikz\draw[white,fill=mcforange] (0,0) circle (.5ex); 2 &
+        \tikz\draw[white,fill=mcfgreen] (0,0) circle (.5ex); 3 &
+        Upper & Lower & Min \\
+        \midrule
+        U & U & U & -3 & 9 & X \\
+        \rowcolor{mcfgrey}
+        U & U & L & 3 & 3 & 3 \\
+        \rowcolor{white}
+        U & L & U & 0 & 6 & 0 \\
+        U & L & L & 0 & 6 & 0 \\
+        L & U & U & -1 & 7 & X \\
+        L & U & L & 1 & 5 & 1 \\
+        L & L & U & 2 & 4 & 2 \\
+        L & L & L & -2 & 8 & X \\
+      \vspace{1cm}
+      \end{tabular}
+    }
+    &
+    \includegraphics[scale=0.4]{../images/rc1.pdf}
+    \\
+    &
+    \vspace{0.5cm}
+    2. Assign routes simultaneously \\
+    &
+    \includegraphics[scale=0.4]{../images/rc2.pdf}
+    \\
+    \vspace{1cm}
+
+  \end{tabular}
+  %\vspace{0.5cm}
+  \caption{Residual capacity route allocation}
+  Numbers show remaining capacity (Mbps) per link. The combination of paths which maximises the minimum residual capacity over all links is selected.
+  \label{fig:wp}
+\end{figure}
+
+

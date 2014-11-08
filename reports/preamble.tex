@@ -16,7 +16,7 @@
 
 % Page setup
 \usepackage{fancyhdr}
-\usepackage{lscape}
+\usepackage{pdflscape}
 \setlength{\topmargin}						{-0.5cm}
 \setlength{\oddsidemargin}				{1cm}
 \setlength{\evensidemargin}				{0cm}
@@ -40,6 +40,7 @@
 \usepackage{booktabs}
 \usepackage{tabularx}
 \renewcommand{\arraystretch}			{1.5}
+\usepackage{pbox}
 
 % Special characters and math symbols
 % http://detexify.kirelabs.org/classify.html
@@ -63,12 +64,20 @@
 % Colours (see 'The 68 standard colors known to dvips')
 % http://en.wikibooks.org/wiki/LaTeX/Colors
 \usepackage[usenames,dvipsnames]{color}
-\definecolor{sky}{rgb}{0,0.4,1}
+\usepackage{colortbl}
 
 % Graphics and images
 % Must come after color package declared
 \usepackage{graphics}
 \usepackage{graphicx}
+\usepackage{tikz}
+
+% Predefined colours
+% Must come after tikz package declared...
+\definecolor{mcfblue}{rgb}{0,0.8,1}
+\definecolor{mcforange}{rgb}{1,0.8,0}
+\definecolor{mcfgreen}{rgb}{.68,.81,0}
+\definecolor{mcfgrey}{gray}{0.95}
 
 % Code listings
 \usepackage{upquote}

@@ -4,7 +4,7 @@ This chapter presents the results of the analysis performed using the framework.
 
 Also all testing will be done entirely in software, no real switches will be used.
 
-\section{Comparison of objective functions}
+\section{Comparison of Routing Metrics}
 Analysis goes here. dunno what to call this, routing performance or whatever. something title-capsy.
 
 
@@ -44,7 +44,36 @@ Analysis goes here. dunno what to call this, routing performance or whatever. so
 \caption{Summary of incredible achievements}
 \end{table}
 
-\section{Performance and Scalability}
-Hopefully this is good too. HAHAHA no it's not.
+\section{Scalability of Objective Functions}
+The results sure were great.
+well. they were pretty much as expected. discuss them i guess.
+stats-gathering is really hard and it is sensitive to it. i think some people thought
+about it but it's worth a whole thesis on its own really.
+somewhat limited by not being able to discover link capacities (whatshisname is
+doing his thesis on it so it’s a separate/big problem). meant had to use topos with
+constant capacities and in practical terms identical capacities. considered writing a
+thing to let you fake the topo too but w/ever.
 
-Chart goes here. (from poster). scalability sucks HARD
+These graphs only show the results of experiments on a certain class of topologies: ones with constant and therefore symmetrical link capacities. This was discussed earlier in section SECTION.
+
+
+Running experiments on Mininet means that there are practical limitations of the system which limit the size of networks which can be emulated with Mininet; this limit is hit long before the scalability of objective functions becomes a factor. However, it is possible to test the scalability of individual objective functions without the surrounding framework, by passing mock network graphs and flow statistics to the function. 
+
+The Al-Fares fat-tree is parametrisable by a parameter k, which indicates the number of ports per commodity switch used in the network; this produces a network with f(k) = SOMETHING switches and g(k) = SOMETHINGELSE hosts in total, and is therefore easy to scale up to large networks for scalability testing. In this test, flows were randomly generated between 16 random hosts, for Al-Fares networks starting from k = 4 until further tests became impractically slow to run (greater than X seconds).  The results of this testing are shown in figure FIGURE, for each of the three routing metrics under consideration.
+
+As expected, the shortest-path metric scales extremely well. The basic algorithm is well-understood, and the particular implementation used here is the one provided with NetworkX, which includes a number of small optimisations as well.
+
+The residual spare capacity implementation is based on the formulation described originally by Walkowiak. In his PAPER he gives the WHATEVER of the algorithm as O(crazy). As seen in section SECTION, the performance of the algorithm as a whole depends mostly on the number of possible paths in the network: for every, this must be considered. In its original form, the solution becomes unworkably slow (greater than X seconds) at k = 6 or SOMETHING, with just X switches considered; this corresponds to Y possible paths for any given source/destination pair. One major optimisation was therefore implemented: the length of possible paths considered is limited to 6 hops. This is enough hops to allow multiple paths to each aggregation and core switch, but not to bounce indefinitely and unnecessarily between the core and aggregation and aggregation and edge layers. Figure FIGURE demonstrates how much the scalability of the RSC metric is dependent on the maximum path length considered.
+
+The widest path metric performs quite poorly for such a well-known routing metric. The algorithm is based on a modified Dijkstra's algorithm, as described in section SECTION, which is not known to be particularly inefficient; the poor performance of the metric in these experiments is likely to be due to poor implementation. In particular, the algorithm must consider every path in the network, so, as for the RSC metric, the number of paths in an Al-Fares fat-tree can be very high and this is likely to be a significant factor in the algorithm's scalability. Unlike for RSC, however, limiting the number of paths considered was non-trivial due to the particular implementation, so this optimisation was not implemented. The dramatic effect of path length on the RSC metric seems to indicate that this would provide better scalability in this similar metric as well.
+
+In this thesis, the objective function was only run once, the resulting throughput measured and the experiment stopped. Normally, the objective function would be run many times. It is quite impractical to try to globally optimise the entire network for every single new flow, and without letting the flow run for some time it is impossible to determine the demand, which is required to run the global optimisation anyway. In general, then, it seems that the approach used in this thesis would be reasonable: route flows initially along the shortest path, then every few seconds (as deemed appropriate; the gap would be shorter in a network mostly consisting of short bursts of traffic compared to large elephant flows) globally-optimal routes are recalculated.
+
+In a normal scenario, however, the routing recalculation is performed every few seconds, and it is likely that many flows would be similar between calculations. This assumption can be made stronger if flows are consolidated; for example, group 'all HTTP traffic' along similar paths instead of calculating flow rules for individual 5-tuples, so that it is more likely that flows will average out to similar demands between calculations. In such an environment, recalculating the flow rules for the entire network from scratch becomes unreasonable. In many optimisation techniques, such as WHATEVER GLPK USES and simulated annealing as used in HEDERA, starting from an estimated solution which is close to the optimum greatly decreases the time taken to reach optimal levels; the previous calculation could be used as such an estimated solution. The implementation of this is non-trivial, and limits the use of third-party interfaces such as PuLP, since there is no way to specify a starting estimate for most solvers. Storing the state of, for example, the matrices used for linear algebra solutions to optimisation problems would be far more interesting. However, this is far outside the scope of this project and definitely in the realm of 'future work'.
+
+From the perspective of this thesis, where the largest network considered was an Al-Fares fat-tree with k=4, the time taken to calculate routes is negligible for all routing metrics.
+
+
+\section{Evaluation of Framework}
+
+stuff about how great \thesis is

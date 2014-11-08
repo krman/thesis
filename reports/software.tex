@@ -1,14 +1,25 @@
-\chapter{Software Design}
+\addtocontents{toc}{\protect\pagebreak}
+\chapter{Controller Design}
 
 SDN is mature enough technology that there are a number of different software packages and frameworks that are available to support development. Specifically we are interested in the choice of controller framework, software for the switch, and a way of running reproducible network experiments on large-enough-to-be-interesting topologies.
+
+\section{Architecture}
+there are some topologies, etc, as you can see in Figure \ref{fig:arch}.
+
+\begin{landscape}
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.85,trim=0 30mm 0 10mm]{../images/architecture.pdf}
+  \caption{Amazing}
+  \label{fig:arch}
+\end{figure}
+\end{landscape}
 
 \section{Dependencies}
 \subsection{POX}
 There are a number of controller frameworks today which allow programmers to send OpenFlow messages to switches in the network; selection in the first case is based on familiarity with the development language used. One such framework, based on Python, is POX \cite{onl:pox}, developed at Stanford primarily for ease of research over speed and performance. This is acceptable if performance of the network is not bound by the controller, at least for initial development; this can be verified if necessary.
 
 only supports openflow 1.0
-
-\subsection{OpenVSwitch}
 
 \subsection{Mininet}
 Mininet is a network emulator which uses container-based emulation \cite{handigol:mininet} to create a virtual network of hosts and switches. Mininet makes it simple to run reproducible network experiments under realistic conditions, with topologies and behaviour programmable in Python. The resources allocated to each host can be controlled and monitored, and benchmarking \cite{handigol:benchmarks} has generally shown that the performance and timing characteristics are accurate. OpenFlow-enabled switches such as OpenVSwitch can be used in the simulations so the system is ideal for SDN research.
