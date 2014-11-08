@@ -5,6 +5,14 @@ Software-defined networking is a set of philosophies and concepts on how network
 
 McKeown describes the networking industry as vertically integrated and proprietary, with little innovation \cite{mckeown:sdn}, comparing this to the state of computing prior to the adoption of high-level operating systems using standard instruction sets to communicate with the hardware. Similarly, the control plane in SDN can be seen as a network operating system, with OpenFlow as the instruction set for communicating with switches. This echoes the development towards greater abstraction evidenced by the move towards flow- over packet-based networking and the rise of quality-of-service considerations. Such requirements can be difficult to meet without some control over switch forwarding tables.
 
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.8]{../images/sdnclear.pdf}
+  \caption{Centralisation of control in software defined networks}
+  Each switch maintains an out-of-band connection to a controller, which instructs switches to update their forwarding tables via the OpenFlow protocol.
+  \label{fig:sdn}
+\end{figure}
+
 OpenFlow was originally conceived \cite{mckeown:openflow} as a research tool to enable academics to test new protocols easily and receive rapid feedback, while allowing vendors to continue to protect the inner workings of their switches. More recently \cite{onf:sdn} the focus has shifted to large datacenters and commercial networks with complex routing requirements. In \cite{mckeown:sdn}, McKeown refers to the  ``ossified network'': due to the black-box nature of modern network components such as switches and routers, experimentation is not encouraged and researchers and network administrators must stick to standard protocols until new ones are supported by vendors. This process can take a long time and the feedback cycle is slow. In contrast, SDN offers the ability to easily implement new protocols on real networks, and programmatically and automatically test and monitor many more aspects of the system.
 
 Software-defined networks rely on two concepts: flow-based routing and the existence of a central controller. Flow-based routing means routing based on flows (linked series of related packets such as all TCP traffic, all traffic from one MAC address or to a particular IP subnet). This concept was reasonably well-developed \cite{wellons:oblivious,wang:routing} before SDN.
