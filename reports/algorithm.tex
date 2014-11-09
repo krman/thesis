@@ -86,6 +86,7 @@ Adapted from the formulation given in \cite{medhi:routing}.
 \end{figure}
 
 \section{Residual Capacity}
+\label{sec:rc}
 The final metric considered is an attempt at load-balancing flows across the entire network. The `best' combination of routes is the one which maximises the minimum residual capacity over all links (the capacity remaining after the total size of all flows passing through is subtracted). A global solution will not be calculated for the arrival of every flow; rather, every few seconds all routes would be recalculated to find a globally-efficient solution, and routes arriving in between would be allocated an interim path. If flows are evenly allocated, this reduces the likelihood that the interim path will be congested while other paths are unused.
 
 Figure \ref{fig:rc} outlines a manual solution to a small version of this problem. In practice, explicitly enumerating and evaluating all paths is expensive; instead, it is possible to use linear programming, as described in section \ref{sec:mcf}, to find the optimal solution to such problems. This is example of a multicommodity flow problem, specifically, an unsplittable flow problem. The following is a formulation of the unsplittable flow problem as adapted from Walkowiak \cite{walkowiak:residual}. 

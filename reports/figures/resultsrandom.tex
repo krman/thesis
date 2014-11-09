@@ -1,0 +1,122 @@
+\documentclass[preview=false]{standalone}
+
+\usepackage{color}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\definecolor{mcfblue}{rgb}{0,0.8,1}
+\definecolor{mcforange}{rgb}{1,0.6,0}
+\definecolor{mcfgreen}{rgb}{.68,.81,0}
+\definecolor{mcfgrey}{gray}{0.95}
+\definecolor{mcforange2}{rgb}{1,0.8,0}
+\definecolor{mcforange3}{rgb}{1,0.2,0}
+
+\begin{document}
+
+\begin{tikzpicture}
+  \begin{axis}[
+    xlabel = Aggregate offered load (Mbps),
+    ylabel = Mean aggregate throughput (Mbps),
+    xmin=0, xmax=120, ymin=0, ymax=70,
+    scale only axis,
+    legend pos=north west,
+    legend cell align=left
+  ]
+
+  \addplot[
+    mark=square*, mcfblue, draw=mcfblue, 
+    %error bars/.cd, y dir=both, y explicit
+  ]
+  table[x=x,y=y]
+  {
+    x       y
+    0 0
+    1 0.5233626
+    3 2.4087152
+    5 3.5592573
+    7 5.762373
+    9 8.3855359
+    11  10.0891018
+    13  10.3842113
+    15  10.9418756
+    21  11.196595
+    25  14.220054
+    35  20.597453
+    45  28.4402179
+    49  28.8025593
+    55  30.2096573
+    63  30.2932245
+    65  32.0205427
+    75  34.8129119
+    77  30.8807939
+    91  30.8843334
+    105 28.1190057
+  };
+  \addlegendentry{Shortest path}
+
+  \addplot[
+    mark=square*, mcfgreen, draw=mcfgreen,
+    %error bars/.cd, y dir=both, y explicit
+  ]
+  table[x=x,y=y]
+  {
+    x       y
+    0 0
+    1 0.911334
+    3 2.968354
+    5 4.13075065
+    7 5.1164835
+    9 10.7210935
+    11  10.6638835
+    13  10.108582
+    15  10.0703918
+    21  11.6003224
+    25  20.527074
+    35  20.793514
+    45  39.074855
+    49  33.1735586
+    55  40.50877
+    63  37.815874
+    65  42.2256273
+    75  42.691425
+    77  45.0346897
+    91  43.6423792
+    105 61.2153794
+  };
+  \addlegendentry{Widest path}
+
+
+  \addplot[
+    mark=square*, mcforange, draw=mcforange,
+    %error bars/.cd, y dir=both, y explicit
+  ]
+  table[x=x,y=y]
+  {
+    x       y
+    0 0
+    1 3.34752325
+    3 4.14193875
+    5 4.504648
+    7 8.68050385
+    9 17.1164394
+    11  16.555942725
+    13  14.88846265
+    15  15.6809798
+    21  20.1572935
+    25  28.3662994
+    35  25.3032905
+    45  35.652433425
+    49  35.651522775
+    55  41.6621008
+    63  38.4004853
+    65  40.1076881
+    75  40.547581725
+    77  28.262232875
+    91  20.482859125
+    105 11.444907875
+  };
+  \addlegendentry{Residual capacity}
+
+  \end{axis}
+\end{tikzpicture}
+
+\end{document}

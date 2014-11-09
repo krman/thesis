@@ -1,0 +1,87 @@
+\documentclass[preview=false]{standalone}
+
+\usepackage{color}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\definecolor{mcfblue}{rgb}{0,0.8,1}
+\definecolor{mcforange}{rgb}{1,0.6,0}
+\definecolor{mcfgreen}{rgb}{.68,.81,0}
+\definecolor{mcfgrey}{gray}{0.95}
+
+\begin{document}
+
+\begin{tikzpicture}
+  \begin{axis}[
+    xlabel = Number of switches,
+    ylabel = Computation time (s),
+    xmin=0, xmax=1000, ymin=0, ymax=7,
+    scale only axis,
+    legend pos=north east,
+    legend cell align=left
+  ]
+
+  \addplot[
+    mark=square*, mcfblue, draw=mcfblue, 
+    error bars/.cd, y dir=both, y explicit
+  ]
+  table[x=x,y=y,x error=xerr,y error=yerr]
+  {
+    x       xerr    y        yerr
+    0 0 0 0
+    20  0 0.0004876 1.73519417885663E-005
+    45  0 0.0008358 4.18849218990829E-005
+    80  0 0.0014721333  6.19053392431026E-005
+    125 0 0.0022006 7.2781235901969E-005
+    180 0 0.0034614667  0.0001785953
+    245 0 0.0051226 0.000218655
+    320 0 0.0076167333  0.0002536135
+    405 0 0.0097622 0.0004514924
+    500 0 0.0126307333  0.0003758768
+    605 0 0.0175304667  0.0007970859
+    720 0 0.022809  0.0010120146
+    845 0 0.0269979333  0.0012781702
+    980 0 0.0321096667  0.0015394796
+  };
+  \addlegendentry{Shortest path}
+
+
+  \addplot[
+    mark=square*, mcfgreen, draw=mcfgreen,
+    error bars/.cd, y dir=both, y explicit
+  ]
+  table[x=x,y=y,x error=xerr,y error=yerr]
+  {
+    x       xerr    y        yerr
+    0 0 0 0
+    20  0 0.0227468667  9.30541902746289E-005
+    45  0 0.164329  0.0020093485
+    80  0 0.706706  0.0081184043
+    125 0 2.3045877333  0.0326936456
+    180 0 6.0166279333  0.0497968407
+  };
+  \addlegendentry{Widest path}
+
+
+  \addplot[
+    mark=square*, mcforange, draw=mcforange,
+    error bars/.cd, y dir=both, y explicit
+  ]
+  table[x=x,y=y,x error=xerr,y error=yerr]
+  {
+    x       xerr    y        yerr
+    0 0 0 0
+    20  0 0.0194374667  0.0023112736
+    45  0 0.0774724667  0.0102995943
+    80  0 0.2163074 0.0239292767
+    125 0 0.4154031333  0.0805419029
+    180 0 0.8022469333  0.1317485442
+    245 0 1.4275060667  0.2714548502
+    320 0 2.2149086667  0.4411705329
+    405 0 3.2092397333  0.5724065512
+  };
+  \addlegendentry{Residual capacity}
+
+  \end{axis}
+\end{tikzpicture}
+
+\end{document}
