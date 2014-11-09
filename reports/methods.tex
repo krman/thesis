@@ -1,14 +1,20 @@
 \chapter{Experimental Methods}
 \label{ch:methods}
 
-The goal of this thesis is to implement a configurable controller which can be used in network experiments to compare the performance of different routing algorithms. For the purposes of this thesis, performance is measured exclusively in terms of overall throughput in the network. In order to measure throughput for different routing metrics, a series of network experiments are devised. Chapter CHAPTER outlines the basic layout of the controller. Chapter CHAPTER outlines the three routing metrics which will be compared; the shortest-path metric, given its simplicity and the number of traditional routing metrics which are based on it, can be considered a control or benchmark by which the other two metrics can be compared.
+The goal of this thesis is to implement a configurable controller which can be used in network experiments to compare the performance of different routing algorithms. For the purposes of this thesis, performance is measured exclusively in terms of overall throughput in the network. In order to measure throughput for different routing metrics, a series of network experiments are devised. 
 
-All network experiments follow a defined pattern. Figure FIGURE shows the timing of each experiment trial. Firstly, POX and Mininet are started. There is a non-trivial setup time for Mininet topologies to be created, followed by a non-trivial time for POX's discovery module to discover the network. After waiting for this to occur (20 seconds is enough time for the largest topology considered for this thesis), a series of iperf flows are started, limited to a specified bandwidth. For the first 10 seconds, iperf simply sends data at a maximum of this specified bandwidth, but ignores the number of bytes sent for this period. This is because the throughput for the flow will be lower than expected, for several reasons: the TCP slow-start period, the time taken for ARP requests and replies to be exchanged, and for the controller to be notified of the hosts involved and set an initial path. After 10 seconds, the controller's multicommodity module recalculates all routes in the network according to the objective function used, and replaces the initial flow rules with updated forwarding rules based on these routes. The iperf clients continue to send data at the same rates for this period, but begin to record the number of bytes sent and received, and do so for 10 seconds. A few seconds after this, to give iperf time to write this data to log files, the experiment concludes and the controller and Mininet are shut down, including all iperf servers and clients still running.
+Chapter \ref{ch:software} outlines the layout of the controller used in the experiments. Chapter \ref{ch:algorithm} outlines the three routing metrics of interest: the shortest-path metric, given its simplicity and the number of traditional routing metrics which are based on it, can be considered a benchmark by which the other two metrics can be compared. This chapter describes the structure and implementation of the experiments.
 
-The topology, flow pattern and routing metric considered can all be configured via a simple launch script, such as the sample shown in Figure FIGURE. The following sections explain how to firstly select these parameters so that useful information can be obtained, and secondly to write experiment scripts to run the desired experiment. 
+\section{Dependencies}
+\subsection{Mininet}
+Mininet is a network emulator which uses container-based emulation \cite{handigol:mininet} to create a virtual network of hosts and switches. Mininet makes it simple to run reproducible network experiments under realistic conditions, with topologies and behaviour programmable in Python. The resources allocated to each host can be controlled and monitored, and benchmarking \cite{handigol:benchmarks} has shown that the performance and timing characteristics are accurate. OpenFlow-enabled switches such as OpenVSwitch can be used in the simulations so the system is ideal for SDN research.
+
+\subsection{iperf3}
+\texttt{iperf3} \cite{iperf} is a command line tool which can be used to perform network throughput measurements. Testing is performed by running a server on the destination host and a client on the source host, which will attempt to contact the server over TCP or UDP. Various options are available, including configuration of the TCP/UDP ports used, and the maximum bandwidth (size) of the flow. It is also possible to begin sending packets for a flow, but omit the first $n$ seconds from throughput calculations. Results, including the final measured throughput for each client/server pair, can be reported in JSON format for ease of futher processing.
+
 
 \section{Experiment Design}
-While it is possible to use mcfpox to run experiments using many combinations of topologies and flow patterns, not all of these combinations will yield useful data. For example, if all flows in a pattern are much larger or smaller than the link capacities in the topology, either all flows will be constrained or none will be. A carefully-selected combination, however, will yield a situation where flows will only be constrained if an inefficient routing metric is used, but not otherwise. In such a situation it is possible to measure the variation in performance for the two routing metrics.
+All network experiments follow a defined pattern. Figure \ref{fig:timing} shows the timing of each experiment trial. Firstly, POX and Mininet are started. There is a non-trivial setup time for Mininet topologies to be created, followed by a non-trivial time for POX's discovery module to discover the network. After waiting for this to occur (20 seconds is enough time for the largest topology considered for this thesis), a series of \texttt{iperf3} flows are started, limited to a specified bandwidth. 
 
 \begin{figure}
   \centering
@@ -17,33 +23,18 @@ While it is possible to use mcfpox to run experiments using many combinations of
   \label{fig:timing}
 \end{figure}
 
-As noted in ANOTHER SECTION, due to constraints on link discovery all implemented topologies have 10 Mbps links between switches. The experiments in this thesis therefore examine flows with sizes ranging from 1 - 9 Mbps. The exact flow patterns used depend on the topology:
+For the first 10 seconds, \texttt{iperf3} simply sends data at a maximum of this specified bandwidth, but ignores the number of bytes sent for this period. This is because the throughput for the flow will be lower than expected, for several reasons: the TCP slow-start period, the time taken for ARP requests and replies to be exchanged, and for the controller to be notified of the hosts involved and set an initial path. 
 
-- pentagon: two flows between h1 and h2 of the same size, in the range [1,9] Mbps.
-- manhattan, alfares: each host connected to one random other, flows of the same size in the range [1-9] Mbps
+After 10 seconds, the controller's multicommodity module recalculates all routes in the network according to the objective function used, and replaces the initial flow rules with updated forwarding rules based on these routes. The \texttt{iperf3} clients continue to send data at the same rates for this period, but begin to record the number of bytes sent and received, and do so for 10 seconds. A few seconds after this, to allow time to write this data to log files, the experiment concludes and the network is shut down, including all \texttt{iperf3} servers and clients still running.
 
-The pentagon topology is used as a test of the whole system; i.e., inefficient routing such as shortest path will always lead to both flows being routed along the same path, whereas other metrics may load-balance the flows across the two paths.
+The topology, flow pattern and routing metric considered can all be configured via a simple launch script, such as the sample shown in Figure \ref{fig:script}. The following sections explain how to firstly select these parameters so that useful information can be obtained, and secondly to write experiment scripts to run the desired experiment. 
 
-a table about different objectives/flow patterns/topology combinations or something is Table \ref{tab:patterns}. the pentagon topo is in \ref{fig:pentagon} and the alfares one in \ref{fig:alfares}.
+\section{Parameter Selection}
+While it is possible to use mcfpox to run experiments using many combinations of topologies and flow patterns, not all of these combinations will yield useful data. For example, if all flows in a pattern are much larger or smaller than the link capacities in the topology, either all flows will be constrained or none will be. A carefully-selected combination, however, will yield a situation where flows will only be constrained if an inefficient routing metric is used, but not otherwise. In such a situation it is possible to measure the variation in performance for the two routing metrics.
 
-\begin{figure}
-%\begin{figure}
-  \centering
-  \includegraphics[scale=0.8]{../images/pentagon.pdf}
-  \caption{Pentagon topology (`pentagon')}
-  \label{fig:pentagon}
-%\end{figure}
+As noted in section \ref{sec:nd}, due to constraints on the ability of the controller to dynamically discover link capacities, all implemented topologies have 10 Mbps links between switches. The experiments in this thesis therefore examine flows with individual sizes ranging from 1 - 9 Mbps. The exact flow patterns used depend on the topology and are specified in Table \ref{tab:patterns}. 
 
-  \vspace{2cm}
-
-
-%\begin{figure}
-  %\centering
-  \includegraphics[scale=0.6]{../images/alfares.pdf}
-  \caption{Al-Fares fat-tree topology (`alfares')}
-  \label{fig:alfares}
-%\end{figure}
-\end{figure}
+Diagrams of the two topologies used in the experiments can be seen in Figures \ref{fig:pentagon} and \ref{fig:alfares}; the second topology, which was used in most of the experiments, is based on the description of a fat-tree network given in \cite{alfares:fattree}. This topology scales to much larger sizes based on a parameter $k$, the number of ports per switch; larger versions are used to compare the scalability of different routing metrics.
 
 \begin{table}
   \centering
@@ -61,13 +52,11 @@ a table about different objectives/flow patterns/topology combinations or someth
   \label{tab:patterns}
 \end{table}
 
-\subsection{Mininet}
-Mininet is a network emulator which uses container-based emulation \cite{handigol:mininet} to create a virtual network of hosts and switches. Mininet makes it simple to run reproducible network experiments under realistic conditions, with topologies and behaviour programmable in Python. The resources allocated to each host can be controlled and monitored, and benchmarking \cite{handigol:benchmarks} has generally shown that the performance and timing characteristics are accurate. OpenFlow-enabled switches such as OpenVSwitch can be used in the simulations so the system is ideal for SDN research.
-
-
 
 \section{Experiment Scripts}
-This section talks about the APIs and conventions etc. basic idea is you can specify topology elsewhere and import that module, same with the routing metric you want to use, then for a given experiment trial just pull in the specific stuff you want. so this section is like 'once you've decided what trials you want to run, how do you write code to make that happen'.
+One of the goals of this thesis was to create an easy-to-use experiment framework. \thesis{}, therefore, includes an experiment module which abstracts most of the boilerplate involved in setting up a routing experiment, allowing the experimenter to run the entire experiment from a script such as the one shown in Figure \ref{fig:script}.
+
+There is a conceptual distinction, which is referenced in the structure of the script, between `scenario' and `controller' configuration. A scenario comprises a topology and a set of flows to be started at specified times. Controller configuration is where options to be passed to the controller are stored. To compare the performance of two objective functions, the scenario is kept constant while only the controller objective is changed. When flows are allocated randomly, the same allocation of flows is used for each metric, and at least 10 different random allocations are considered and then averaged, to minimise the effects of particularly difficult flow patterns.
 
 \begin{figure}
 \begin{lstlisting}
@@ -77,7 +66,7 @@ from mcfpox.experiments.boilerplate import start
 
 pairs = [('h1','h8'), ('h8','h1')]
 flows = {
-    19: [(i,j,bw) for i,j in pairs]
+    19: [(i,j,5) for i,j in pairs]
 }
 
 scenario = {
@@ -95,21 +84,19 @@ results = start(scenario, controller)
 \label{fig:script}
 \end{figure}
 
-\subsection{Scenarios}
-Have a set topology, flows and so on. hedera paper went to some effort to test different flow patterns, like 'random', 'strides' etc. i guess i just went with random and that aggregation/pod thing. 
-
-\subsection{Controllers}
-In order to properly measure certain parts of the system individually and guarantee that results are due to one specific section you need to inject mock data at certain parts of the system.
-
-The system lets you specify callbacks to be used in the following places.
-
-\begin{itemize}
-\item forwarding rules
-\item objective function
-\end{itemize}
-
-This should actually be content taken roughly from the "writing experiment scripts" chapters of the documentation, and the section which talks about individual things, what's the word, injecting mock data.
-
 \section{Emulation Hardware}
 
-Mininet's scalability is dependent on the specfications of the host machine running the virtual network. the network experiments in this thesis were run on a quad-core i5-4670K (3.4 GHz) desktop with 4 GB RAM. how do you write things about computers
+Mininet's scalability is dependent on the specfications of the host machine running the virtual network. The network experiments in this thesis were run on a quad-core i5-4670K (3.4 GHz) desktop with 4 GB RAM. 
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.8]{../images/pentagon.pdf}
+  \caption{Pentagon topology (`pentagon')}
+  \label{fig:pentagon}
+  \vspace{2cm}
+  \includegraphics[scale=0.6]{../images/alfares.pdf}
+  \caption{Al-Fares fat-tree topology (`alfares')}
+  \label{fig:alfares}
+  This topology belongs to a class of related networks described in \cite{alfares:fattree}, parametrised by $k$, the number of ports per switch. Here, $k=4$. Larger versions of this topology are used for scalability testing of routing metrics.
+\end{figure}
+

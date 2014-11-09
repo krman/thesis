@@ -1,4 +1,6 @@
 \chapter{Routing Algorithms}
+\label{ch:algorithm}
+
 One of the goals of this thesis is to evaluate the performance of a selection of routing metrics, and to assess the feasibility of using more complex algorithms in exchange for improved network efficiency.
 
 Given the scope of this thesis, three metrics are evaluated, labelled shortest path, widest path and residual capacity. These metrics were carefully selected to represent a transition from `naive' routing, where flows are placed regardless of link capacity or the presence of other flows, to routing that considers the entire network and finds a globally-optimal set of routes. The following sections provide the theoretical basis for these metrics, suggested implementations and illustrations of their use.
@@ -33,6 +35,8 @@ An efficient method for calculating the shortest path from a source node to any 
 \end{figure}
 
 \section{Widest Path}
+\label{sec:wp}
+
 In widest path routing, each flow is allocated to the path with the highest remaining capacity. Flows are routed in order from largest to smallest. The widest path must be claculated for each flow individually, then the network updated to reflect the reduced capacity along that path when routing the next flow. The widest path metric therefore represents an intermediate step between naive and globally optimal routing.  A simple example is show in Figure \ref{fig:wp}. 
 
 It is possible to calculate the widest path in a network for a single source/destination pair by modifying Dijkstra's algorithm to treat edge weights as capacities rather than costs to be minimised. The particular formulation used in this thesis is based on one by Medhi \cite{medhi:routing}. The algorithm to calculate the widest path from node $i$ to any other node in the network is reproduced in Figure \ref{fig:medhi}.
@@ -61,6 +65,9 @@ It is possible to calculate the widest path in a network for a single source/des
   \label{fig:wp}
 \end{figure}
 
+\section{Residual Capacity}
+\label{sec:rc}
+
 \begin{figure}
   \fbox{\parbox{\textwidth}{
 \begin{enumerate}
@@ -81,13 +88,14 @@ It is possible to calculate the widest path in a network for a single source/des
 \end{enumerate}
   }}
 \caption{Widest path algorithm, computed at node $i$}
+\label{fig:medhi}
 \centering
 Adapted from the formulation given in \cite{medhi:routing}.
 \end{figure}
 
-\section{Residual Capacity}
-\label{sec:rc}
-The final metric considered is an attempt at load-balancing flows across the entire network. The `best' combination of routes is the one which maximises the minimum residual capacity over all links (the capacity remaining after the total size of all flows passing through is subtracted). A global solution will not be calculated for the arrival of every flow; rather, every few seconds all routes would be recalculated to find a globally-efficient solution, and routes arriving in between would be allocated an interim path. If flows are evenly allocated, this reduces the likelihood that the interim path will be congested while other paths are unused.
+
+
+The final metric considered is an attempt at load-balancing flows across the entire network. The `best' combination of routes is the one which maximises the minimum residual capacity over all links (the capacity remaining after the total size of all flows passing through is subtracted). A global solution will not be calculated for the arrival of every flow; rather, every few seconds all routes would be recalculated to find a globally-efficient solution, and routes arriving in between would be allocated an interim path. If flows are evenly allocated, this reduces the likelihood that the interim path will be congested while other paths are unused. This is true regardless of the metric used to calculate the interim path, but a metric such as widest path would likely lead to increased performance as it would be able to take advantage of differences in the available capacities.
 
 Figure \ref{fig:rc} outlines a manual solution to a small version of this problem. In practice, explicitly enumerating and evaluating all paths is expensive; instead, it is possible to use linear programming, as described in section \ref{sec:mcf}, to find the optimal solution to such problems. This is example of a multicommodity flow problem, specifically, an unsplittable flow problem. The following is a formulation of the unsplittable flow problem as adapted from Walkowiak \cite{walkowiak:residual}. 
 

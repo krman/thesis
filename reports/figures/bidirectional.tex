@@ -1,0 +1,91 @@
+\documentclass[preview=false]{standalone}
+
+\usepackage{color}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\definecolor{mcfblue}{rgb}{0,0.8,1}
+\definecolor{mcforange}{rgb}{1,0.6,0}
+\definecolor{mcfgreen}{rgb}{.68,.81,0}
+\definecolor{mcfgrey}{gray}{0.95}
+\definecolor{mcforange2}{rgb}{1,0.8,0}
+\definecolor{mcforange3}{rgb}{1,0.2,0}
+
+\begin{document}
+
+\begin{tikzpicture}
+  \begin{axis}[
+    width = 20cm,
+    height = 10cm,
+    xlabel = Aggregate offered load (Mbps),
+    ylabel = Mean aggregate throughput (Mbps),
+    xmin=0, xmax=20, ymin=0, ymax=20,
+    scale only axis,
+    legend pos=north west,
+    legend cell align=left
+  ]
+
+  \addplot[
+    mark=square*, mcfblue, draw=mcfblue, 
+    %error bars/.cd, y dir=both, y explicit
+  ]
+  table[x=x,y=y]
+  {
+    x       y
+    0 0
+    2 2.0953026
+    4 3.982743
+    6 5.89527
+    8 8.03935
+    10  10.122394
+    12  11.406928
+    14  11.529965
+    16  11.104109
+    18  12.232909
+  };
+  \addlegendentry{Shortest path}
+
+  \addplot[
+    mark=square*, mcfgreen, draw=mcfgreen,
+    %error bars/.cd, y dir=both, y explicit
+  ]
+  table[x=x,y=y]
+  {
+    x       y
+    0 0
+    2 2.068336
+    4 3.983202
+    6 5.87887
+    8 8.000365
+    10  9.854775
+    12  12.355736
+    14  14.170556
+    16  16.306036
+    18  18.482904
+  };
+  \addlegendentry{Widest path}
+
+
+  \addplot[
+    mark=square*, mcforange, draw=mcforange,
+    %error bars/.cd, y dir=both, y explicit
+  ]
+  table[x=x,y=y]
+  {
+    x       y
+    0 0
+    2 2.0678746
+    4 3.982041
+    6 5.880074
+    8 7.950784
+    10  9.780523
+    12  11.637449
+    14  14.244744
+    16  16.544273
+    18  18.912544
+  };
+  \addlegendentry{Residual capacity}
+
+  \end{axis}
+\end{tikzpicture}
+
+\end{document}

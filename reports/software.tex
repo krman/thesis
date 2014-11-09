@@ -1,5 +1,5 @@
-\addtocontents{toc}{\protect\pagebreak}
 \chapter{Controller Design}
+\label{ch:software}
 
 \section{Architecture}
 A major deliverable for this project is the production of a configurable SDN controller, to allow testing of different routing metrics or objective functions. A high-level overview of the system architecture is given in Figure \ref{fig:arch}. The controller framework consists of three modules, described individually in detail later: \texttt{topology}, \texttt{statistics} and \texttt{multicommodity}. While the objective function is configurable, it can be considered part of the controller as well.
@@ -26,7 +26,6 @@ There are a number of controller frameworks today which allow programmers to sen
 
 Functionality in POX is implemented as reuseable modules, which can be combined with other modules to meet particular requirements. POX ships with a number of prewritten modules for basic switch forwarding, network discovery and so on; of particular interest are the \texttt{openflow.discovery} and \texttt{host\_tracker.host\_tracker} modules, which are used by the \thesis{} topology module for network discovery.
 
-
 \subsection{NetworkX}
 NetworkX is a Python package for the `creation, manipulation, and study of the structure, dynamics, and functions of complex networks'. It is a stable and well-maintained graph library with a flexible, easy-to-read annotation system for nodes and edges, which is used to store information such as IP addresses and link capacities. \thesis{} uses NetworkX to store a representation of the network as discovered by the controller. The topology module builds a NetworkX graph, which is passed to the objective function; it can then make use of provided mathematical functions, such as the \texttt{shortest\_path} and \texttt{all\_simple\_paths} functions.
 
@@ -43,6 +42,7 @@ In order to launch the controller programmatically in experiment scripts, an imp
 In initial development of mcfpox this was achieved by specifying the name of a Python module to import containing this data, but this imposes restrictions on the layout of the module; for example, the objective function must have a predefined name to make the import process easier. The POX initialisation code was therefore modified to allow starting the controller directly from a Python script, which allows the passing of arbitrary Python objects such as functions and dictionaries directly as arguments, without the need for serialisation to the command line. Correspondence with the principal maintainer of POX, Murphy McCauley, indicated that he is interested in possibly incorporating this feature into a later release; until then the mcfpox project officially relies on the \url{github.com/krman} fork of POX. 
 
 \subsection{Network Discovery}
+\label{sec:nd}
 Network discovery of switches, hosts, and links is done using the existing POX modules \texttt{discovery} and \texttt{host\_tracker}. The topology module uses these two modules to build a NetworkX graph of the underlying network, which is passed to the objective function for routing calculations.
 
 The \texttt{discovery} module uses LLDP packets to discover switches and links between them, which are specified with the same dpid that switches use to identify themselves to the controller. The module builds up an adjacency list of pairs of switches which are connected, including the ports by which the switches are connected. The \texttt{host\_tracker} module tracks ARP requests and replies and uses them to locate hosts in the network, but stores this information in a significantly different format to \texttt{discovery}; this makes it difficult to use both modules together. The main purpose of the topology module is therefore to bridge these two modules, by maintaining a NetworkX graph containing information about both hosts and switches. NetworkX allows annotations on both nodes and edges in the graph; these are used to store information on IP addresses, switch ports and link capacities.
