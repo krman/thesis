@@ -1,50 +1,12 @@
 \chapter{Routing Algorithms}
+One of the goals of this thesis is to evaluate the performance of a selection of routing metrics, and to assess the feasibility of using more complex algorithms in exchange for improved network efficiency.
 
-not sure what this chapter should be called. Routing Metrics? something
-
-some smart dudes \cite{bonsma:ufp}, \cite{anag:mazing} and \cite{chakrabarti:ufp} did some maths. hedera used some options something.
-
-need to pick a few routing metrics to test out the whole system and stuff. selected these three to compare based on the idea that it's a transition from naive/fixed to globally-optimal routing. copypaste from poster. can then see if it's actually worthwhile to do all this global stuff.
-
-\begin{enumerate}
-  \item shortest path
-  \item widest path
-  \item residual capacity
-\end{enumerate}
+Given the scope of this thesis, three metrics are evaluated, labelled shortest path, widest path and residual capacity. These metrics were carefully selected to represent a transition from `naive' routing, where flows are placed regardless of link capacity or the presence of other flows, to routing that considers the entire network and finds a globally-optimal set of routes. The following sections provide the theoretical basis for these metrics, suggested implementations and illustrations of their use.
 
 \section{Shortest Path}
-this is the easiest thing in the world, minimise hops, don't consider other flows at all or even anything about capacities. can just use dijkstra or whatever. example in Figure \ref{fig:sp}: even if alternative paths exist.
+Shortest-path routing is the basis for many existing distributed routing algorithms currently in use. The algorithm is very simple: any new flow is allocated the path with the fewest `hops' (links) between source and destination. If there are multiple such paths, behaviour is dependent on implementation. Knowledge of other flows in the network is not required.
 
-%\begin{figure}
-%\begin{center}
-%\begin{tabular}{ccc}
-  %\toprule
-  %source & destination & demand \\
-  %\midrule
-  %h1 & h2 & 1 Mbps \\
-  %h2 & h1 & 2 Mbps \\
-  %\bottomrule
-%\end{tabular}
-%
-%\centering
-%\begin{tabular*}{0.8\textwidth}{@{\extracolsep{\fill}}lc}
-  %& \vspace{0.5cm} \\
-  %\pbox{3.5cm}{1. Route flow 1 \\ (blue)} \vspace{2.2cm}
-  %&
-  %\includegraphics[scale=0.4,trim=90mm 160mm 80mm 40mm]{../images/sp1.pdf}
-  %\\
-  %\midrule
-%
-  %\pbox{3.5cm}{2. Route flow 2 \\ (orange)}
-  %&
-  %\includegraphics[scale=0.4,trim=90mm 80mm 80mm 100mm]{../images/sp2.pdf}
-  %\\
-  %& \vspace{2cm} \\
-%\end{tabular*}
-%\end{center}
-%\caption{Shortest path always uses lowest number of hops}
-%\label{tab:sp}
-%\end{figure}
+An efficient method for calculating the shortest path from a source node to any other node is given by Dijkstra's algorithm \cite[pp. 684--693]{cormen:algorithms}. The algorithm is well-known enough that many existing implementations are available, including ones with optimisations and run-time improvements not present in the original algorithm. In \thesis{}, the Python library NetworkX \cite{networkx} is used to represent the network graph as seen by the controller; this library provides a function \texttt{shortest\_path(G,source,target)}, which returns the shortest path from \texttt{source} to \texttt{target} through the graph \texttt{G}.
 
 \begin{figure}
   \centering
@@ -70,14 +32,10 @@ this is the easiest thing in the world, minimise hops, don't consider other flow
   \label{fig:sp}
 \end{figure}
 
-For each flow, a path with the lowest number of hops from source to destination is selected, regardless of link capacity or the presence of other flows.
-
 \section{Widest Path}
-uh... i actually wrote some stuff for this... ugh... no... i was going to look at that code... ugh... no...
+In widest path routing, each flow is allocated to the path with the highest remaining capacity. Flows are routed in order from largest to smallest. The widest path must be claculated for each flow individually, then the network updated to reflect the reduced capacity along that path when routing the next flow. The widest path metric therefore represents an intermediate step between naive and globally optimal routing.  A simple example is show in Figure \ref{fig:wp}. 
 
-but basically you can do this by modifying dijkstra a bit. i'll find that piece of paper that described the algorithm i used i guess and write it up here all mathsy-like
-
-anyway, idea with this one is that you still route flows one by one, but for each flow you intelligently consider where to place it, considering the capacities of links in the network (including subtracting flows already placed).
+It is possible to calculate the widest path in a network for a single source/destination pair by modifying Dijkstra's algorithm to treat edge weights as capacities rather than costs to be minimised. The particular formulation used in this thesis is based on one by Medhi \cite{medhi:routing}. The algorithm to calculate the widest path from node $i$ to any other node in the network is reproduced in Figure \ref{fig:medhi}.
 
 \begin{figure}
   \centering
@@ -103,9 +61,34 @@ anyway, idea with this one is that you still route flows one by one, but for eac
   \label{fig:wp}
 \end{figure}
 
+\begin{figure}
+  \fbox{\parbox{\textwidth}{
+\begin{enumerate}
+  \onehalfspacing
+  \item Discover list of nodes in the network, $N$, and available bandwidth of link 
+  \\ $k-m$, $b^i_{km}(t)$, as known to node $i$ at the time of computation, $t$.
+  \item Initially, consider only source node $i$ in the set of nodes considered, 
+  \\ i.e., $S = \{i\}$; mark the set with all the rest of the nodes as $S'$. 
+  \\ Initialise $B_{ij}(t) = b^i_{ij}(t)$.
+  \item Identify a neighbouring node (intermediary) $k$ not in the current list $S$ 
+  \\ with the maximum bandwidth from node $i$, i.e., find $k \in S'$ such that 
+  \\ $B_{ik}(t) =$ max$_{m \in S'}B_{im}(t)$.
+  \item Add $k$ to the list $S$, i.e., $S = S \cup \{k\}$.
+  \item Drop $k$ from $S'$, i.e., $S' = S'\backslash\{k\}$. If $S'$ is empty, stop.
+  \item Consider nodes in $S'$ to update maximum bandwidth path, 
+    \\ i.e., for $j \in S'$, $B_{ij}(t) =$ max$\{B_{ij}(t),$, min$\{B_{ik}, b^i_{kj}(t)\}\}$
+  \item Go to Step 3.
+\end{enumerate}
+  }}
+\caption{Widest path algorithm, computed at node $i$}
+\centering
+Adapted from the formulation given in \cite{medhi:routing}.
+\end{figure}
 
 \section{Residual Capacity}
-The following is a formulation of the unsplittable flow problem as adapted from Walkowiak \cite{walkowiak:residual}. This thesis will compare several different formulations and objective functions, originally presented by different authors, but they will be described using the notation defined in \cite{walkowiak:residual} for clarity and ease of comparison. haha this is a lie.
+The final metric considered is an attempt at load-balancing flows across the entire network. The `best' combination of routes is the one which maximises the minimum residual capacity over all links (the capacity remaining after the total size of all flows passing through is subtracted). A global solution will not be calculated for the arrival of every flow; rather, every few seconds all routes would be recalculated to find a globally-efficient solution, and routes arriving in between would be allocated an interim path. If flows are evenly allocated, this reduces the likelihood that the interim path will be congested while other paths are unused.
+
+Figure \ref{fig:rc} outlines a manual solution to a small version of this problem. In practice, explicitly enumerating and evaluating all paths is expensive; instead, it is possible to use linear programming, as described in section \ref{sec:mcf}, to find the optimal solution to such problems. This is example of a multicommodity flow problem, specifically, an unsplittable flow problem. The following is a formulation of the unsplittable flow problem as adapted from Walkowiak \cite{walkowiak:residual}. 
 
 Begin with a network $G$ with vertices $V$ and edges $E$, with edge capacities $c : E \rightarrow \mathbb{R}^+$. The set $P$ comprises $p$ commodities to be routed through $G$, where the $i$th commodity corresponds to a flow with a source $s_i \in V$, destination $t_i \in V$ and demand $d_i \in \mathbb{R}^+$. For each $i \in P$, there are $l_i$ possible routes between $s_i$ and $t_i$, so define the set $\Pi_i = \{\pi_i^k : k = 0, ..., l_i\}$ to represent these.
 
@@ -177,7 +160,7 @@ In short: the goal is to maximise $z$. Constraint (3.5) defines $z$ so that for 
   %\vspace{0.5cm}
   \caption{Residual capacity route allocation}
   Numbers show remaining capacity (Mbps) per link. The combination of paths which maximises the minimum residual capacity over all links is selected.
-  \label{fig:wp}
+  \label{fig:rc}
 \end{figure}
 
 

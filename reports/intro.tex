@@ -5,45 +5,32 @@ Software-defined networking (SDN) is a set of philosophies and concepts on how n
 
 OpenFlow is fundamentally a low-level network protocol. There now exist a number of projects which are designed to act as extensible SDN controllers, so that a programmer can simply use provided software APIs to construct and interpret OpenFlow messages instead of directly sending network packets. However, this still requires understanding of OpenFlow and network programming and functions as a convenience for programmers rather than a simple interface for end users.  Most descriptions of SDN architectures include a layer above the control layer, often called the `application' layer, for this reason. These systems are generally seen as a natural progression of the layer model as applied to network design.
 
-This thesis presents \thesis{}, a framework designed to ease research into optimisation techniques as applied to centrally-controlled, software-defined networks. 
+This thesis presents \thesis{}, a framework designed to ease research into optimisation techniques as applied to centrally-controlled, software-defined networks. The goal of the framework is to allow a researcher to write a high-level implementation of a particular routing metric, given information about the network topology and flows and their corresponding demands. The controller then uses this metric to allocate routes to flows in the network, and the performance of the metric (in terms of overall resulting throughput in the network) can then be evaluated, without directly interacting with the OpenFlow protocol.
 
+In this way, optimisation techniques can be easily applied to select routes, in the hope that such techniques will result in greater network efficiency. Three routing metrics are evaluated, representing a transition from naive to globally-optimum routing: shortest path, where the path with the fewest hops is always selected; widest path, which selects the path with the highest remaining capacity after considering the placement of existing flows; and residual capacity, where the combination of paths which maximises the minimum residual capacity over all links is selected, using linear programming. Intelligent routing metrics such as the latter require the global view of the network that SDN provides, and as such are difficult to implement on traditional networks. This thesis investigates whether such metrics result in a significant improvement over traditional, shortest-path-based routing methods.
 
-
-
-
-
-
-
-
-
-
-The framework developed in this thesis is aimed somewhere to the middle, and a little to the side. There is an audience of people who work with algorithms, and there is an audience of people who know what OpenFlow is, and there is a skilled subset of people who are skilled at both. This software is not aimed at people who don't know how to code at all, but rather operations researchers who are skilled in linear programming in Python, actually probably just people in general who are have ideas about different metrics that could be used without going to all the effort of writing a controller and stuff. The goal of the software is to make it easy to test different methods of routing. 
-
-
-\thesis{} is designed as the beginning of a larger project developed by Marius Portmann's SDN group for network research. This thesis focuses on the routing aspects of the system. Basic modules for statistics gathering and topology discovery were implemented to the extent required to make the system functional. The limitations of these modules are outlined in later chapters, but as others in the SDN group are working on them addressing them is considered out of scope of this project. Eventually, the system will be used for research into routing in software-defined wireless mesh networks, which will produce extra challenges in gathering prereq information etc but i've just written it assuming i have good data. or something.
+\thesis{} is intended as the beginning of a larger project developed by Marius Portmann's SDN group for network research. This thesis focuses on the routing aspects of the system; support modules for statistics gathering and topology discovery were implemented to the extent required to make the system functional, but better implementations of these are the focus of other members of the SDN group. Eventually, the system will be used for research into routing in software-defined wireless mesh networks, which will produce extra challenges in gathering required information, but the modular structure of the controller means that replacing the support modules with updated versions should be straightforward.
 
 \section{Aims}
 
 There are two aims of this thesis:
 
-To create a framework to allow easier research, practical testing and comparison of objective functions for linear programming in multicommodity routing.
-
-To perform some basic analysis using the framework, both to demonstrate its use and to test the ease of use of the API.
+\begin{enumerate}
+  \item To create a framework to allow easier research, testing and comparison of routing metrics for multicommodity routing.
+  \item To perform some basic analysis using the framework, both to demonstrate its use and to test the ease of use of the API.
+\end{enumerate}
 
 \section{Scope}
-
-Only care about TCP over IP traffic.
-
-Only care about autonomous systems in the routing sense.
-
-Only virtualised networks, not physical.
+Three routing metrics will be evaluated. Evaluation will be performed on virtual networks using the network emulator Mininet only, with overall resulting throughput compared on two different topologies. Flows will only consist of TCP over IP traffic generated using the iperf3 tool.
 
 \section{Deliverables}
+The following will be produced by the end of the thesis:
 
-Produce the framework, a working version as POX modules in Python. Able to be installed easily.
-
-Also implement a series of topologies in Mininet, a selection of objective functions, and some Python experiment scripts.
-
-Use these to perform some basic analysis, demonstrating how to compare objective functions. Deliverable: graphs.
-
-Full documentation including the many dependencies.
+\begin{enumerate}
+  \item A working controller consisting of POX modules
+  \item Implementations of each routing metric in Python
+  \item Mininet topology scripts used for testing
+  \item A framework to launch experiment scripts
+  \item A quantitative comparison of the performance of each metric
+  \item Documentation on installation and use of the framework
+\end{enumerate}

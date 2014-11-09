@@ -25,6 +25,7 @@ Dely et al \cite{dely:wmn} implemented an SDN controller and tested it on KAUMes
 what about traditional routing. not specific to meshes, but related to multipath stuff? eg equal-cost multipath forwarding (ECMP) (reference? see alfares). uses hash of packet headers to choose a path arbitrarily, but such that all the packets go down that path for related flows (as dlg explained) \cite{alfares:hedera}. should also mention lots of things being variations on shortest-path, since i use it as a metric in other things.
 
 \section{Multicommodity Flow Problems}
+\label{sec:mcf}
 One approach mentioned in \cite{wellons:augmenting} and \cite{dai:dynamic} is to model flow-based networking as a multi-commodity network flow problem \cite[pp. 862--863]{cormen:algorithms}. Flows are modelled as commodities moving between various source and sink nodes in the network. This is an optimisation problem where the objective function can be adjusted depending on the desired outcomes, such as maximising overall throughput or maximising worst-case performance. The authors of \cite{wellons:augmenting} note that such approaches can be sensitive to accurate predictions of demand, but had success merging it with more dynamic heuristic algorithms. 
 
 actually we really care about the unsplittable flow problem, studied by a bunch of people. tcp imposes two significant restrictions:
