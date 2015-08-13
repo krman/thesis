@@ -1,27 +1,16 @@
-# sdn for wireless mesh networks
+# mcfpox: Optimal Routing in Software-Defined Networking
 
-## important dates
+This repository contains all code and associated documents that made up my undergraduate Bachelor of Engineering honours thesis - roughly as it stood at the time of submission. The file `thesis.pdf` in the root directory is the final submitted report.
 
-### uq academic integrity tutorial
-due: 20 march 16:00 (sem 1, week 3)
-** DONE ** : PASS
+# Abstract
+Software-defined networking (SDN) is a relatively new concept in networking which aims to give network operators greater programmability and control over their networks, through separation of the control and data planes. A centralised controller sends network control packets to other switches on the network, usually along a separate, parallel control network. With this new, centralised view of the network, it is possible to apply well-understood mathematical techniques from optimisation and operations research, possibly improving routing efficiency.
 
-### project proposal
-due: 27 march 16:00 (sem 1, week 4)
-** DONE ** : 8.9 / 10%
+This thesis presents a framework to facilitate comparison of different routing metrics. The framework includes a controller, consisting of modules for topology discovery, flow statistics and routing control, and an experiment module to run network experiments on virtual networks, including several prewritten topologies. Three routing metrics (shortest path, widest path and residual capacity) are implemented.
 
-### progress seminar
-due: 19 may 09:00 - 23 may 16:00 (sem 1, week 11)
-** DONE ** : 12.45 / 15%
-
-### oral presentation
-due: 20 oct 09:00 - 24 oct 16:00 (sem 2, week 12)
-
-### thesis report submission
-due: 10 nov 16:00 (sem 2, end of swotvac)
+Additionally, this thesis presents the results of network experiments performed using this framework, comparing the performance of the three metrics above on two topologies with different flow patterns. The residual capacity metric, which attempts to find a globally-optimal solution, improved on the performance of shortest path by up to 57% in some trials, with widest path only improving shortest path by 34%.  However, residual capacity performed significantly worse when no solution could be found, such as for experiments with many flows. There, widest path improved on shortest path by up to 91%, while residual capacity was worse by 36%.
 
 # Framework
-F is a framework for running experiments with multicommodity routing, which builds on the POX SDN controller. The framework consists of three POX modules, one each for topology discovery, flow statistics gathering, and routing coordination. Separate to POX, the user can define (by writing small python scripts) mininet topologies for testing, and objective functions which are used to assign routes to the current flows.
+mcfpox is a framework for running experiments with multicommodity routing, which builds on the POX SDN controller. The framework consists of three POX modules, one each for topology discovery, flow statistics gathering, and routing coordination. Separate to POX, the user can define (by writing small python scripts) mininet topologies for testing, and objective functions which are used to assign routes to the current flows.
 
 ## Installation
 git clone this repository to anywhere. Run setup.py.
